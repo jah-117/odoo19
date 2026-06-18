@@ -1,3 +1,5 @@
+import trace
+
 from odoo import fields, models, api, _
 
 ACCOMMODATION_STATES = [
@@ -15,6 +17,8 @@ BED_TYPES = [
 
 class Accommodation(models.Model):
     _name = 'hotel.accommodation'
+    _inherit = ['mail.thread']
+
 
 
     state = fields.Selection(
@@ -28,21 +32,24 @@ class Accommodation(models.Model):
 
     guest = fields.Many2one(comodel_name='res.partner',
                             string='Guest',
+                            tracking = True,
                             )
     number_of_guests = fields.Integer(string="Number of Guests", default=1)
 
     other_guests = fields.Many2many(comodel_name='res.partner',)
 
-    check_in = fields.Datetime(string="Check-In Date & Time", required = True,)
+    check_in = fields.Datetime(string="Check-In Date & Time", required = True, tracking = True,)
     check_out = fields.Datetime(string="Check-Out Date & Time",)
     bedType = fields.Selection(default='single',
                                selection=BED_TYPES,
+                               tracking = True,
                                string="Bed Type", required=True)
 
     facilities = fields.Many2many(comodel_name='room.facility' )
     room = fields.Many2many(comodel_name='hotel.room')
-    id_proof = fields.Binary(string="ID proof")
-
+    id_proof = fields.Binary(string="ID proof", tracking = True,)
+    expected_days = fields.Integer(string="Expected Days")
+    expected_date = fields.Date(string="Expected Date of Check-Out")
 
 
     @api.model_create_multi
