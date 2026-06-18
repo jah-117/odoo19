@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="action_rooms" model="ir.actions.act_window">
+        <field name="name">Rooms</field>
+        <field name="res_model">hotel.room</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create Rooms
+            </p>
+        </field>
+    </record>
+
+    <record id="room_view_form" model="ir.ui.view">
+        <field name="name">hotel.room.view.form</field>
+        <field name="model">hotel.room</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="roomNo"/>
+                            <field name="bed"/>
+                            <field name="availableBeds" required="bed == 'dormitory'" invisible="bed != 'dormitory'"/>
+                            <field name="state"/>
+                        </group>
+                        <group>
+                            <field name="currency_id"/>
+                            <field name="rent"/>
+                            <field name="facility_id" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="room_view_list" model="ir.ui.view">
+        <field name="name">hotel.room.view.list</field>
+        <field name="model">hotel.room</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="roomNo"/>
+                <field name="bed"/>
+                <field name="availableBeds" required="bed == 'dormitory'" invisible="bed != 'dormitory'"/>
+                <field name="state"/>
+                <field name="currency_id"/>
+                <field name="rent"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_facilities" model="ir.actions.act_window">
+        <field name="name">Facility</field>
+        <field name="res_model">room.facility</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create Facility
+            </p>
+        </field>
+    </record>
+
+    <record id="facilty_view_list" model="ir.ui.view">
+        <field name="name">room.facility.view.list</field>
+        <field name="model">room.facility</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_fooditems" model="ir.actions.act_window">
+        <field name="name">Food Items</field>
+        <field name="res_model">food.items</field>
+        <field name="res_model">food.items</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create Facility
+            </p>
+        </field>
+    </record>
+
+    <record id="fooditems_view_list" model="ir.ui.view">
+        <field name="name">food.items.view.list</field>
+        <field name="model">food.items</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="item"/>
+                <field name="quantity"/>
+                <field name="price"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_categories" model="ir.actions.act_window">
+        <field name="name">Categories</field>
+        <field name="res_model">food.categories</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create Facility
+            </p>
+        </field>
+    </record>
+
+    <record id="category_view_list" model="ir.ui.view">
+        <field name="name">food.categories.view.list</field>
+        <field name="model">food.categories</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_accommodations" model="ir.actions.act_window">
+        <field name="name">Accommodations</field>
+        <field name="res_model">hotel.accommodation</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create Accommodations
+            </p>
+        </field>
+    </record>
+</odoo>
