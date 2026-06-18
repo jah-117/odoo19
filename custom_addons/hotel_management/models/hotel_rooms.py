@@ -1,10 +1,10 @@
-from odoo import models,fields
+from odoo import models,fields,api
 
 class HotelRooms(models.Model):
     _name = 'hotel.room'
     _description = 'Details of hotel rooms'
 
-
+    name = fields.Char(default=lambda self: 'Room')
     roomNo = fields.Integer(string="Room Number",required = True)
     bed = fields.Selection(default = 'single',selection=[('single',"Single"),('double',"Double"),('dormitory',"Dormitory")],string="Bed", required = True)
     availableBeds = fields.Integer(string="Available Beds",tracking=True)
@@ -12,3 +12,10 @@ class HotelRooms(models.Model):
     rent = fields.Monetary(string="Rent", currency_field="currency_id")
     facility_id = fields.Many2many(string="Facility", comodel_name='room.facility')
     state = fields.Selection(string="State",selection=[('available',"Available"),('not_available',"Not Available")],default='available')
+
+    @api.model_create_multi
+    def create(self, vals):
+        for val in vals:
+            roomNo = val.get('roomNo')
+            val['name']= 'Room {}'.format(roomNo)
+        return super().create(vals)

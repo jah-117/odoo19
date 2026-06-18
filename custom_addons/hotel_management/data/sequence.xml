@@ -6,8 +6,7 @@
             <field name="name">Accommodation Sequence</field>
             <field name="code">acc.seq</field>
             <field name="prefix">HM/ROOM/</field>
-            <field name="padding">3</field>
-            <field name="number_increment">1</field>
+            <field name="padding">4</field>
         </record>
     </data>
 </odoo>
