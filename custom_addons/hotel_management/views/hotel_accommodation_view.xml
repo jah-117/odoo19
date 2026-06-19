@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="action_accommodations" model="ir.actions.act_window">
+        <field name="name">Accommodations</field>
+        <field name="res_model">hotel.accommodation</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create Accommodations
+            </p>
+        </field>
+    </record>
+
+    <record id="hotel_accommodation_view_form" model="ir.ui.view">
+        <field name="name">hotel.accommodation.view.form</field>
+        <field name="model">hotel.accommodation</field>
+        <field name="arch" type="xml">
+            <form>
+<!--                <field name="id_proofs" invisible="1"/>-->
+                <header>
+                    <button name="check_in_guest" type="object" class="oe_highlight" string="Check-In" invisible="state != 'draft'"/>
+                    <button name="check_out_guest" type="object" class="oe_highlight" string="Check-Out" invisible="state != 'check_in'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,check_in,check_out" options="{'clickable':1}"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1" decoration-bf="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="guest"
+                                   widget="res_partner_many2one"
+                                   context="{'res_partner_search_mode': 'customer', 'show_address': 1, 'show_vat': True}"
+                                   placeholder="Type to find a customer..."/>
+                            <field name="number_of_guests" string="Number of Guests" default="1"/>
+                            <field name="expected_days" string="Expected days" default="1" invisible="state in ['check_out', 'cancel']"/>
+                            <field name="expected_date" string="Expected Check-Out" readonly="1" invisible="state in ['check_out', 'cancel']"/>
+
+                        </group>
+                        <group>
+                            <field name="bed_type" string="Bed Type"/>
+                            <field name="check_in" string="Check-In Time"/>
+                            <field name="check_out" string="Check-Out Time"/>
+                            <field name="facilities" string="Facilities" widget="many2many_tags"
+                                   options="{'no_create': True, 'no_open': True}"/>
+                            <field name="room_id" string="Room"
+                                   options="{'no_create': True, 'no_open': True}"/>
+
+                        </group>
+                    </group>
+                    <notebook >
+                        <page string="Other Guests" invisible="number_of_guests == 1" context="{'form_view_ref':'hotel.guest_view_form'}">
+                        <field name="other_guests" colspan="2" nolabel="1" />
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <record id="hotel_accommodation_view_list" model="ir.ui.view">
+        <field name="name">hotel.accommodation.view.list</field>
+        <field name="model">hotel.accommodation</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" string="Number" readonly="1" decoration-bf="1"/>
+                <field name="bed_type" string="Bed Type"/>
+            </list>
+        </field>
+    </record>
+</odoo>
+
