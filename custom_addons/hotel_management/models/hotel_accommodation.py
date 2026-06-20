@@ -1,6 +1,6 @@
 from datetime import timedelta, datetime
 from odoo import fields, models, api, _
-from odoo.exceptions import UserError
+from odoo.exceptions import ValidationError, UserError
 
 ACCOMMODATION_STATES = [
     ('draft', "Draft"),
@@ -46,20 +46,13 @@ class HotelAccommodation(models.Model):
                                 tracking=True,
                                 string="Bed Type", required=True)
 
-    facilities = fields.Many2many(comodel_name='room.facility')
-
+    facilities = fields.Many2many(string="Facilities", comodel_name='room.facility',
+                                store=True)
     room_id = fields.Many2one(comodel_name='hotel.room', string="Room",
-                              # compute = '_compute_domains',
-                              # domain="['bed','=', bed_type]",
-                              readonly=False,
-                              precompute=True,
-                              )
+                              required = True,
+                              readonly=False)
 
-    available_room_ids = fields.Many2many(
-        comodel_name='hotel.room',
-        compute='_compute_available_room_ids',
-    )
-    room_filter_domain_types = fields.Char(compute='_compute_room_filter_domain_types')
+    available_room_ids = fields.Many2one(comodel_name='hotel.room',)
 
     id_proofs = fields.One2many(
         comodel_name='ir.attachment',
@@ -84,38 +77,60 @@ class HotelAccommodation(models.Model):
                 continue
             rec.expected_date = rec.check_in + timedelta(days=rec.expected_days)
 
-    @api.onchange('facilities', 'bed_type', )
-    def _compute_domains(self):
-        for acc in self:
-
-    @api.depends('bed_type')
-    def _compute_room_filter_domain_types(self):
-        for acc in self:
-            acc.room_filter_domain_types = self._get_room_filter_domain_type(acc.bed_type)
-
-    @api.model
-    def _get_room_filter_domain_type(self, bed_type):
-        if bed_type == 'single':
-            return 'single'
-        elif bed_type == 'double':
-            return 'double'
-        elif bed_type == 'dormitory':
-            return 'dormitory'
-        else:
-            return False
-
 
     def check_in_guest(self):
         for rec in self:
             if rec.number_of_guests > 1:
-                if rec.number_of_guests != len(rec.other_guests) + 1:
-                    raise UserError(_("Number of guests does not match number of other guests"))
-            if not rec.id_proof:
-                raise UserError(_('No attachments found'))
+                rec.check_guests_no((rec.number_of_guests != len(rec.other_guests) + 1))
+                continue
+            rec.check_attachmnts(rec.id_proofs)
             rec.state = 'check_in'
             rec.check_in = datetime.now()
+            rec.room_id.state = 'not_available'
+
+    def check_guests_no(self, is_error):
+        if is_error:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Warning!',
+                    'message': f'Hello, Please provide details of all guests.',
+                    'type': 'danger',
+                    'sticky': True
+                }
+            }
+        return {}
+
+    def check_attachmnts(self, attachments):
+        if attachments:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Warning!',
+                    'message': f'Hello, Please attach ID-proofs.',
+                    'type': 'danger',
+                    'sticky': False
+                }
+            }
+        return {}
+
+
 
     def check_out_guest(self):
         for rec in self:
             rec.state = 'check_out'
             rec.check_out = datetime.now()
+            rec.room_id.state = 'available'
+
+
+    # @api.onchange('facilities')
+    # def _sort_facilities(self):
+    #     for acc in self:
+    #         pass
+    #         # acc.facilities.sort(key = lambda facility: facility.name)
+    #         print(type(acc.facilities))
+    #         set(acc.facilities)
+    #         acc.facilities.sort(key=lambda facility: facility.name)
+    #         print(acc.facilities)

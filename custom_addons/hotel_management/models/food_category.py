@@ -1,3 +1,4 @@
+
 from odoo import fields, models
 
 class FoodCategory(models.Model):

@@ -19,13 +19,13 @@
         "security/ir.model.access.csv",
 
         "data/sequence.xml",
+        "data/room_and_facility_data.xml",
 
         "views/food_category_view.xml",
         "views/food_item_view.xml",
         "views/hotel_accommodation_view.xml",
         "views/hotel_room_view.xml",
         "views/room_facility_views.xml",
-        # "wizard/attachment_not_found.xml",
 
         "menus/hotel_management_menus.xml"
     ]
