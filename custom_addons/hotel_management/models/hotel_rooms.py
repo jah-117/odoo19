@@ -8,7 +8,6 @@ class HotelRooms(models.Model):
     _rec_name ='room_no_id'
 
     room_no_id = fields.Integer(string="Room Number",required = True)
-    # accommodation_ids = fields.One2many(string="Room Id",comodel_name='hotel.accommodation', inverse_name='room_id')
     bed = fields.Selection(default = 'single',selection=BED_TYPES,string="Bed", required = True)
     available_beds = fields.Integer(string="Available Beds",)
     company_id = fields.Many2one('res.company', default=lambda self: self.env.user.company_id.id)

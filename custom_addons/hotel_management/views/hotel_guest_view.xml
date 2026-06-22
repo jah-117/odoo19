@@ -25,7 +25,7 @@
         <field name="name">hotel.guest.view.list</field>
         <field name="model">hotel.guest</field>
         <field name="arch" type="xml">
-            <list>
+            <list editable="bottom">
                 <field name="name" string="Name"/>
                 <field name="age" string="Age"/>
                 <field name="gender" string="Gender"/>

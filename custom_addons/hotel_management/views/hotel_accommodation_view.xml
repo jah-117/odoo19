@@ -62,8 +62,17 @@
                     </group>
                     <notebook>
                         <page string="Other Guests" invisible="number_of_guests == 1"
-                              context="{'form_view_ref':'hotel.guest_view_form'}">
-                            <field name="other_guests" colspan="2" nolabel="1"/>
+                              context="{'form_view_ref':'hotel.guest_view_list'}">
+                            <field name="other_guests" colspan="2" nolabel="1">
+                                <list editable="top">
+                                    <control>
+                                        <create name="add_a_guest" string="Add other guests"/>
+                                    </control>
+                                    <field name="name" can_create="True" can_write="True"/>
+                                    <field name="age"/>
+                                    <field name="gender"/>
+                                </list>
+                            </field>
                         </page>
                     </notebook>
                 </sheet>

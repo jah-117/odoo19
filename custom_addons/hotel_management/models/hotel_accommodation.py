@@ -47,12 +47,12 @@ class HotelAccommodation(models.Model):
                                 string="Bed Type", required=True)
 
     facilities = fields.Many2many(string="Facilities", comodel_name='room.facility',
-                                store=True)
+                                  store=True)
     room_id = fields.Many2one(comodel_name='hotel.room', string="Room",
-                              required = True,
+                              required=True,
                               readonly=False)
 
-    available_room_ids = fields.Many2one(comodel_name='hotel.room',)
+    available_room_ids = fields.Many2one(comodel_name='hotel.room', )
 
     id_proofs = fields.One2many(
         comodel_name='ir.attachment',
@@ -77,60 +77,42 @@ class HotelAccommodation(models.Model):
                 continue
             rec.expected_date = rec.check_in + timedelta(days=rec.expected_days)
 
-
     def check_in_guest(self):
         for rec in self:
-            if rec.number_of_guests > 1:
-                rec.check_guests_no((rec.number_of_guests != len(rec.other_guests) + 1))
-                continue
-            rec.check_attachmnts(rec.id_proofs)
+            if rec.number_of_guests > 1 and rec.number_of_guests != len(rec.other_guests) + 1:
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': 'Warning!',
+                        'message': f'Hello, Please provide details of all guests.',
+                        'type': 'danger',
+                        'sticky': True,
+                        'next': {
+                            'type': 'ir.actions.act_window_close',
+                        }
+                    }
+                }
             rec.state = 'check_in'
             rec.check_in = datetime.now()
             rec.room_id.state = 'not_available'
-
-    def check_guests_no(self, is_error):
-        if is_error:
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': 'Warning!',
-                    'message': f'Hello, Please provide details of all guests.',
-                    'type': 'danger',
-                    'sticky': True
+            if not rec.id_proofs:
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': 'Warning!',
+                        'message': f'Hello, Please attach ID-proofs.',
+                        'type': 'info',
+                        'sticky': False,
+                        'next': {
+                            'type': 'ir.actions.act_window_close',
+                        }
+                    }
                 }
-            }
-        return {}
-
-    def check_attachmnts(self, attachments):
-        if attachments:
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': 'Warning!',
-                    'message': f'Hello, Please attach ID-proofs.',
-                    'type': 'danger',
-                    'sticky': False
-                }
-            }
-        return {}
-
-
 
     def check_out_guest(self):
         for rec in self:
             rec.state = 'check_out'
             rec.check_out = datetime.now()
             rec.room_id.state = 'available'
-
-
-    # @api.onchange('facilities')
-    # def _sort_facilities(self):
-    #     for acc in self:
-    #         pass
-    #         # acc.facilities.sort(key = lambda facility: facility.name)
-    #         print(type(acc.facilities))
-    #         set(acc.facilities)
-    #         acc.facilities.sort(key=lambda facility: facility.name)
-    #         print(acc.facilities)
