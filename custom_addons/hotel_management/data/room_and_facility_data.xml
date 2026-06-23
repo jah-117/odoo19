@@ -13,21 +13,28 @@
         <record id="fac_d" model="room.facility">
             <field name="name">Lounge Access</field>
         </record>
+
+
         <record id="cat_a" model="food.categories">
-            <field name="name">Cocktails</field>
+            <field name="name">Breakfast</field>
         </record>
         <record id="cat_v" model="food.categories">
-            <field name="name">Energy Drinks</field>
+            <field name="name">Lunch</field>
         </record>
         <record id="cat_c" model="food.categories">
-            <field name="name">Deserts</field>
+            <field name="name">Dinner</field>
         </record>
         <record id="cat_x" model="food.categories">
-            <field name="name">Starters</field>
+            <field name="name">Dessert</field>
         </record>
-        <record id="cat_z" model="food.categories">
-            <field name="name">Biriyanis</field>
+        <record id="cat_q" model="food.categories">
+            <field name="name">Hot Drink</field>
         </record>
+        <record id="cat_w" model="food.categories">
+            <field name="name">Cool Drinks</field>
+        </record>
+
+
         <record id="room_a" model="hotel.room">
             <field name="room_no_id">101</field>
             <field name="bed">single</field>

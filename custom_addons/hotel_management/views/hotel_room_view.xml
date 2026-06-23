@@ -25,7 +25,7 @@
                             <field name="state"/>
                         </group>
                         <group>
-                            <field name="currency_id"/>
+                            <field name="currency_id" invisible="1" />
                             <field name="rent"/>
                             <field name="facility_ids" widget="many2many_tags"/>
                         </group>
@@ -43,7 +43,7 @@
                 <field name="bed"/>
                 <field name="available_beds" required="bed == 'dormitory'" invisible="bed != 'dormitory'"/>
                 <field name="state"/>
-                <field name="currency_id"/>
+                <field name="currency_id" invisible="1" />
                 <field name="rent"/>
             </list>
         </field>

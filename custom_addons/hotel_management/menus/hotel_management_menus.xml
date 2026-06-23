@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-<!--    module name-->
     <menuitem id="menu_hotel_management_root" name="Hotel Management"/>
-<!--Main menus-->
-    <menuitem id="hotel_management_config" name="Configuration" parent="menu_hotel_management_root" sequence="5"/>
-        <!--     Sub menu under this -->
-        <menuitem id="hotel_management_rooms" name="Rooms" parent="hotel_management_config" sequence="1" action="action_rooms"/>
-        <menuitem id="hotel_management_facilities" name="Facility" parent="hotel_management_config" sequence="2" action="action_facilities"/>
-        <menuitem id="hotel_management_fooditems" name="Food Items" parent="hotel_management_config" sequence="3" action="action_fooditems"/>
-        <menuitem id="hotel_management_categories" name="Food Category" parent="hotel_management_config" sequence="4" action="action_categories"/>
+        <menuitem id="hotel_management_accommodation" name="Accommodations" parent="menu_hotel_management_root" action="action_accommodations" sequence="1"/>
+        <menuitem id="hotel_management_orders" name="Orders" parent="menu_hotel_management_root" sequence="2"/>
+            <menuitem id="hotel_management_order_food" name="Order Food" parent="hotel_management_orders" action="action_order_food_form" sequence="1"/>
+            <menuitem id="hotel_management_order_list" name="Order List" parent="hotel_management_orders" action="action_order_food_list" sequence="2"/>
 
-    <menuitem id="hotel_management_accommodation" name="Accommodations" parent="menu_hotel_management_root" action="action_accommodations" sequence="1"/>
+        <menuitem id="hotel_management_config" name="Configuration" parent="menu_hotel_management_root" sequence="5"/>
+            <menuitem id="hotel_management_rooms" name="Rooms" parent="hotel_management_config" sequence="1" action="action_rooms"/>
+            <menuitem id="hotel_management_facilities" name="Facility" parent="hotel_management_config" sequence="2" action="action_facilities"/>
+            <menuitem id="hotel_management_fooditems" name="Food Items" parent="hotel_management_config" sequence="3" action="action_fooditems"/>
+            <menuitem id="hotel_management_categories" name="Food Category" parent="hotel_management_config" sequence="4" action="action_categories"/>
+
 </odoo>

@@ -1,34 +1,103 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <record id="action_guest" model="ir.actions.act_window">
-        <field name="name">Guests</field>
-        <field name="res_model">hotel.guest</field>
-        <field name="view_mode">list,form</field>
+    <record id="action_order_food_form" model="ir.actions.act_window">
+        <field name="name">Order Food</field>
+        <field name="res_model">order.food</field>
+        <field name="view_mode">form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Create Guests
+                Create Orders
             </p>
         </field>
     </record>
-    <record id="guest_view_form" model="ir.ui.view">
-        <field name="name">hotel.guest.view.form</field>
-        <field name="model">hotel.guest</field>
+    <record id="order_view_form" model="ir.ui.view">
+        <field name="name">order.food.view.form</field>
+        <field name="model">order.food</field>
         <field name="arch" type="xml">
             <form>
-                <field name="name" string="Name"/>
-                <field name="age" string="Age"/>
-                <field name="gender" string="Gender"/>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="accommodation_id" string="Accommodation"/>
+                            <field name="room_id" string="Room"/>
+                            <field name="guest_id" string="Guest"/>
+                        </group>
+                        <group>
+                            <field name="order_time" string="Order Time"/>
+                            <field name="total_amount" string="Total"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Food items">
+                            <group>
+                                <field name="food_category_ids" string="Categories" widget="many2many_tags"/>
+                            </group>
+                            <field name="food_item_ids" context="{'order_food_id':id}">
+                                <kanban class="o_kanban_mobile" action="action_order_food" type="object" create="0" edit="0" group_create="0">
+                                    <field name="item"/>
+                                    <field name="name"/>
+                                    <field name="currency_id" invisible="1" />
+                                    <field name="price"/>
+                                    <field name="image"/>
+                                    <field name="description"/>
+                                    <template>
+                                        <t t-name="card" class="row g-0">
+                                            <aside class="col-4">
+                                                <field name="image"
+                                                       options="{'placeholder': '/lunch/static/img/lunch.png', 'size': [94, 94], 'img_class': 'w-100 h-100'}"
+                                                       widget="image"/>
+                                            </aside>
+                                            <main class="col">
+                                                <div class="d-flex">
+                                                    <div class="text-primary ms-auto">
+                                                        <field name="price" widget="monetary" class="fw-bold "/>
+                                                    </div>
+                                                </div>
+                                                <field name="item"/>
+                                                <footer class="pt-0 mt-0">
+                                                    <field name="description" class="text-muted"/>
+                                                </footer>
+                                            </main>
+                                        </t>
+                                    </template>
+                                </kanban>
+                            </field>
+                        </page>
+                        <page string="Order List">
+                            <field name="food_order_line_ids">
+                                <list editable="bottom">
+                                    <field name="item_name"/>
+                                    <field name="description"/>
+                                    <field name="quantity"/>
+                                    <field name="unit_price"/>
+                                    <field name="subtotal" sum="Total Amount"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
             </form>
         </field>
     </record>
-    <record id="guest_view_list" model="ir.ui.view">
-        <field name="name">hotel.guest.view.list</field>
-        <field name="model">hotel.guest</field>
+    <record id="action_order_food_list" model="ir.actions.act_window">
+        <field name="name">Order List</field>
+        <field name="res_model">order.food</field>
+        <field name="view_mode">list</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create Orders
+            </p>
+        </field>
+    </record>
+    <record id="order_view_list" model="ir.ui.view">
+        <field name="name">order.food.view.list</field>
+        <field name="model">order.food</field>
         <field name="arch" type="xml">
-            <list editable="bottom">
-                <field name="name" string="Name"/>
-                <field name="age" string="Age"/>
-                <field name="gender" string="Gender"/>
+            <list>
+                <field name="accommodation_id" string="Accommodation"/>
+                <field name="room_id" string="Room"/>
+                <field name="guest_id" string="Guest"/>
+                <field name="order_time" string="Order Time"/>
             </list>
         </field>
     </record>

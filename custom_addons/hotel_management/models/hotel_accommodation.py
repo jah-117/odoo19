@@ -1,4 +1,6 @@
 from datetime import timedelta, datetime
+
+from addons.web.controllers import domain
 from odoo import fields, models, api, _
 from odoo.exceptions import ValidationError, UserError
 
@@ -32,10 +34,11 @@ class HotelAccommodation(models.Model):
     guest = fields.Many2one(comodel_name='res.partner',
                             string='Guest',
                             tracking=True,
+                            required=True
                             )
     number_of_guests = fields.Integer(string="Number of Guests", default=1)
 
-    other_guests = fields.Many2many(comodel_name='hotel.guest', )
+    other_guests = fields.One2many(comodel_name='accommodation.guests.lines',inverse_name='accommodation_ids')
 
     check_in = fields.Datetime(string="Check-In Date & Time", readonly=True,
                                tracking=True, store=True)
@@ -52,7 +55,8 @@ class HotelAccommodation(models.Model):
                               required=True,
                               readonly=False)
 
-    available_room_ids = fields.Many2one(comodel_name='hotel.room', )
+    available_room_ids = fields.Many2many(comodel_name='hotel.room',
+                                          compute='_compute_available_room_ids')
 
     id_proofs = fields.One2many(
         comodel_name='ir.attachment',
@@ -77,6 +81,26 @@ class HotelAccommodation(models.Model):
                 continue
             rec.expected_date = rec.check_in + timedelta(days=rec.expected_days)
 
+    def _compute_available_room_ids(self):
+        self.available_room_ids = self.env['hotel.room'].search([
+            ('state', '=', 'available'),
+            ('bed', '=', self.bed_type)
+        ])
+
+    @api.onchange('facilities', 'bed_type')
+    def _calculate_domain(self):
+        rooms = self.env['hotel.room'].search([
+            ('state', '=', 'available'),
+            ('bed', '=', self.bed_type)
+        ])
+        if len(self.facilities)>0:
+            rooms = self.env['hotel.room'].search([
+                ('state', '=', 'available'),
+                ('bed', '=', self.bed_type),
+                ('facility_ids','in',self.facilities)
+            ])
+        self.available_room_ids = rooms
+
     def check_in_guest(self):
         for rec in self:
             if rec.number_of_guests > 1 and rec.number_of_guests != len(rec.other_guests) + 1:
@@ -88,9 +112,6 @@ class HotelAccommodation(models.Model):
                         'message': f'Hello, Please provide details of all guests.',
                         'type': 'danger',
                         'sticky': True,
-                        'next': {
-                            'type': 'ir.actions.act_window_close',
-                        }
                     }
                 }
             rec.state = 'check_in'
@@ -103,7 +124,7 @@ class HotelAccommodation(models.Model):
                     'params': {
                         'title': 'Warning!',
                         'message': f'Hello, Please attach ID-proofs.',
-                        'type': 'info',
+                        'type': 'warning',
                         'sticky': False,
                         'next': {
                             'type': 'ir.actions.act_window_close',
