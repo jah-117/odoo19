@@ -1,8 +1,5 @@
 from datetime import timedelta, datetime
-
-from addons.web.controllers import domain
 from odoo import fields, models, api, _
-from odoo.exceptions import ValidationError, UserError
 
 ACCOMMODATION_STATES = [
     ('draft', "Draft"),
@@ -15,7 +12,13 @@ BED_TYPES = [
     ('double', "Double"),
     ('dormitory', "Dormitory")
 ]
+PAYMENT_STATUS = [
+    ('to_pay', "to_pay"),
+    ('paid', "paid")
+]
 
+
+invoice_line_ids =[]
 
 class HotelAccommodation(models.Model):
     _name = 'hotel.accommodation'
@@ -28,6 +31,7 @@ class HotelAccommodation(models.Model):
         string="state",
         tracking=True,
     )
+    payment_state = fields.Selection(selection=PAYMENT_STATUS, default='to_pay')
     name = fields.Char(string="Accommodation Number", required=True, copy=False,
                        readonly=True, default=lambda self: _('New'))
 
@@ -36,9 +40,11 @@ class HotelAccommodation(models.Model):
                             tracking=True,
                             required=True
                             )
+    company_id = fields.Many2one('res.company', default=lambda self: self.env.user.company_id.id)
+    currency_id = fields.Many2one('res.currency',string="Currency", related='company_id.currency_id')
     number_of_guests = fields.Integer(string="Number of Guests", default=1)
 
-    other_guests = fields.One2many(comodel_name='accommodation.guests.lines',inverse_name='accommodation_ids')
+    other_guests = fields.One2many(comodel_name='accommodation.guests.lines', inverse_name='accommodation_ids')
 
     check_in = fields.Datetime(string="Check-In Date & Time", readonly=True,
                                tracking=True, store=True)
@@ -67,6 +73,12 @@ class HotelAccommodation(models.Model):
     expected_date = fields.Date(string="Expected Date of Check-Out",
                                 compute='_compute_expected_date', store=True)
 
+    payment_line_ids = fields.One2many(comodel_name='payment.line',
+                                       inverse_name='accommodation_id',
+                                       readonly=True)
+    total_amount = fields.Monetary(currency_field='currency_id')
+    invoice_id = fields.Many2one(comodel_name='account.move')
+
     @api.model_create_multi
     def create(self, vals):
         for val in vals:
@@ -93,11 +105,11 @@ class HotelAccommodation(models.Model):
             ('state', '=', 'available'),
             ('bed', '=', self.bed_type)
         ])
-        if len(self.facilities)>0:
+        if len(self.facilities) > 0:
             rooms = self.env['hotel.room'].search([
                 ('state', '=', 'available'),
                 ('bed', '=', self.bed_type),
-                ('facility_ids','in',self.facilities)
+                ('facility_ids', 'in', self.facilities)
             ])
         self.available_room_ids = rooms
 
@@ -132,8 +144,61 @@ class HotelAccommodation(models.Model):
                     }
                 }
 
+    def _calculate_total_and_create_invoice_lines(self):
+        invoice_line_ids.clear()
+        sum = 0
+        for payment_line in self.payment_line_ids:
+            invoice_line = (0, None, {
+                'product_id': payment_line.product_id.id,
+                'name': payment_line.description,
+                'quantity': payment_line.quantity,
+                'price_unit': payment_line.unit_price,
+                'price_subtotal': payment_line.subtotal,
+            })
+            invoice_line_ids.append(invoice_line)
+            sum += payment_line.subtotal
+
+        self.total_amount = sum
+        print(sum)
+        print(invoice_line_ids)
+
     def check_out_guest(self):
-        for rec in self:
-            rec.state = 'check_out'
-            rec.check_out = datetime.now()
-            rec.room_id.state = 'available'
+        self.state = 'check_out'
+        self.check_out = datetime.now()
+        check_in = self.check_in
+        check_out = self.check_out
+        number_of_days = (check_out - check_in).days
+        quantity = 1
+        if not number_of_days < 1:
+            quantity = number_of_days
+
+        rent_product = self.env['product.product'].search([('name', '=', 'Room Rent')])
+        # self.write({'payment_line_ids': [(0, 0, {
+        #     'product_id': rent_product.id,
+        #     'description': 'Room Rent',
+        #     'quantity': quantity,
+        #     'unit_of_measure': 'Day',
+        #     'unit_price': self.room_id.rent,
+        #     'subtotal': quantity * self.room_id.rent
+        # })]})
+        self.room_id.state = 'available'
+        self.payment_state = 'paid'
+        self._calculate_total_and_create_invoice_lines()
+        print("jf", invoice_line_ids)
+        self.invoice_id = self.env['account.move'].create([{
+            'move_type': 'out_invoice',
+            'invoice_date': datetime.now(),
+            'partner_id': self.guest.id,
+            'currency_id': self.currency_id.id,
+            'amount_total':self.total_amount,
+            'invoice_line_ids':invoice_line_ids
+        }])
+
+        return {
+            'type':'ir.actions.act_window',
+            'name':'invoice',
+            'res_model':'account.move',
+            'res_id':self.invoice_id.id,
+            'target':'current'
+        }
+

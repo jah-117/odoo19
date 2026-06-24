@@ -13,7 +13,9 @@
     'auto_install': True,
 
     'depends': [
+        'product',
         'mail',
+        'account',
     ],
     'data': [
         "security/ir.model.access.csv",

@@ -78,5 +78,17 @@
             <field name="state">available</field>
             <field name="facility_ids" eval="[(6, 0, [ref('fac_c')])]"/>
         </record>
+
+        <record  id="restaurant_expenses" model="product.product">
+            <field name="name">Restaurant Expenses</field>
+            <field name="type">service</field>
+            <field name="list_price">10</field>
+
+        </record>
+        <record  id="room_rent" model="product.product">
+            <field name="name">Room Rent</field>
+            <field name="type">service</field>
+            <field name="list_price">10</field>
+        </record>
     </data>
 </odoo>

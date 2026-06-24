@@ -98,6 +98,7 @@
                 <field name="room_id" string="Room"/>
                 <field name="guest_id" string="Guest"/>
                 <field name="order_time" string="Order Time"/>
+                <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
             </list>
         </field>
     </record>
