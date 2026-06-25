@@ -15,10 +15,14 @@
         <field name="model">order.food</field>
         <field name="arch" type="xml">
             <form>
+                <header>
+                    <button name="conform_order" class="oe_highlight" string="Confirm Order" type="object"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
                 <sheet>
                     <group>
                         <group>
-                            <field name="accommodation_id" string="Accommodation"/>
+                            <field name="accommodation_id" string="Accommodation" force_save="1"/>
                             <field name="room_id" string="Room"/>
                             <field name="guest_id" string="Guest"/>
                         </group>
@@ -28,7 +32,7 @@
                         </group>
                     </group>
                     <notebook>
-                        <page string="Food items">
+                        <page string="Food items" invisible="state == 'conform'">
                             <group>
                                 <field name="food_category_ids" string="Categories" widget="many2many_tags"/>
                             </group>

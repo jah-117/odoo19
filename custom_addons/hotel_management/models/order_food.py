@@ -1,3 +1,5 @@
+from xlsxwriter.contenttypes import defaults
+
 from odoo import models, fields, api
 from datetime import datetime
 
@@ -6,12 +8,15 @@ class OrderFood(models.Model):
     _name = 'order.food'
     _rec_name = ''
 
+    state = fields.Selection(selection=[('draft', 'Draft'),('conform','Conform')], default='draft')
+
     accommodation_id = fields.Many2one(comodel_name='hotel.accommodation',
                                        domain="[('state','=','check_in')]",
                                        string="Accommodation",
+                                       # compute='_compute_accommodation_id',
+                                       # precompute=True,
                                        required=True)
-    date = format(datetime.now())
-    name = fields.Char(default=f"Order {date}")
+    name = fields.Char(default=f"Order {datetime.now().strftime("%b %d %Y %H:%M:%S")}")
     room_id = fields.Many2one(comodel_name='hotel.room',
                               related='accommodation_id.room_id',
                               string="Room")
@@ -34,7 +39,6 @@ class OrderFood(models.Model):
     total_amount = fields.Monetary(string="Total Amount",
                                    currency_field='currency_id',
                                    readonly=True)
-    not_ran = fields.Boolean(default=True)
 
 
     @api.onchange('food_category_ids')
@@ -45,14 +49,13 @@ class OrderFood(models.Model):
             self.food_item_ids = food_items
 
     def compute_total(self):
-        sum = 0
-        for order_line in self.food_order_line_ids:
-            sum += order_line.subtotal
-        self.total_amount = sum
-        if self.accommodation_id and self.not_ran:
-            order_product = self.env['product.product'].search([('name','=','Restaurant Expenses')])
-            accommodation = self.env['hotel.accommodation'].search([('id', '=', self.accommodation_id.id)])
-            accommodation.write({
+        self.total_amount = sum([order_line.subtotal for order_line in self.food_order_line_ids])
+    def conform_order(self):
+        if self.accommodation_id:
+            order_product = self.env.ref('hotel_management.restaurant_expenses')
+            (self.env['hotel.accommodation'].
+            search([('id', '=', self.accommodation_id.id)]).
+            write({
                 'payment_line_ids': [(0, 0, {
                     'order_food_id': self.id,
                     'product_id': order_product.id,
@@ -62,5 +65,11 @@ class OrderFood(models.Model):
                     'unit_price':self.total_amount,
                     'subtotal':self.total_amount
                 })]
-            })
-            self.not_ran = False
+            }))
+            self.state ='conform'
+
+    def _compute_accommodation_id(self):
+        for rec in self:
+            acc_id = self.env.context.get('default_context_id')
+            if acc_id:
+                rec.accommodation_id = acc_id.id

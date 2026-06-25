@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
     <menuitem id="menu_hotel_management_root" name="Hotel Management"/>
-        <menuitem id="hotel_management_accommodation" name="Accommodations" parent="menu_hotel_management_root" action="action_accommodations" sequence="1"/>
+        <menuitem id="hotel_management_Reception" name="Reception" parent="menu_hotel_management_root" sequence="1"/>
+            <menuitem id="hotel_management_accommodation" name="Accommodations" parent="hotel_management_Reception" action="action_accommodations" sequence="1"/>
+            <menuitem id="hotel_management_guests" name="Hotel Guests" parent="hotel_management_Reception" action="action_hotel_guests" sequence="2"/>
+
         <menuitem id="hotel_management_orders" name="Orders" parent="menu_hotel_management_root" sequence="2"/>
             <menuitem id="hotel_management_order_food" name="Order Food" parent="hotel_management_orders" action="action_order_food_form" sequence="1"/>
             <menuitem id="hotel_management_order_list" name="Order List" parent="hotel_management_orders" action="action_order_food_list" sequence="2"/>

@@ -20,11 +20,13 @@ class OrderFoodTransient(models.TransientModel):
     price = fields.Monetary(readonly=True)
     image = fields.Binary()
     description = fields.Char(readonly=True)
-    food_item_id = fields.Integer()
-    food_order_id = fields.Integer()
+
 
     def add_to_list(self):
-        """qwertyui"""
+        """
+        Add the clicked food item to the list
+        reduce the quantity of the food item
+        """
         if self.quantity > self.available_quantity:
             return {
                 'type': 'ir.actions.client',
@@ -36,21 +38,19 @@ class OrderFoodTransient(models.TransientModel):
                     'sticky': False,
                 }
             }
-        food_item = self.env['food.items'].search([('id', '=', self.food_item_id)])
-        subt = self.price * self.quantity
-        order_food = self.env['order.food'].search([('id','=',self.food_order_id)])
-        order_food.write({ 'food_order_line_ids':[(0, 0, {
-            'food_item_id':self.food_item_id,
+        order_food = self.env['order.food'].search([('id', '=', self.env.context.get('food_order_id'))])
+        order_food.write({'food_order_line_ids': [(0, 0, {
+            'food_item_id': self.env.context.get('food_item_id'),
             'item_name': self.name,
             'description': self.description,
             'quantity': self.quantity,
             'unit_price': self.price,
-            'subtotal': subt
+            'subtotal': self.price * self.quantity
         })]})
         order_food.compute_total()
-        remaining_quantity = self.available_quantity - self.quantity
-        food_item.write({'quantity': remaining_quantity})
-
+        self.env['food.items'].search(
+            [('id', '=', self.env.context.get('food_item_id'))]
+        ).write({'quantity': self.available_quantity - self.quantity})
 
     def button_discard(self):
-        pass
+        return False

@@ -10,6 +10,20 @@
             </p>
         </field>
     </record>
+    <record id="room_view_search" model="ir.ui.view">
+        <field name="name">hotel.room.view.search</field>
+        <field name="model">hotel.room</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="room_no_id" string="Room No"/>
+                <filter name="available_room" string="Available" domain="[('state','=','available')]"/>
+                <group name="groupby">
+                    <filter name="group_by_bed_type" string="By Bed type"
+                            context="{'group_by':'bed'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
 
     <record id="room_view_form" model="ir.ui.view">
         <field name="name">hotel.room.view.form</field>

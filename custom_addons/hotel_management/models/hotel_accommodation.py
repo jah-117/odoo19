@@ -17,9 +17,6 @@ PAYMENT_STATUS = [
     ('paid', "paid")
 ]
 
-
-invoice_line_ids =[]
-
 class HotelAccommodation(models.Model):
     _name = 'hotel.accommodation'
     _inherit = ['mail.thread']
@@ -76,11 +73,15 @@ class HotelAccommodation(models.Model):
     payment_line_ids = fields.One2many(comodel_name='payment.line',
                                        inverse_name='accommodation_id',
                                        readonly=True)
-    total_amount = fields.Monetary(currency_field='currency_id')
+    total_amount = fields.Monetary(currency_field='currency_id',default=0)
     invoice_id = fields.Many2one(comodel_name='account.move')
 
     @api.model_create_multi
     def create(self, vals):
+        """
+        creates sequence number for accommodation once drafted
+        :return: trigger parent.create()
+        """
         for val in vals:
             if val.get('name', _("New")) == _("New"):
                 val['name'] = self.env['ir.sequence'].next_by_code('acc.seq') or _("New")
@@ -88,12 +89,18 @@ class HotelAccommodation(models.Model):
 
     @api.depends('expected_date', 'check_in')
     def _compute_expected_date(self):
+        """
+        computes the expected date of check out based on expected days staying
+        """
         for rec in self:
             if not rec.check_in:
                 continue
             rec.expected_date = rec.check_in + timedelta(days=rec.expected_days)
 
     def _compute_available_room_ids(self):
+        """
+        computes the available rooms based on room availablity and bed_type
+        """
         self.available_room_ids = self.env['hotel.room'].search([
             ('state', '=', 'available'),
             ('bed', '=', self.bed_type)
@@ -101,6 +108,9 @@ class HotelAccommodation(models.Model):
 
     @api.onchange('facilities', 'bed_type')
     def _calculate_domain(self):
+        """
+        if facilities or bed_types changes, finds the available rooms
+        """
         rooms = self.env['hotel.room'].search([
             ('state', '=', 'available'),
             ('bed', '=', self.bed_type)
@@ -114,91 +124,140 @@ class HotelAccommodation(models.Model):
         self.available_room_ids = rooms
 
     def check_in_guest(self):
-        for rec in self:
-            if rec.number_of_guests > 1 and rec.number_of_guests != len(rec.other_guests) + 1:
-                return {
-                    'type': 'ir.actions.client',
-                    'tag': 'display_notification',
-                    'params': {
-                        'title': 'Warning!',
-                        'message': f'Hello, Please provide details of all guests.',
-                        'type': 'danger',
-                        'sticky': True,
+        """
+        action check_in_guest: check in button action
+        verify details of number of guests are available or not
+        change the status of accommodation
+        change room availability and record check in time
+        check for id proofs
+        :return: ir.action.client (sticky notification) for mismatch in guest list and id proofs
+        """
+
+        if self.number_of_guests > 1 and self.number_of_guests != len(self.other_guests) + 1:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Warning!',
+                    'message': f'Hello, Please provide details of all guests.',
+                    'type': 'danger',
+                    'sticky': True,
+                }
+            }
+        self.state = 'check_in'
+        self.check_in = datetime.now()
+        self.room_id.state = 'not_available'
+        self.payment_state = 'to_pay'
+        self.write({'payment_line_ids': [fields.Command.create({
+            'product_id': self.env.ref('hotel_management.room_rent').id,
+            'description': 'Room Rent',
+            'quantity': 1,
+            'unit_of_measure': 'Day',
+            'unit_price': self.room_id.rent,
+            'subtotal': self.room_id.rent
+        })]})
+        if not self.id_proofs:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Warning!',
+                    'message': f'Hello, Please attach ID-proofs.',
+                    'type': 'warning',
+                    'sticky': False,
+                    'next': {
+                        'type': 'ir.actions.act_window_close',
                     }
                 }
-            rec.state = 'check_in'
-            rec.check_in = datetime.now()
-            rec.room_id.state = 'not_available'
-            if not rec.id_proofs:
-                return {
-                    'type': 'ir.actions.client',
-                    'tag': 'display_notification',
-                    'params': {
-                        'title': 'Warning!',
-                        'message': f'Hello, Please attach ID-proofs.',
-                        'type': 'warning',
-                        'sticky': False,
-                        'next': {
-                            'type': 'ir.actions.act_window_close',
-                        }
-                    }
-                }
+            }
 
-    def _calculate_total_and_create_invoice_lines(self):
-        invoice_line_ids.clear()
-        sum = 0
-        for payment_line in self.payment_line_ids:
-            invoice_line = (0, None, {
-                'product_id': payment_line.product_id.id,
-                'name': payment_line.description,
-                'quantity': payment_line.quantity,
-                'price_unit': payment_line.unit_price,
-                'price_subtotal': payment_line.subtotal,
-            })
-            invoice_line_ids.append(invoice_line)
-            sum += payment_line.subtotal
-
-        self.total_amount = sum
-        print(sum)
-        print(invoice_line_ids)
 
     def check_out_guest(self):
+        """
+        action: check_out_guest, button action for check out
+        create rent payment line based stayed number of days and calculate total amount payable
+        changes accommodation state to check_out
+        changes room availability and record check out time
+        :return:
+        """
         self.state = 'check_out'
         self.check_out = datetime.now()
-        check_in = self.check_in
-        check_out = self.check_out
-        number_of_days = (check_out - check_in).days
-        quantity = 1
-        if not number_of_days < 1:
-            quantity = number_of_days
-
-        rent_product = self.env['product.product'].search([('name', '=', 'Room Rent')])
-        # self.write({'payment_line_ids': [(0, 0, {
-        #     'product_id': rent_product.id,
-        #     'description': 'Room Rent',
-        #     'quantity': quantity,
-        #     'unit_of_measure': 'Day',
-        #     'unit_price': self.room_id.rent,
-        #     'subtotal': quantity * self.room_id.rent
-        # })]})
+        quantity = 1 if (self.check_out - self.check_in).days < 1 else (self.check_out - self.check_in).days
+        for payment_line in self.payment_line_ids:
+            if payment_line.product_id.id == self.env.ref('hotel_management.room_rent').id:
+                fields.Command.update(payment_line.id,
+                                      {'quantity': quantity,'subtotal':quantity * self.room_id.rent})
+        self.total_amount = sum([payment_line.subtotal for payment_line in self.payment_line_ids])
         self.room_id.state = 'available'
         self.payment_state = 'paid'
-        self._calculate_total_and_create_invoice_lines()
-        print("jf", invoice_line_ids)
         self.invoice_id = self.env['account.move'].create([{
             'move_type': 'out_invoice',
             'invoice_date': datetime.now(),
             'partner_id': self.guest.id,
             'currency_id': self.currency_id.id,
             'amount_total':self.total_amount,
-            'invoice_line_ids':invoice_line_ids
         }])
-
+        self.invoice_id.update({'invoice_line_ids': [fields.Command.create({
+                'product_id': payment_line.product_id.id,
+                'name': payment_line.description,
+                'quantity': payment_line.quantity,
+                'price_unit': payment_line.unit_price,
+                'price_subtotal': payment_line.subtotal,
+            }) for payment_line in self.payment_line_ids ]})
         return {
             'type':'ir.actions.act_window',
             'name':'invoice',
+            'view_mode':'form',
             'res_model':'account.move',
             'res_id':self.invoice_id.id,
             'target':'current'
         }
+    def action_cancel(self):
+        self.state = 'cancel'
+        self.room_id.state='available'
+        
 
+class HHotelAccommodation(models.Model):
+    _inherit = 'hotel.accommodation'
+
+    order_count = fields.Integer(compute='_compute_order_count')
+    invoice_count = fields.Integer(default='1')
+
+    def _compute_order_count(self):
+        for accommodation in self:
+            accommodation.order_count = self.env['order.food'].search_count([('accommodation_id','=', accommodation.id)])
+
+    def action_open_orders(self):
+        if self.order_count<1:
+            return {
+                'name': _('Orders'),
+                'type': 'ir.actions.act_window',
+                'res_model': 'order.food',
+                'view_mode': 'form',
+                'context': {
+                    'default_accommodation_id': self.id
+                }
+            }
+        return {
+            'name': _('Orders'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'order.food',
+            'domain': [('accommodation_id','=', self.id)],
+            'view_mode': 'list',
+            'context':{
+                'default_accommodation_id': self.id
+            }
+        }
+    def action_open_invoices(self):
+        if self.invoice_id:
+            return {
+                'name': _('Invoices'),
+                'type': 'ir.actions.act_window',
+                'res_model': 'account.move',
+                'view_mode': 'form',
+                'res_id':self.invoice_id.id
+                # 'context': {
+                #     'default_accommodation_id': self.id
+                # }
+            }
+        return False

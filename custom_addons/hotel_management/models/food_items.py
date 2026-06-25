@@ -16,16 +16,15 @@ class FoodItem(models.Model):
     description = fields.Char(string="Description")
 
     def action_order_food(self):
-        order_id = self.env.context.get('order_food_id')
-        res = {
+        return {
             'type': 'ir.actions.act_window',
             'name': self.name,
             'view_mode': 'form',
             'res_model': 'order.food.transient',
             'target': 'new',
             'context': {
-                'default_food_order_id':order_id,
-                'default_food_item_id': self.id,
+                'food_order_id':self.env.context.get('order_food_id'),
+                'food_item_id': self.id,
                 'default_name': self.item,
                 'default_price': self.price,
                 'default_image': self.image,
@@ -33,4 +32,3 @@ class FoodItem(models.Model):
                 'default_description': self.description
             }
         }
-        return res
