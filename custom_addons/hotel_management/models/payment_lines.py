@@ -6,7 +6,7 @@ from odoo import fields, models, api
 class PaymentLine(models.Model):
     _name = "payment.line"
 
-    accommodation_id = fields.Many2one(comodel_name='hotel.accommodation')
+    accommodation_id = fields.Many2one(comodel_name='hotel.accommodation', ondelete='cascade')
     order_food_id = fields.Many2one(comodel_name='order.food')
 
     country_id = fields.Many2one(comodel_name='res.country', default=lambda self: self.env.user.country_id.id)

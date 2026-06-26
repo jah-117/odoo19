@@ -13,20 +13,22 @@ class OrderFood(models.Model):
     accommodation_id = fields.Many2one(comodel_name='hotel.accommodation',
                                        domain="[('state','=','check_in')]",
                                        string="Accommodation",
-                                       # compute='_compute_accommodation_id',
-                                       # precompute=True,
-                                       required=True)
+                                       required=True,
+                                       ondelete='cascade',
+                                       help="Accommodation this order will be invoiced.")
     name = fields.Char(default=f"Order {datetime.now().strftime("%b %d %Y %H:%M:%S")}")
     room_id = fields.Many2one(comodel_name='hotel.room',
                               related='accommodation_id.room_id',
-                              string="Room")
+                              string="Room",
+                              help="Room Number of the accommodation.")
     guest_id = fields.Many2one(comodel_name='res.partner',
                                related='accommodation_id.guest',
                                string="Guest")
     order_time = fields.Datetime(default=datetime.now(),
                                  string="Order Time")
     food_category_ids = fields.Many2many(comodel_name="food.categories",
-                                         string="Food Category")
+                                         string="Food Category",
+                                         help="Select a category to list available food items.")
 
     food_item_ids = fields.Many2many(comodel_name='food.items',
                                      domain="[('category_id','in',food_category_ids)]")
@@ -38,7 +40,8 @@ class OrderFood(models.Model):
     currency_id = fields.Many2one(comodel_name='res.currency', related='country_id.currency_id')
     total_amount = fields.Monetary(string="Total Amount",
                                    currency_field='currency_id',
-                                   readonly=True)
+                                   readonly=True,
+                                   help="Total amount of the order.")
 
 
     @api.onchange('food_category_ids')
@@ -67,9 +70,3 @@ class OrderFood(models.Model):
                 })]
             }))
             self.state ='conform'
-
-    def _compute_accommodation_id(self):
-        for rec in self:
-            acc_id = self.env.context.get('default_context_id')
-            if acc_id:
-                rec.accommodation_id = acc_id.id

@@ -17,6 +17,7 @@ PAYMENT_STATUS = [
     ('paid', "paid")
 ]
 
+
 class HotelAccommodation(models.Model):
     _name = 'hotel.accommodation'
     _inherit = ['mail.thread']
@@ -35,45 +36,62 @@ class HotelAccommodation(models.Model):
     guest = fields.Many2one(comodel_name='res.partner',
                             string='Guest',
                             tracking=True,
-                            required=True
+                            required=True,
+                            help="Accommodating guest, invoice will be issued in this partner's name."
                             )
     company_id = fields.Many2one('res.company', default=lambda self: self.env.user.company_id.id)
-    currency_id = fields.Many2one('res.currency',string="Currency", related='company_id.currency_id')
-    number_of_guests = fields.Integer(string="Number of Guests", default=1)
+    currency_id = fields.Many2one('res.currency', string="Currency", related='company_id.currency_id')
+    number_of_guests = fields.Integer(string="Number of Guests", default=1,
+                                      help="Total number of guests staying.")
 
-    other_guests = fields.One2many(comodel_name='accommodation.guests.lines', inverse_name='accommodation_ids')
+    other_guests = fields.One2many(comodel_name='accommodation.guests.lines',
+                                   inverse_name='accommodation_ids',
+                                   help="Provide name and details of all other guests."
+                               )
 
     check_in = fields.Datetime(string="Check-In Date & Time", readonly=True,
-                               tracking=True, store=True)
+                               tracking=True, store=True,
+                               help="Check In time.")
     check_out = fields.Datetime(string="Check-Out Date & Time", readonly=True,
-                                tracking=True, store=True)
+                                tracking=True, store=True,
+                                help="Check out time.")
     bed_type = fields.Selection(default='single',
                                 selection=BED_TYPES,
                                 tracking=True,
-                                string="Bed Type", required=True)
+                                string="Bed Type", required=True,
+                                help="Type of bed required.")
 
     facilities = fields.Many2many(string="Facilities", comodel_name='room.facility',
-                                  store=True)
+                                  store=True,
+                                  help="Facilities required in room.")
     room_id = fields.Many2one(comodel_name='hotel.room', string="Room",
                               required=True,
-                              readonly=False)
+                              readonly=False,
+                              help="Available rooms based on the requirements.")
 
     available_room_ids = fields.Many2many(comodel_name='hotel.room',
                                           compute='_compute_available_room_ids')
+
+    color_code = fields.Selection(selection=[('yellow','Yellow'),('red','Red'),('none','None')],default='none',
+                                  compute='_compute_color_code')
 
     id_proofs = fields.One2many(
         comodel_name='ir.attachment',
         inverse_name='res_id',
         domain=[('res_model', '=', 'hotel.accommodation')],
-        string="ID-Proofs", )
-    expected_days = fields.Integer(string="Expected Days", default="1")
+        string="ID-Proofs",
+        )
+    expected_days = fields.Integer(string="Expected Days", default="1",
+                                   help="Number of Days the guest is expected to stay.")
     expected_date = fields.Date(string="Expected Date of Check-Out",
-                                compute='_compute_expected_date', store=True)
+                                compute='_compute_expected_date', store=True,
+                                help="Expected date of check out based on expected days.")
 
     payment_line_ids = fields.One2many(comodel_name='payment.line',
                                        inverse_name='accommodation_id',
-                                       readonly=True)
-    total_amount = fields.Monetary(currency_field='currency_id',default=0)
+                                       readonly=True,
+                                      )
+    total_amount = fields.Monetary(currency_field='currency_id', default=0, help="Total amount to be invoiced(Including rent and food)")
     invoice_id = fields.Many2one(comodel_name='account.move')
 
     @api.model_create_multi
@@ -171,7 +189,6 @@ class HotelAccommodation(models.Model):
                 }
             }
 
-
     def check_out_guest(self):
         """
         action: check_out_guest, button action for check out
@@ -186,7 +203,7 @@ class HotelAccommodation(models.Model):
         for payment_line in self.payment_line_ids:
             if payment_line.product_id.id == self.env.ref('hotel_management.room_rent').id:
                 fields.Command.update(payment_line.id,
-                                      {'quantity': quantity,'subtotal':quantity * self.room_id.rent})
+                                      {'quantity': quantity, 'subtotal': quantity * self.room_id.rent})
         self.total_amount = sum([payment_line.subtotal for payment_line in self.payment_line_ids])
         self.room_id.state = 'available'
         self.payment_state = 'paid'
@@ -195,27 +212,34 @@ class HotelAccommodation(models.Model):
             'invoice_date': datetime.now(),
             'partner_id': self.guest.id,
             'currency_id': self.currency_id.id,
-            'amount_total':self.total_amount,
+            'amount_total': self.total_amount,
         }])
         self.invoice_id.update({'invoice_line_ids': [fields.Command.create({
-                'product_id': payment_line.product_id.id,
-                'name': payment_line.description,
-                'quantity': payment_line.quantity,
-                'price_unit': payment_line.unit_price,
-                'price_subtotal': payment_line.subtotal,
-            }) for payment_line in self.payment_line_ids ]})
+            'product_id': payment_line.product_id.id,
+            'name': payment_line.description,
+            'quantity': payment_line.quantity,
+            'price_unit': payment_line.unit_price,
+            'price_subtotal': payment_line.subtotal,
+        }) for payment_line in self.payment_line_ids]})
         return {
-            'type':'ir.actions.act_window',
-            'name':'invoice',
-            'view_mode':'form',
-            'res_model':'account.move',
-            'res_id':self.invoice_id.id,
-            'target':'current'
+            'type': 'ir.actions.act_window',
+            'name': 'invoice',
+            'view_mode': 'form',
+            'res_model': 'account.move',
+            'res_id': self.invoice_id.id,
+            'target': 'current'
         }
+
     def action_cancel(self):
         self.state = 'cancel'
-        self.room_id.state='available'
-        
+        self.room_id.state = 'available'
+
+    def _compute_color_code(self):
+        for rec in self:
+            if rec.expected_date:
+                rec.color_code = 'yellow' if rec.expected_date==datetime.today() else 'red' if rec.expected_date==datetime.today() and rec.state != 'check_out'else 'none'
+            else:
+                rec.color_code = 'none'
 
 class HHotelAccommodation(models.Model):
     _inherit = 'hotel.accommodation'
@@ -225,10 +249,11 @@ class HHotelAccommodation(models.Model):
 
     def _compute_order_count(self):
         for accommodation in self:
-            accommodation.order_count = self.env['order.food'].search_count([('accommodation_id','=', accommodation.id)])
+            accommodation.order_count = self.env['order.food'].search_count(
+                [('accommodation_id', '=', accommodation.id)])
 
     def action_open_orders(self):
-        if self.order_count<1:
+        if self.order_count < 1:
             return {
                 'name': _('Orders'),
                 'type': 'ir.actions.act_window',
@@ -242,12 +267,13 @@ class HHotelAccommodation(models.Model):
             'name': _('Orders'),
             'type': 'ir.actions.act_window',
             'res_model': 'order.food',
-            'domain': [('accommodation_id','=', self.id)],
+            'domain': [('accommodation_id', '=', self.id)],
             'view_mode': 'list',
-            'context':{
+            'context': {
                 'default_accommodation_id': self.id
             }
         }
+
     def action_open_invoices(self):
         if self.invoice_id:
             return {
@@ -255,7 +281,7 @@ class HHotelAccommodation(models.Model):
                 'type': 'ir.actions.act_window',
                 'res_model': 'account.move',
                 'view_mode': 'form',
-                'res_id':self.invoice_id.id
+                'res_id': self.invoice_id.id
                 # 'context': {
                 #     'default_accommodation_id': self.id
                 # }

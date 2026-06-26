@@ -29,6 +29,7 @@
         "views/hotel_room_view.xml",
         "views/room_facility_views.xml",
         "views/order_food_views.xml",
+        "views/hotel_guest_views.xml",
 
         "wizard/order_food_transient_views.xml",
 

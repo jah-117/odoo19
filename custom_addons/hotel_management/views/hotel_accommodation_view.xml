@@ -5,7 +5,7 @@
         <field name="name">Accommodations</field>
         <field name="res_model">hotel.accommodation</field>
         <field name="view_mode">list,form</field>
-        <field name="context">{'search_default_open_records': 1}</field>
+        <field name="context">{'search_default_open_records': 1,'search_default_expected_current_day':1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Create Accommodations
@@ -28,7 +28,7 @@
                     <button name="check_out_guest" type="object" class="oe_highlight" string="Check-Out"
                             invisible="state != 'check_in'"/>
                     <button name="action_cancel" type="object" string="Cancel"
-                            invisible="state == 'draft'"/>
+                            invisible="state != 'draft'"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,check_in,check_out"/>
                 </header>
                 <sheet>
@@ -45,7 +45,7 @@
                         <group>
                             <field name="guest"
                                    widget="res_partner_many2one"
-                                   context="{'res_partner_search_mode': 'customer', 'show_address': 1, 'show_vat': True}"
+                                   context="{'res_partner_search_mode': 'customer', 'show_address': 1, 'show_vat': True,'default_is_hotel_guest':True}"
                                    placeholder="Type to find a customer..."/>
                             <field name="number_of_guests" string="Number of Guests" default="1"/>
                             <field name="expected_days" string="Expected days" default="1"
@@ -104,16 +104,20 @@
 
                 <filter name="open_records" string="Open" domain="[('state','!=','cancel')]"/>
                 <filter name="state_check_in" string="Check-Ins" domain="[('state', '=', 'check_in')]"/>
-                <filter name="check_out" string="Current Day Check-Outs" domain="[('check_out','=',(context_today()))]"/>
-                <filter name="expected_date" string="Next-day expected checkouts" domain="[('expected_date','=',(datetime.datetime.now()+datetime.deltatime(days=1)))]"/>
+                <filter name="check_out" string="Current Day Check-Outs"
+                        domain="[('check_out','=',(context_today()))]"/>
+                <filter name="expected_current_day" string="Expected checkouts today"
+                        domain="[('expected_date','=',(context_today()))]"/>
+                <filter name="expected_next_day" string="Next-day expected checkouts"
+                        domain="[('expected_date','=',(context_today()+relativedelta(days=1)).strftime('%Y-%m-%d'))]"/>
 
                 <group name="groupby">
                     <filter name="group_by_room" string="Room"
-                       context="{'group_by': 'room_id'}"/>
+                            context="{'group_by': 'room_id'}"/>
                     <filter name="group_by_type" string="Type"
-                    context="{'group_by': 'bed_type'}"/>
+                            context="{'group_by': 'bed_type'}"/>
                     <filter name="group_by_state" string="State"
-                    context="{'group_by': 'state'}"/>
+                            context="{'group_by': 'state'}"/>
                 </group>
             </search>
         </field>
@@ -129,14 +133,16 @@
                 <field name="guest" string="Guest"/>
                 <field name="number_of_guests" string="Number of Guests"/>
                 <field name="expected_days" string="Expected days"/>
-                <field name="expected_date" string="Expected Check-Out"/>
+                <field name="expected_date" string="Expected Check-Out"
+                       decoration-warning="color_code == 'yellow'"
+                       decoration-danger="color_code == 'red'"
+                />
                 <field name="check_in" string="Check-In Time"/>
                 <field name="check_out" string="Check-Out Time"/>
                 <field name="room_id" string="Room"/>
             </list>
         </field>
     </record>
-
 
 
     <record id="order_food_view_form" model="ir.ui.view">
