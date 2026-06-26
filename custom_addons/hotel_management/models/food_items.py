@@ -1,4 +1,4 @@
-from odoo import models, fields
+from odoo import models, fields, api
 
 
 class FoodItem(models.Model):
@@ -8,11 +8,11 @@ class FoodItem(models.Model):
     name = fields.Char(string="Name", required=True, help="Name of food.")
     image = fields.Image(string="Image", max_width=10, max_height=10, help="Image of food.")
     item = fields.Char(string="Item", help="Item of food.")
-    category_id = fields.Many2one("food.categories", string="Category", required=True,help="Category of food item.")
-    quantity = fields.Integer(string="Quantity",help="Quantity of food item available.")
+    category_id = fields.Many2one("food.categories", string="Category", required=True, help="Category of food item.")
+    quantity = fields.Integer(string="Quantity", help="Quantity of food item available.")
     company_id = fields.Many2one('res.company', default=lambda self: self.env.user.company_id.id)
     currency_id = fields.Many2one('res.currency', string="Currency", related='company_id.currency_id')
-    price = fields.Monetary(string="Price", currency_field="currency_id",help="Price of food item.")
+    price = fields.Monetary(string="Price", currency_field="currency_id", help="Price of food item.")
     description = fields.Char(string="Description")
 
     def action_order_food(self):
@@ -23,7 +23,7 @@ class FoodItem(models.Model):
             'res_model': 'order.food.transient',
             'target': 'new',
             'context': {
-                'food_order_id':self.env.context.get('order_food_id'),
+                'food_order_id': self.env.context.get('order_food_id'),
                 'food_item_id': self.id,
                 'default_name': self.item,
                 'default_price': self.price,
@@ -32,3 +32,16 @@ class FoodItem(models.Model):
                 'default_description': self.description
             }
         }
+
+    @api.model
+    def _create_lunch_product(self):
+        print(self)
+        for rec in self:
+            print(rec)
+        # self.env['lunch.product'].create({
+        #     'name': self.name,
+        #     'price': self.price,
+        #     'product_image': self.image,
+        #     'category_id':1,
+        #     'supplier_id':1
+        # })

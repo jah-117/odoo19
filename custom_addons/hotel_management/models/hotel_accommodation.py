@@ -94,6 +94,8 @@ class HotelAccommodation(models.Model):
     total_amount = fields.Monetary(currency_field='currency_id', default=0, help="Total amount to be invoiced(Including rent and food)")
     invoice_id = fields.Many2one(comodel_name='account.move')
 
+    active = fields.Boolean(string='Active',default=True)
+
     @api.model_create_multi
     def create(self, vals):
         """
@@ -231,15 +233,51 @@ class HotelAccommodation(models.Model):
         }
 
     def action_cancel(self):
+        """
+        cancel the accommodation
+        only draft can be canceled
+        """
         self.state = 'cancel'
         self.room_id.state = 'available'
+        self.check_out = datetime.now()
+
 
     def _compute_color_code(self):
+        """
+        compute color code based on expected date and state
+        """
         for rec in self:
             if rec.expected_date:
                 rec.color_code = 'yellow' if rec.expected_date==datetime.today() else 'red' if rec.expected_date==datetime.today() and rec.state != 'check_out'else 'none'
             else:
                 rec.color_code = 'none'
+
+    @api.model
+    def _send_todays_checkout_mails(self):
+        """
+        fetch valid records based on state = 'check_in'
+        and send email to those having expected_date = today
+        """
+        valid_accommodations = self.search([('state','=','check_in')])
+        mail_template = self.env.ref('hotel_management.checkout_remainder_mail_template')
+        for accommodation in valid_accommodations:
+            if accommodation.expected_date == datetime.today():
+                mail_template.send_mail(accommodation.id, force_send = False)
+
+    @api.model
+    def _archive_canceled_records(self):
+        """
+        fetch all canceled records
+        and archive those are canceled for two days
+        when an accommodation is canceled that date is marked in check_out
+        """
+
+        valid_accommodations = self.search([('state','=','cancel')])
+        for accommodation in valid_accommodations:
+            if (accommodation.check_out - datetime.today()).days > 1:
+                accommodation.active = False
+
+
 
 class HHotelAccommodation(models.Model):
     _inherit = 'hotel.accommodation'

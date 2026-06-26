@@ -16,12 +16,17 @@
         'product',
         'mail',
         'account',
+        'base_automation',
+        'lunch',
     ],
     'data': [
         "security/ir.model.access.csv",
 
         "data/sequence.xml",
         "data/room_and_facility_data.xml",
+        "data/ir_cron_data.xml",
+        "data/checkout_remainder_mail_template.xml",
+        "data/server_actions.xml",
 
         "views/food_category_view.xml",
         "views/food_item_view.xml",

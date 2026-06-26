@@ -1,5 +1,3 @@
-from xlsxwriter.contenttypes import defaults
-
 from odoo import models, fields, api
 from datetime import datetime
 
