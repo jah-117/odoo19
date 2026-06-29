@@ -277,6 +277,17 @@ class HotelAccommodation(models.Model):
             if (accommodation.check_out - datetime.today()).days > 1:
                 accommodation.active = False
 
+    @api.model
+    def _update_rent(self):
+        valid_accommodations = self.search([('state','=','check_in')])
+        for accommodation in valid_accommodations:
+            for payment_line in accommodation.payment_line_ids:
+                if payment_line.product_id.id == self.env.ref('hotel_management.room_rent').id:
+                    fields.Command.update(payment_line.id,
+                                          {'quantity': payment_line.quantity + 1})
+                    payment_line.calculate_subtotal()
+
+
 
 
 class HHotelAccommodation(models.Model):

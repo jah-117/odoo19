@@ -34,14 +34,11 @@ class FoodItem(models.Model):
         }
 
     @api.model
-    def _create_lunch_product(self):
-        print(self)
-        for rec in self:
-            print(rec)
-        # self.env['lunch.product'].create({
-        #     'name': self.name,
-        #     'price': self.price,
-        #     'product_image': self.image,
-        #     'category_id':1,
-        #     'supplier_id':1
-        # })
+    def _create_lunch_product(self,record):
+        self.env['lunch.product'].create({
+            'name': record.name,
+            'price': record.price,
+            'product_image': record.image,
+            'category_id':1,
+            'supplier_id':1
+        })

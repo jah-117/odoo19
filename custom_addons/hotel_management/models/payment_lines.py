@@ -22,4 +22,5 @@ class PaymentLine(models.Model):
     subtotal = fields.Monetary(string="Subtotal",
                                currency_field='currency_id',
                                )
-
+    def calculate_subtotal(self):
+        self.subtotal = self.quantity * self.unit_price

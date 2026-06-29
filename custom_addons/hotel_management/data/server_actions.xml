@@ -7,7 +7,7 @@
             <field name="state">code</field>
             <field name="path">hotel_management</field>
             <field name="group_ids" eval="[(4, ref('base.group_user'))]"/>
-            <field name="code">action = model._create_lunch_product()</field>
+            <field name="code">action = model._create_lunch_product(record)</field>
         </record>
 
         <record id="automated_action_create_lunch_product_on_food_item" model="base.automation">
