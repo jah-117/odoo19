@@ -20,6 +20,8 @@
         'lunch',
     ],
     'data': [
+        "security/hotel_management_groups.xml",
+        "security/hotel_management_rules.xml",
         "security/ir.model.access.csv",
 
         "data/sequence.xml",

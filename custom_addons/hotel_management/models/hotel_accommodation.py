@@ -261,8 +261,9 @@ class HotelAccommodation(models.Model):
         valid_accommodations = self.search([('state','=','check_in')])
         mail_template = self.env.ref('hotel_management.checkout_remainder_mail_template')
         for accommodation in valid_accommodations:
-            if accommodation.expected_date == datetime.today():
-                mail_template.send_mail(accommodation.id, force_send = False)
+            if accommodation.expected_date.strftime('%Y-%m-%d') == datetime.today().strftime('%Y-%m-%d'):
+                mail_template.send_mail(accommodation.id, force_send = True)
+
 
     @api.model
     def _archive_canceled_records(self):
@@ -274,11 +275,14 @@ class HotelAccommodation(models.Model):
 
         valid_accommodations = self.search([('state','=','cancel')])
         for accommodation in valid_accommodations:
-            if (accommodation.check_out - datetime.today()).days > 1:
+            if (datetime.today() - accommodation.check_out).days > 1:
                 accommodation.active = False
 
     @api.model
     def _update_rent(self):
+        """
+        fetch all check_in records and update their rent
+        """
         valid_accommodations = self.search([('state','=','check_in')])
         for accommodation in valid_accommodations:
             for payment_line in accommodation.payment_line_ids:
@@ -331,8 +335,5 @@ class HHotelAccommodation(models.Model):
                 'res_model': 'account.move',
                 'view_mode': 'form',
                 'res_id': self.invoice_id.id
-                # 'context': {
-                #     'default_accommodation_id': self.id
-                # }
             }
         return False

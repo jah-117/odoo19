@@ -5,14 +5,15 @@
             <field name="name">checkout.remainder.mail</field>
             <field name="model_id" ref="hotel_management.model_hotel_accommodation"/>
             <field name="email_from">{{ object.company_id.email }}</field>
-            <field name="email_to">{{object.partner_id.email}}</field>
+            <field name="use_default_to">False</field>
+            <field name="email_to">{{object.guest.email}}</field>
             <field name="subject">Remainder for check-out</field>
             <field name="body_html" type="html">
                 <div style="margin: 0px; padding: 0px;">
                     <div style="justify-content: center;background-color: #714B67; padding:0.6rem;padding-left: 35px;text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;width:40%">
                         <h2>
                             Hi,
-                            <t t-out="object.partner_id.name"/>
+                            <t t-out="object.guest.name"/>
                         </h2>
                         <div>
                             <h3>
@@ -23,7 +24,7 @@
                     </div>
                     <br/>
                     <br/>
-                    {{object.expected}}
+                    <t t-out="object.expected_date"/><br/>
                     Regards,
                     <br/>
                     <t t-out="object.company_id.name"/>

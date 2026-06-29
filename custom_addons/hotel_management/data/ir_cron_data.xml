@@ -12,6 +12,7 @@
             <field name="priority">1</field>
             <field name="active">True</field>
         </record>
+
         <record id="cron_check_out_remainder" model="ir.cron">
             <field name="name">Accommodation: check out remainder</field>
             <field name="model_id" ref="model_hotel_accommodation"/>

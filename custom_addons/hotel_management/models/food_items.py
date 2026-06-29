@@ -35,10 +35,13 @@ class FoodItem(models.Model):
 
     @api.model
     def _create_lunch_product(self,record):
+        category = self.env['lunch.product.category'].search([('name','=',record.category_id.name)])
+        if not category:
+            category = self.env['lunch.product.category'].create({'name':record.category_id.name})
         self.env['lunch.product'].create({
             'name': record.name,
             'price': record.price,
             'product_image': record.image,
-            'category_id':1,
+            'category_id':category.id,
             'supplier_id':1
         })
