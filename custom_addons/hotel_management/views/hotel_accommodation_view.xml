@@ -22,6 +22,8 @@
                 <field name="id_proofs" invisible="1"/>
                 <field name="available_room_ids" invisible="1"
                        domain="[('state','=','available'),('bed','=',bed_type)]"/>
+                <field name="company_id" invisible="1"/>
+                <field name="currency_id" invisible="1"/>
                 <header>
                     <button name="check_in_guest" type="object" class="oe_highlight" string="Check-In"
                             invisible="state != 'draft'"/>
@@ -84,11 +86,18 @@
                                     <field name="quantity"/>
                                     <field name="unit_of_measure"/>
                                     <field name="unit_price"/>
-                                    <field name="subtotal" sum="Total amount payable"/>
+                                    <field name="subtotal"/>
                                 </list>
                             </field>
+                            <group col="6" class="mt-2 mt-md-0">
+
+                                <group class="oe_subtotal_footer" colspan="3" >
+                                    <field name="total_amount" string="Total Payable"/>
+                                </group>
+                            </group>
                         </page>
                     </notebook>
+
                 </sheet>
                 <chatter/>
             </form>

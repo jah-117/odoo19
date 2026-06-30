@@ -54,9 +54,8 @@ class OrderFood(models.Model):
     def conform_order(self):
         if self.accommodation_id:
             order_product = self.env.ref('hotel_management.restaurant_expenses')
-            (self.env['hotel.accommodation'].
-            search([('id', '=', self.accommodation_id.id)]).
-            write({
+            accommodation = self.env['hotel.accommodation'].search([('id', '=', self.accommodation_id.id)])
+            accommodation.write({
                 'payment_line_ids': [(0, 0, {
                     'order_food_id': self.id,
                     'product_id': order_product.id,
@@ -66,5 +65,6 @@ class OrderFood(models.Model):
                     'unit_price':self.total_amount,
                     'subtotal':self.total_amount
                 })]
-            }))
+            })
+            accommodation.total_amount = sum([payment_line.subtotal for payment_line in accommodation.payment_line_ids])
             self.state ='conform'

@@ -29,7 +29,8 @@ class HotelAccommodation(models.Model):
         string="state",
         tracking=True,
     )
-    payment_state = fields.Selection(selection=PAYMENT_STATUS, default='to_pay')
+    payment_state = fields.Selection(selection=PAYMENT_STATUS, default='to_pay',
+                                     compute='_compute_payment_state')
     name = fields.Char(string="Accommodation Number", required=True, copy=False,
                        readonly=True, default=lambda self: _('New'))
 
@@ -39,7 +40,7 @@ class HotelAccommodation(models.Model):
                             required=True,
                             help="Accommodating guest, invoice will be issued in this partner's name."
                             )
-    company_id = fields.Many2one('res.company', default=lambda self: self.env.user.company_id.id)
+    company_id = fields.Many2one('res.company', default=lambda self: self.env.context.get('allowed_company_ids')[0])
     currency_id = fields.Many2one('res.currency', string="Currency", related='company_id.currency_id')
     number_of_guests = fields.Integer(string="Number of Guests", default=1,
                                       help="Total number of guests staying.")
@@ -91,7 +92,8 @@ class HotelAccommodation(models.Model):
                                        inverse_name='accommodation_id',
                                        readonly=True,
                                       )
-    total_amount = fields.Monetary(currency_field='currency_id', default=0, help="Total amount to be invoiced(Including rent and food)")
+    total_amount = fields.Monetary(currency_field='currency_id', default=0, readonly=True,
+                                   help="Total amount to be invoiced(Including rent and food)")
     invoice_id = fields.Many2one(comodel_name='account.move')
 
     active = fields.Boolean(string='Active',default=True)
@@ -102,9 +104,12 @@ class HotelAccommodation(models.Model):
         creates sequence number for accommodation once drafted
         :return: trigger parent.create()
         """
+
         for val in vals:
             if val.get('name', _("New")) == _("New"):
-                val['name'] = self.env['ir.sequence'].next_by_code('acc.seq') or _("New")
+
+                val['name'] = (self.env['ir.sequence'].with_company(val.get('company_id'))
+                               .next_by_code('acc.seq') or _("New"))
         return super().create(vals)
 
     @api.depends('expected_date', 'check_in')
@@ -131,6 +136,7 @@ class HotelAccommodation(models.Model):
         """
         if facilities or bed_types changes, finds the available rooms
         """
+        self.room_id = False
         rooms = self.env['hotel.room'].search([
             ('state', '=', 'available'),
             ('bed', '=', self.bed_type)
@@ -176,6 +182,7 @@ class HotelAccommodation(models.Model):
             'unit_price': self.room_id.rent,
             'subtotal': self.room_id.rent
         })]})
+        self.total_amount = sum([payment_line.subtotal for payment_line in self.payment_line_ids])
         if not self.id_proofs:
             return {
                 'type': 'ir.actions.client',
@@ -208,7 +215,6 @@ class HotelAccommodation(models.Model):
                                       {'quantity': quantity, 'subtotal': quantity * self.room_id.rent})
         self.total_amount = sum([payment_line.subtotal for payment_line in self.payment_line_ids])
         self.room_id.state = 'available'
-        self.payment_state = 'paid'
         self.invoice_id = self.env['account.move'].create([{
             'move_type': 'out_invoice',
             'invoice_date': datetime.now(),
@@ -290,6 +296,20 @@ class HotelAccommodation(models.Model):
                     fields.Command.update(payment_line.id,
                                           {'quantity': payment_line.quantity + 1})
                     payment_line.calculate_subtotal()
+
+    def _compute_payment_state(self):
+        """
+        change payment status based on payment of invoice created
+        """
+        for accommodation in self:
+            if not accommodation.invoice_id:
+                accommodation.payment_state = 'to_pay'
+                continue
+            if accommodation.invoice_id.payment_count > 0:
+                    accommodation.payment_state = 'paid'
+            else:
+                accommodation.payment_state = 'to_pay'
+
 
 
 

@@ -16,7 +16,7 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="conform_order" class="oe_highlight" string="Confirm Order" type="object"/>
+                    <button name="conform_order" class="oe_highlight" string="Confirm Order" type="object" invisible="[('state','=','conform')]"/>
                     <field name="state" widget="statusbar"/>
                 </header>
                 <sheet>

@@ -40,21 +40,21 @@
             <field name="bed">single</field>
             <field name="rent">25</field>
             <field name="state">available</field>
-            <field name="facility_ids" eval="[(6, 0, [ref('fac_a', 'fac_b')])]"/>
+            <field name="facility_ids" eval="[(4, ref('fac_a')),(4, ref('fac_b'))]"/>
         </record>
         <record id="room_r" model="hotel.room">
             <field name="room_no_id">102</field>
             <field name="bed">single</field>
             <field name="rent">35</field>
             <field name="state">not_available</field>
-            <field name="facility_ids" eval="[(6, 0, [ref('fac_b', 'fac_d')])]"/>
+            <field name="facility_ids" eval="[(4, ref('fac_a')),(4, ref('fac_c'))]"/>
         </record>
         <record id="room_b" model="hotel.room">
             <field name="room_no_id">103</field>
             <field name="bed">double</field>
             <field name="rent">65</field>
             <field name="state">available</field>
-            <field name="facility_ids" eval="[(6, 0, [ref('fac_a', 'fac_c')])]"/>
+            <field name="facility_ids" eval="[(4, ref('fac_a')),(4, ref('fac_d'))]"/>
         </record>
         <record id="room_c" model="hotel.room">
             <field name="room_no_id">201</field>
@@ -62,21 +62,21 @@
             <field name="available_beds">5</field>
             <field name="rent">55</field>
             <field name="state">available</field>
-            <field name="facility_ids" eval="[(6, 0, [ref('fac_a')])]"/>
+            <field name="facility_ids" eval="[(4, ref('fac_d')),(4, ref('fac_b'))]"/>
         </record>
         <record id="room_d" model="hotel.room">
             <field name="room_no_id">104</field>
             <field name="bed">single</field>
             <field name="rent">20</field>
             <field name="state">available</field>
-            <field name="facility_ids" eval="[(6, 0, [ref('fac_a', 'fac_b')])]"/>
+            <field name="facility_ids" eval="[(4, ref('fac_d')),(4, ref('fac_c'))]"/>
         </record>
         <record id="room_e" model="hotel.room">
             <field name="room_no_id">105</field>
             <field name="bed">double</field>
             <field name="rent">35</field>
             <field name="state">available</field>
-            <field name="facility_ids" eval="[(6, 0, [ref('fac_c')])]"/>
+            <field name="facility_ids" eval="[(4, ref('fac_b')),(4, ref('fac_c'))]"/>
         </record>
 
         <record  id="restaurant_expenses" model="product.product">
