@@ -29,6 +29,8 @@ class HospitalPatient(models.Model):
         ('discharged','Discharged'),
     ],string="State", default="draft")
     appointment_count = fields.Integer(string="Appointment Count", compute="_compute_appointment_count",store=True)
+    treatment_progress = fields.Float(string="Treatment Progress",compute='_compute_treatment_progress')
+
 
 
     @api.depends('appointment_ids')
@@ -40,3 +42,10 @@ class HospitalPatient(models.Model):
         for patient in self:
             if patient.date_of_birth:
                 patient.age = (date.today() - patient.date_of_birth).days//365
+
+    @api.depends('appointment_ids')
+    def _compute_treatment_progress(self):
+        if len(self.appointment_ids)>0:
+            self.treatment_progress = (self.appointment_ids.search_count([('state','=','completed')])/len(self.appointment_ids)) *100
+        else:
+            self.treatment_progress = 0

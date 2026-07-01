@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="hospital_doctor_form_inherit" model="ir.ui.view">
+        <field name="name">hospital.doctor.inherit.hr.employee</field>
+        <field name="model">hr.employee</field>
+        <field name="type">form</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='parent_id']" position="after">
+                <field name="is_doctor"/>
+                <field name="is_available" invisible="not is_doctor"/>
+                <field name="specialization" invisible="not is_doctor"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -31,6 +31,7 @@
                         <group>
                             <field name="mobile"/>
                             <field name="department_id"/>
+                            <field name="treatment_progress"/>
                             <field name="appointment_ids"/>
                         </group>
                     </group>

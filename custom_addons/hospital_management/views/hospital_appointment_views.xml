@@ -36,6 +36,8 @@
                         <group>
                             <field name="appointment_datetime"/>
                             <field name="consultation_fee"/>
+                            <field name="medicine_total"/>
+                            <field name="total_bill"/>
                         </group>
                     </group>
                     <notebook>
