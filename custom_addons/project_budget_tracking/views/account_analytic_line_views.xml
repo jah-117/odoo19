@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="analytic_line_in_task" model="ir.ui.view">
+        <field name="name">analytic.line.in.task</field>
+        <field name="model">project.task</field>
+        <field name="type">form</field>
+        <field name="inherit_id" ref="hr_timesheet.view_task_form2_inherited"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list/field[@name='unit_amount']" position="after">
+                <field name="hourly_cost" string="Hourly Cost"/>
+                <field name="total_cost" string="Total Cost"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

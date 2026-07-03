@@ -7,12 +7,13 @@
         <field name="arch" type="xml">
             <form>
                 <div>
-                        <div>
-                           <h3 class="pt-3"><field name="message" no_label="1" readonly="1"/></h3>
-                        </div>
+                    <div>
+                        <h3 class="pt-3"><field name="message" no_label="1" readonly="1"/></h3>
                     </div>
+                </div>
                 <footer>
-                    <button name="action_approve" string="Approve" type="object" class="btn-primary"/>
+                    <button name="action_approve" string="Approve" type="object" class="btn-primary"
+                            invisible="not context.get('is_an_admin')"/>
                     <button name="action_refuse" string="Refuse" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
