@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="purchase_order_automation_view" model="ir.ui.view">
+        <field name="name">product.template.po.view</field>
+        <field name="model">produt.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <header>
+                <button name="action_create_po" type="object" class="oe_highlight" string="Create PO" context="{'send_rfq':True}" invisible="state != 'draft'"/>
+                </header>
+            </xpath>
+        </field>
+    </record>
+</odoo>
