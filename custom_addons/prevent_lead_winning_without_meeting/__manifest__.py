@@ -21,5 +21,6 @@ Allow CRM managers to override this restriction""",
     ],
     'data': [
         "data/automated_actions.xml",
+        "views/crm_lead_views.xml",
     ]
 }
