@@ -17,7 +17,9 @@
         'purchase',
     ],
     'data': [
+
         "security/ir.model.access.csv",
+        "data/automate_po.xml",
         "views/product_template_views.xml",
 
         "wizard/automate_po_wizard.xml",

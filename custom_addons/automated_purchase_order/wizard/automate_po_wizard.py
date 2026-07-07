@@ -18,21 +18,11 @@ class AutomatePoWizard(models.TransientModel):
         draft_po = draft_po[0] if draft_po else False
         if not draft_po:
             draft_po = self.env['purchase.order'].create({'partner_id':vendor.id})
-        draft_po.write({'state':'draft'})
+        draft_po.write({'state':'draft','automated':True})
         draft_po.update({'order_line': [fields.Command.create({
             'product_id': self.product_id.id,
             'product_qty': self.quantity,
             'price_unit': self.unit_cost,
         })]})
 
-
-        self._action_rfq_send(draft_po)
-
-
-        draft_po.button_confirm()
-
-    def _action_rfq_send(self, po):
-        return po.action_rfq_send
-
-    # def action_discard(self):
-    #     print('discarded')
+        return draft_po.action_rfq_send()

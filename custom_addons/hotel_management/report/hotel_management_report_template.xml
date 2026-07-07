@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <!--    Report Function in Expense -->
+    <record id="action_report_hotel_mangement" model="ir.actions.report">
+        <field name="name">Hotel Management Report</field>
+        <field name="model">hotel.accommodation</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hotel_management.report_hotel_management</field>
+        <field name="report_file">hotel_management.report_hotel_management</field>
+        <field name="binding_model_id" ref="hotel_management.model_hotel_management_report"/>
+        <field name="binding_type">action</field>
+    </record>
+    <template id="report_hotel_management">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <div class="oe_structure"/>
+                    <h2>Hotel management Report</h2>
+                    <br/>
+                    <div class="row">
+                        <t t-if="docs._context['guest_name']">Guest :
+                            <t t-esc="docs._context['guest_name']"/>
+                        </t>
+                        <t t-if="docs._context['date_from']">Date from :
+                            <t t-esc="docs._context['date_from']"/>
+                        </t>
+                        <t t-if="docs._context['date_to']">Date to :
+                            <t t-esc="docs._context['date_to']"/>
+                        </t>
+                    </div>
+                    <br/>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <h6>SINO</h6>
+                                </th>
+                                <th>
+                                    <h6>Guest</h6>
+                                </th>
+                                <th>
+                                    <h6>Check In</h6>
+                                </th>
+                                <th>
+                                    <h6>Check Out</h6>
+                                </th>
+                                <th>
+                                    <h6>State</h6>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="line_no" t-value="0"/>
+                            <t t-foreach="docs" t-as="rec">
+                                <tr>
+                                    <td>
+                                        <t t-set="line_no" t-value="line_no + 1"/>
+                                        <t t-esc="line_no"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="rec.guest.name"/>
+                                    </td>
+                                    <td>
+
+                                        <t t-if="rec.check_in">
+                                            <t t-esc="rec.check_in.strftime('%Y-%m-%d %H:%M:%S')"/>
+                                        </t>
+                                        <t t-else="">
+                                            <span>Nill</span>
+                                        </t>
+                                    </td>
+                                    <td>
+                                        <t t-if="rec.check_out">
+                                            <t t-esc="rec.check_out.strftime('%Y-%m-%d %H:%M:%S')"/>
+                                        </t>
+                                        <t t-else="">
+                                            <span>Nill</span>
+                                        </t>
+                                    </td>
+                                    <td>
+                                        <t t-esc="rec.state"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

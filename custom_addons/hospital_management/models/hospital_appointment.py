@@ -42,7 +42,7 @@ class HospitalAppointment(models.Model):
     @api.constrains('appointment_datetime')
     def _onchange_appointment_datetime(self):
         if self.appointment_datetime:
-            if self.appointment_datetime.strftime('"%Y-%m-%d %H:%M:%S"') < datetime.now().strftime('"%Y-%m-%d %H:%M:%S"'):
+            if self.appointment_datetime.strftime('%Y-%m-%d %H:%M:%S') < datetime.now().strftime('%Y-%m-%d %H:%M:%S'):
                 raise ValidationError(self.env._('Cannot use a past datetime:%s!',self.appointment_datetime))
                 # print('past date')
                 # notifi = {

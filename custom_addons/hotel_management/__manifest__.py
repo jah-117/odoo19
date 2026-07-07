@@ -40,6 +40,10 @@
 
         "wizard/order_food_transient_views.xml",
 
+        "report/hotel_management_report_views.xml",
+        "report/hotel_management_report_template.xml",
+
         "menus/hotel_management_menus.xml"
+
     ]
 }

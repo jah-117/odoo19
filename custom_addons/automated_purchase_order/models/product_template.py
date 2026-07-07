@@ -3,6 +3,7 @@ from odoo import models
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
+
     def action_create_po(self):
         # ir_model_data = self.env['ir.model.data']
         # template_id = ir_model_data._xmlid_lookup('purchase.email_template_edi_purchase')[1]

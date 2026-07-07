@@ -8,6 +8,8 @@
         <menuitem id="hotel_management_orders" name="Orders" parent="menu_hotel_management_root" sequence="2" groups="group_hotel_receptionist"/>
             <menuitem id="hotel_management_order_food" name="Order Food" parent="hotel_management_orders" action="action_order_food_form" sequence="1" groups="group_hotel_receptionist"/>
             <menuitem id="hotel_management_order_list" name="Order List" parent="hotel_management_orders" action="action_order_food_list" sequence="2" groups="group_hotel_receptionist"/>
+        <menuitem id="hotel_management_report" name="Report" parent="menu_hotel_management_root" sequence="3" groups="group_hotel_receptionist"/>
+            <menuitem id="hotel_report" name="Report" parent="hotel_management_report" action="hotel_management_report_view" sequence="1" groups="group_hotel_receptionist"/>
 
         <menuitem id="hotel_management_config" name="Configuration" parent="menu_hotel_management_root" sequence="5" groups="group_hotel_manager"/>
             <menuitem id="hotel_management_rooms" name="Rooms" parent="hotel_management_config" sequence="1" action="action_rooms" groups="group_hotel_manager"/>
