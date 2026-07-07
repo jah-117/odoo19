@@ -52,34 +52,21 @@
                         </thead>
                         <tbody>
                             <t t-set="line_no" t-value="0"/>
-                            <t t-foreach="docs" t-as="rec">
+                            <t t-foreach="datas" t-as="rec" t-key="rec_index">
                                 <tr>
                                     <td>
                                         <t t-set="line_no" t-value="line_no + 1"/>
                                         <t t-esc="line_no"/>
                                     </td>
                                     <td>
-                                        <t t-esc="rec.guest.name"/>
+                                        <t t-esc="rec['name']"/>
+                                    </td>
+                                    <td><t t-esc="rec['check_in']"/></td>
+                                    <td>
+                                            <t t-esc="rec['check_out']"/>
                                     </td>
                                     <td>
-
-                                        <t t-if="rec.check_in">
-                                            <t t-esc="rec.check_in.strftime('%Y-%m-%d %H:%M:%S')"/>
-                                        </t>
-                                        <t t-else="">
-                                            <span>Nill</span>
-                                        </t>
-                                    </td>
-                                    <td>
-                                        <t t-if="rec.check_out">
-                                            <t t-esc="rec.check_out.strftime('%Y-%m-%d %H:%M:%S')"/>
-                                        </t>
-                                        <t t-else="">
-                                            <span>Nill</span>
-                                        </t>
-                                    </td>
-                                    <td>
-                                        <t t-esc="rec.state"/>
+                                        <t t-esc="rec['state']"/>
                                     </td>
                                 </tr>
                             </t>

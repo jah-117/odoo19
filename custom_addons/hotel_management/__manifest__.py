@@ -45,5 +45,10 @@
 
         "menus/hotel_management_menus.xml"
 
-    ]
+    ],
+    'assets': {
+        'web.assets_backend': [
+            'hotel_management/static/src/js/action_manager.js',
+        ],
+    }
 }
