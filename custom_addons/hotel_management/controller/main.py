@@ -21,10 +21,7 @@ class XLSXReportController(http.Controller):
                 report_object.get_xlsx_report(options, response)
                 response.set_cookie('fileToken', token)
                 return response
-            print(output_format)
             if output_format =='sale':
-                print(report_name)
-                print(options)
                 response = request.make_response(
                     None,
                     headers=[('Content-Type', 'application/vnd.ms-excel'), (
@@ -33,7 +30,6 @@ class XLSXReportController(http.Controller):
                              ]
                 )
                 report_object.get_xlsx_report_sale(options, response)
-                print(report_object)
                 response.set_cookie('fileToken', token)
                 return response
         except Exception:

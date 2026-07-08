@@ -75,24 +75,26 @@ class HotelManagementReport(models.Model):
         SELECT
         s.name,
         c.name,
-        p.name, ol.product_uom_qty, ol.price_unit,
+        ol.name, ol.product_uom_qty, ol.price_unit,
         i.name, i.state, i.amount_total
         FROM
             sale_order AS s
             LEFT JOIN res_partner AS c ON s.partner_id = c.id
             LEFT JOIN sale_order_line AS ol ON ol.order_id = s.id
-            LEFT JOIN product_template AS p ON ol.product_id = p.id
-            LEFT JOIN account_move AS i ON i.id = ol.order_id
+            LEFT JOIN sale_order_line_invoice_rel AS soi ON soi.order_line_id = ol.id
+            LEFT JOIN account_move_line AS il ON il.id = soi.invoice_line_id
+            LEFT JOIN account_move AS i ON i.id = il.move_id
+        ORDER BY  s.name ASC
         """
 
         self.env.cr.execute(sql)
-        raw = self.env.cr.fetchall()
-        data=[]
-        for rec in raw:
-            data.append(list(rec))
-        print(data)
-        for rec in data:
-            rec[2] = rec[2]['en_US'] if rec[2] is not None else 'Product'
+        data = self.env.cr.fetchall()
+        # data=[]
+        # for rec in raw:
+        #     data.append(list(rec))
+        # print(data)
+        # for rec in data:
+        #     rec[2] = rec[2]['en_US'] if rec[2] is not None else 'Product'
         return {
             'type': 'ir.actions.report',
             'data': {
@@ -135,7 +137,7 @@ class HotelManagementReport(models.Model):
             {'align': 'center', 'bold': True, 'font_size': '20px'})
         txt = workbook.add_format({'font_size': '10px', 'align': 'center'})
         sheet.merge_range(2,0,0,4,'Sales Report',head)
-        sheet.write_row(4,0,['Sale Order','Customer','Product','Quantity','Price','Invoice','State'],cell_format)
+        sheet.write_row(4,0,['Sale Order','Customer','Product','Quantity','Price','Invoice','State','Invoice Total'],cell_format)
         row=5
         for record in data:
             sheet.write_row(row,0,record,txt)
