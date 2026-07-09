@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="trasfer_hr_employee_from_view" model="ir.ui.view">
+        <field name="name">transfer.hr.employee.form.view</field>
+        <field name="model">transfer.hr.employee</field>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <form class="flex-column">
+                <div class="row">
+                        <div class="o_td_label col-3 col-md-2">
+                            <label for="employee_id" class="o_form_label"/>
+                        </div>
+                        <div class="col-9 col-md-10">
+                            <field name="employee_id" nolabel="1" class="o_field_widget o_quick_editable" />
+                        </div>
+                    </div>
+                <div class="row">
+                        <div class="o_td_label col-3 col-md-2">
+                            <label for="old_company_id" class="o_form_label"/>
+                        </div>
+                        <div class="col-9 col-md-10">
+                            <field name="old_company_id" nolabel="1" class="o_field_widget o_quick_editable" />
+                        </div>
+                    </div><div class="row">
+                        <div class="o_td_label col-3 col-md-2">
+                            <label for="new_company_id" class="o_form_label"/>
+                        </div>
+                        <div class="col-9 col-md-10">
+                            <field name="new_company_id" nolabel="1" class="o_field_widget o_quick_editable"
+                            domain="[('id','!=',old_company_id)]"/>
+                        </div>
+                    </div>
+                <footer>
+                    <button name="action_transfer_employee" string="Transfer" type="object" class="btn-primary"/>
+                    <button name="button_discard" string="Discard" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

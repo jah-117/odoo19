@@ -14,15 +14,6 @@ class SaleOrder(models.Model):
     def _compute_available_projects(self):
         self.project_id=False
         self.available_project_ids = self.env['project.project'].search([('partner_id','=',self.partner_id)])
-
-    # @api.depends('task_id')
-    # def _compute_subtask_ids(self):
-    #     if self.task_id:
-    #         self.subtask_ids = self.task_id.child_ids
-    #         self.subtask_count = len(self.subtask_ids)
-    #     else:
-    #         self.subtask_ids = False
-    #         self.subtask_count=0
     @api.depends('project_id','task_id','state')
     def _compute_create_invisible(self):
         if self.project_id and not self.task_id and self.state == 'sale':
@@ -34,6 +25,7 @@ class SaleOrder(models.Model):
             'name':f'SO/{self.name}-{self.partner_id.name}',
             'description':f'products:{'\n'.join([order_line.name for order_line in self.order_line])}',
             'project_id':self.project_id.id,
+            'sale_order_id':self.id,
         })
         self.task_id.update({'user_ids': [fields.Command.link(id= self.user_id.id)]})
         priority={}
@@ -44,21 +36,23 @@ class SaleOrder(models.Model):
         self.task_id.update({'child_ids':[
             fields.Command.create({
                 'name': f'{order.name}',
+                'sale_order_id':self.id,
                 'priority': str(priority.get(str(order.id),0)),
             }) for order in self.order_line
         ]})
 
         self.subtask_ids = self.task_id.child_ids
-        self.subtask_count = len(self.subtask_ids)
+        self.subtask_count = len(self.subtask_ids)+1
 
 
-    # def action_view_tasks(self):
-    #     print([('parent_id', '=', self.task_id.id)])
-    #     return {
-    #         'name':f'{self.name} taks',
-    #         'type': 'ir.actions.act_window',
-    #         'res_model': 'project.task',
-    #         'domain': [('parent_id', '=', self.task_id.id)],
-    #         'target': 'current',
-    #         'view_mode':'list,form',
-    #     }
+    def action_view_tasks(self):
+        print([('parent_id', '=', self.task_id.id)])
+        return {
+            'name':f'{self.name} taks',
+            'type': 'ir.actions.act_window',
+            'res_model': 'project.task',
+            # 'domain': [('parent_id', '=', self.task_id.id)],
+            'target': 'current',
+            'view_mode':'list,form',
+        }
+        # return self.project_id.action_view_tasks()

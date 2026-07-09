@@ -1,6 +1,6 @@
 from odoo import api, fields,models
 
-class FoodOrderLine(models.Model):
+class FoodOrderLines(models.Model):
     _name = 'food.order.lines'
 
     food_order_id = fields.Many2one(comodel_name='order.food')

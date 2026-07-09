@@ -15,12 +15,25 @@ class FoodItem(models.Model):
     price = fields.Monetary(string="Price", currency_field="currency_id", help="Price of food item.")
     description = fields.Char(string="Description")
 
+    @api.model
+    def _create_lunch_product(self, record):
+        category = self.env['lunch.product.category'].search([('name', '=', record.category_id.name)])
+        if not category:
+            category = self.env['lunch.product.category'].create({'name': record.category_id.name})
+        self.env['lunch.product'].create({
+            'name': record.name,
+            'price': record.price,
+            'product_image': record.image,
+            'category_id': category.id,
+            'supplier_id': 1
+        })
+
     def action_order_food(self):
         return {
             'type': 'ir.actions.act_window',
             'name': self.name,
             'view_mode': 'form',
-            'res_model': 'order.food.transient',
+            'res_model': 'make.order.food',
             'target': 'new',
             'context': {
                 'food_order_id': self.env.context.get('order_food_id'),
@@ -32,16 +45,3 @@ class FoodItem(models.Model):
                 'default_description': self.description
             }
         }
-
-    @api.model
-    def _create_lunch_product(self,record):
-        category = self.env['lunch.product.category'].search([('name','=',record.category_id.name)])
-        if not category:
-            category = self.env['lunch.product.category'].create({'name':record.category_id.name})
-        self.env['lunch.product'].create({
-            'name': record.name,
-            'price': record.price,
-            'product_image': record.image,
-            'category_id':category.id,
-            'supplier_id':1
-        })

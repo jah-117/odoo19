@@ -7,4 +7,4 @@ from . import order_food
 from . import accommodation_guests_lines
 from . import food_order_lines
 from . import payment_lines
-from . import hotel_guest
+from . import res_partner

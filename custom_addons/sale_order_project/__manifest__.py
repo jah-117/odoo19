@@ -17,6 +17,7 @@
         'project',
     ],
     'data': [
-        'views/sale_order_views.xml',
+        "views/tasks_list_view.xml",
+        "views/sale_order_views.xml",
     ]
 }

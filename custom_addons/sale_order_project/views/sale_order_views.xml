@@ -11,29 +11,20 @@
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field name="available_project_ids" invisible="1"/>
                 <field name="create_invisible" invisible="1"/>
-                <field name="project_id" domain="[('id','in',available_project_ids)]" context="{'default_partner_id':partner_id.id}"/>
+                <field name="task_id" invisible="1"/>
+                <field name="subtask_ids" invisible="1"/>
+                <field name="project_id" domain="[('id','in',available_project_ids)]"
+                       context="{'default_partner_id':partner_id}"/>
             </xpath>
             <xpath expr="//button[@name='action_view_invoice']" position="after">
-<!--                <button name="action_view_tasks"-->
-<!--                        type="object"-->
-<!--                        class="oe_stat_button"-->
-<!--                        icon="fa-pencil-square-o"-->
-<!--                        invisible="subtask_count == 0">-->
-<!--                        <field name="subtask_count" widget="statinfo" string="Sub Tasks"/>-->
-<!--                    </button>-->
-                <button name="1360" type="action" class="oe_stat_button" icon="fa-check" invisible="subtask_count == 0"
-                        context="{ 'default_project_id': project_id,
-                        'default_user_ids': False,
-                          'subtask_action': True,
-                           }"
-                 groups="base.group_user">
-                            <div class="o_field_widget o_stat_info">
-                                <span class="o_stat_text">Sub-tasks</span>
-                                <span class="o_stat_value">
-                                     <field name="subtask_count"/>
-                                </span>
-                            </div>
-                        </button>
+                <button name="%(project.project_task_action_sub_task)d"
+                        type="action"
+                        context="{'subtask_action': True, 'task_ids':subtask_ids, 'task_id':task_id}"
+                        class="oe_stat_button"
+                        icon="fa-pencil-square-o"
+                        invisible="subtask_count == 0">
+                    <field name="subtask_count" widget="statinfo" string="Sub Tasks"/>
+                </button>
             </xpath>
         </field>
     </record>

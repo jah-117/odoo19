@@ -1,6 +1,6 @@
 from odoo import models,fields
 
-class HotelGuest(models.Model):
+class ResPartner(models.Model):
     _inherit = 'res.partner'
 
     is_hotel_guest = fields.Boolean(string="Hotel Guest")

@@ -1,17 +1,15 @@
 from odoo import models, fields
 
 
-class OrderFoodTransient(models.TransientModel):
-    _name = 'order.food.transient'
+class MakeOrderFood(models.TransientModel):
+    _name = 'make.order.food'
     _description = 'Food order'
 
     name = fields.Char(readonly=True)
     quantity = fields.Integer(default="1")
-
     available_quantity = fields.Integer()
     company_id = fields.Many2one('res.company', store=True, copy=False,
-                                 string="Company",
-                                 default=lambda self:
+                                 string="Company",default=lambda self:
                                  self.env.user.company_id.id)
     currency_id = fields.Many2one('res.currency', string="Currency",
                                   related='company_id.currency_id',
@@ -20,7 +18,6 @@ class OrderFoodTransient(models.TransientModel):
     price = fields.Monetary(readonly=True)
     image = fields.Binary()
     description = fields.Char(readonly=True)
-
 
     def add_to_list(self):
         """

@@ -44,12 +44,9 @@ class HotelAccommodation(models.Model):
     currency_id = fields.Many2one('res.currency', string="Currency", related='company_id.currency_id')
     number_of_guests = fields.Integer(string="Number of Guests", default=1,
                                       help="Total number of guests staying.")
-
     other_guests = fields.One2many(comodel_name='accommodation.guests.lines',
                                    inverse_name='accommodation_ids',
-                                   help="Provide name and details of all other guests."
-                               )
-
+                                   help="Provide name and details of all other guests.")
     check_in = fields.Datetime(string="Check-In Date & Time", readonly=True,
                                tracking=True, store=True,
                                help="Check In time.")
@@ -57,45 +54,34 @@ class HotelAccommodation(models.Model):
                                 tracking=True, store=True,
                                 help="Check out time.")
     bed_type = fields.Selection(default='single',
-                                selection=BED_TYPES,
-                                tracking=True,
+                                selection=BED_TYPES,tracking=True,
                                 string="Bed Type", required=True,
                                 help="Type of bed required.")
-
     facilities = fields.Many2many(string="Facilities", comodel_name='room.facility',
-                                  store=True,
-                                  help="Facilities required in room.")
+                                  store=True,help="Facilities required in room.")
     room_id = fields.Many2one(comodel_name='hotel.room', string="Room",
                               required=True,
                               readonly=False,
                               help="Available rooms based on the requirements.")
-
     available_room_ids = fields.Many2many(comodel_name='hotel.room',
                                           compute='_compute_available_room_ids')
-
     color_code = fields.Selection(selection=[('yellow','Yellow'),('red','Red'),('none','None')],default='none',
                                   compute='_compute_color_code')
-
     id_proofs = fields.One2many(
-        comodel_name='ir.attachment',
-        inverse_name='res_id',
+        comodel_name='ir.attachment',inverse_name='res_id',
         domain=[('res_model', '=', 'hotel.accommodation')],
-        string="ID-Proofs",
-        )
+        string="ID-Proofs")
     expected_days = fields.Integer(string="Expected Days", default="1",
                                    help="Number of Days the guest is expected to stay.")
     expected_date = fields.Date(string="Expected Date of Check-Out",
                                 compute='_compute_expected_date', store=True,
                                 help="Expected date of check out based on expected days.")
-
     payment_line_ids = fields.One2many(comodel_name='payment.line',
                                        inverse_name='accommodation_id',
-                                       readonly=True,
-                                      )
+                                       readonly=True,)
     total_amount = fields.Monetary(currency_field='currency_id', default=0, readonly=True,
                                    help="Total amount to be invoiced(Including rent and food)")
     invoice_id = fields.Many2one(comodel_name='account.move')
-
     active = fields.Boolean(string='Active',default=True)
 
     @api.model_create_multi
@@ -148,6 +134,67 @@ class HotelAccommodation(models.Model):
                 ('facility_ids', 'in', self.facilities)
             ])
         self.available_room_ids = rooms
+
+    def _compute_color_code(self):
+        """
+        compute color code based on expected date and state
+        """
+        for rec in self:
+            if rec.expected_date:
+                rec.color_code = 'yellow' if rec.expected_date == datetime.today() else 'red' if rec.expected_date == datetime.today() and rec.state != 'check_out' else 'none'
+            else:
+                rec.color_code = 'none'
+
+    @api.model
+    def _send_todays_checkout_mails(self):
+        """
+        fetch valid records based on state = 'check_in'
+        and send email to those having expected_date = today
+        """
+        valid_accommodations = self.search([('state', '=', 'check_in')])
+        mail_template = self.env.ref('hotel_management.checkout_remainder_mail_template')
+        for accommodation in valid_accommodations:
+            if accommodation.expected_date.strftime('%Y-%m-%d') == datetime.today().strftime('%Y-%m-%d'):
+                mail_template.send_mail(accommodation.id, force_send=True)
+
+    @api.model
+    def _archive_canceled_records(self):
+        """
+        fetch all canceled records
+        and archive those are canceled for two days
+        when an accommodation is canceled that date is marked in check_out
+        """
+
+        valid_accommodations = self.search([('state', '=', 'cancel')])
+        for accommodation in valid_accommodations:
+            if (datetime.today() - accommodation.check_out).days > 1:
+                accommodation.active = False
+
+    @api.model
+    def _update_rent(self):
+        """
+        fetch all check_in records and update their rent
+        """
+        valid_accommodations = self.search([('state', '=', 'check_in')])
+        for accommodation in valid_accommodations:
+            for payment_line in accommodation.payment_line_ids:
+                if payment_line.product_id.id == self.env.ref('hotel_management.room_rent').id:
+                    fields.Command.update(payment_line.id,
+                                          {'quantity': payment_line.quantity + 1})
+                    payment_line.calculate_subtotal()
+
+    def _compute_payment_state(self):
+        """
+        change payment status based on payment of invoice created
+        """
+        for accommodation in self:
+            if not accommodation.invoice_id:
+                accommodation.payment_state = 'to_pay'
+                continue
+            if accommodation.invoice_id.payment_count > 0:
+                accommodation.payment_state = 'paid'
+            else:
+                accommodation.payment_state = 'to_pay'
 
     def check_in_guest(self):
         """
@@ -247,68 +294,6 @@ class HotelAccommodation(models.Model):
         self.room_id.state = 'available'
         self.check_out = datetime.now()
 
-
-    def _compute_color_code(self):
-        """
-        compute color code based on expected date and state
-        """
-        for rec in self:
-            if rec.expected_date:
-                rec.color_code = 'yellow' if rec.expected_date==datetime.today() else 'red' if rec.expected_date==datetime.today() and rec.state != 'check_out'else 'none'
-            else:
-                rec.color_code = 'none'
-
-    @api.model
-    def _send_todays_checkout_mails(self):
-        """
-        fetch valid records based on state = 'check_in'
-        and send email to those having expected_date = today
-        """
-        valid_accommodations = self.search([('state','=','check_in')])
-        mail_template = self.env.ref('hotel_management.checkout_remainder_mail_template')
-        for accommodation in valid_accommodations:
-            if accommodation.expected_date.strftime('%Y-%m-%d') == datetime.today().strftime('%Y-%m-%d'):
-                mail_template.send_mail(accommodation.id, force_send = True)
-
-
-    @api.model
-    def _archive_canceled_records(self):
-        """
-        fetch all canceled records
-        and archive those are canceled for two days
-        when an accommodation is canceled that date is marked in check_out
-        """
-
-        valid_accommodations = self.search([('state','=','cancel')])
-        for accommodation in valid_accommodations:
-            if (datetime.today() - accommodation.check_out).days > 1:
-                accommodation.active = False
-
-    @api.model
-    def _update_rent(self):
-        """
-        fetch all check_in records and update their rent
-        """
-        valid_accommodations = self.search([('state','=','check_in')])
-        for accommodation in valid_accommodations:
-            for payment_line in accommodation.payment_line_ids:
-                if payment_line.product_id.id == self.env.ref('hotel_management.room_rent').id:
-                    fields.Command.update(payment_line.id,
-                                          {'quantity': payment_line.quantity + 1})
-                    payment_line.calculate_subtotal()
-
-    def _compute_payment_state(self):
-        """
-        change payment status based on payment of invoice created
-        """
-        for accommodation in self:
-            if not accommodation.invoice_id:
-                accommodation.payment_state = 'to_pay'
-                continue
-            if accommodation.invoice_id.payment_count > 0:
-                    accommodation.payment_state = 'paid'
-            else:
-                accommodation.payment_state = 'to_pay'
 
 
 

@@ -30,20 +30,20 @@
         "data/checkout_remainder_mail_template.xml",
         "data/server_actions.xml",
 
-        "views/food_category_view.xml",
-        "views/food_item_view.xml",
-        "views/hotel_accommodation_view.xml",
-        "views/hotel_room_view.xml",
+        "views/food_category_views.xml",
+        "views/food_item_views.xml",
+        "views/hotel_accommodation_views.xml",
+        "views/hotel_room_views.xml",
         "views/room_facility_views.xml",
         "views/order_food_views.xml",
         "views/hotel_guest_views.xml",
 
-        "wizard/order_food_transient_views.xml",
+        "wizard/make_order_food_views.xml",
 
         "report/hotel_management_report_views.xml",
-        "report/hotel_management_report_template.xml",
+        "report/hotel_management_report.xml",
 
-        "menus/hotel_management_menus.xml"
+        "views/hotel_management_menus.xml"
 
     ],
     'assets': {
