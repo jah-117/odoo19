@@ -1,16 +1,15 @@
-import { Orderline } from "@point_of_sale/static/src/app/components/orderline/orderline"
-import { patch } from "@web/core/utils/patch";
+/** odoo-module **/
+import {Orderline} from "@point_of_sale/app/components/orderline/orderline";
+import {patch} from "@web/core/utils/patch";
+import { formatCurrency } from "@web/core/currency";
 
-patch(Orderline,
-    {get lineScreenValues(){
+patch(Orderline.prototype, {
+    get lineScreenValues() {
         const line = this.line;
 
-        // Prevent rendering if the line is not yet linked to an order
-        // this can happen during related models connections
         if (!line.order_id) {
             return {};
         }
-
         const imageUrl = line.product_id?.getImageUrl();
         const basic = this.props.basic_receipt;
         const unitPart = line.getQuantityStr().unitPart;
@@ -29,7 +28,7 @@ patch(Orderline,
         }`;
         return {
             name: mode === "receipt" ? line.full_product_name : line.orderDisplayProductName.name,
-            brand: line.product_brand,
+            brand: line.orderDisplayProductName.brand,
             attributeString:
                 ["display", "split"].includes(mode) && attributeStr && `- ${attributeStr}`,
             internalNote: mode === "display" && line.note && JSON.parse(this.line.note || "[]"),
@@ -44,5 +43,6 @@ patch(Orderline,
             taxGroup: this.props.showTaxGroup && taxGroup,
             price: !basic && !line.combo_parent_id && this.line.currencyDisplayPrice,
             lotLines: line.product_id.tracking !== "none" && (line.packLotLines || []),
-        };}
+        };
+    }
 });

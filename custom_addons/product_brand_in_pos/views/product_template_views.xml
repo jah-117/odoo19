@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="product_template_brand_view_form" model="ir.ui.view">
+        <field name="name">product.template.brand.form.view</field>
+        <field name="model">product.template</field>
+        <field name="type">form</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='type']" position="after">
+                <field name="brand" string="Brand"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="product_template_normalized_form" model="ir.ui.view">
+        <field name="name">product.template.brand.form.view.normalized</field>
+        <field name="model">product.template</field>
+        <field name="type">form</field>
+        <field name="inherit_id" ref="point_of_sale.product_template_view_form_normalized_pos"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="brand" string="Brand"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -13,6 +13,7 @@
     'auto_install': True,
 
     'depends': [
+        'base_automation',
         'product',
         'purchase',
     ],

@@ -24,6 +24,6 @@ class AccountMove(models.Model):
         return super().action_post()
 
     def action_register_payment(self):
-        if self.reciept:
+        if self.receipt:
             self.payment_reference = f'{self.name}, {self.receipt.name}'
         return super().action_register_payment()

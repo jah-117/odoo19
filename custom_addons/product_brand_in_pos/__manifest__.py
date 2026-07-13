@@ -17,9 +17,17 @@
         'point_of_sale',
     ],
     'data': [
-    "views/product_product_views.xml",
+        "views/product_product_views.xml",
+        "views/product_template_views.xml",
+        "views/res_partner_views.xml",
     ],
-    'assets':[
-        
-    ],
+    'assets': {
+        'point_of_sale._assets_pos': [
+            'product_brand_in_pos/static/src/app/component/orderline/orderline.js',
+            'product_brand_in_pos/static/src/app/component/orderline/orderline.xml',
+            'product_brand_in_pos/static/src/app/component/product_card/product_card.xml',
+            'product_brand_in_pos/static/src/app/component/product_card/product_card.xml',
+            'product_brand_in_pos/static/src/**/*',
+        ],
+    }
 }

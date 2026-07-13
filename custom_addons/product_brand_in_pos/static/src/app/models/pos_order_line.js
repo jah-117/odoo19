@@ -1,10 +1,15 @@
 /** @odoo-module **/
-import { PosOrderline } from "@point_of_sale/static/src/app/models/pos_order_line"
-import {constructProductBrand} from "../../utils";
+import {patch} from "@web/core/utils/patch";
+import { PosOrderline } from "@point_of_sale/app/models/pos_order_line";
+import {  constructAttributeString } from "@point_of_sale/utils";
 
-export class PosOrderLine extends PosOrderline {
 
-    setProductBrand(){
-        this.product_brand = constructProductBrand(this)
+patch(PosOrderline.prototype,{
+     get orderDisplayProductName() {
+        return {
+            name: this.product_id?.name,
+            brand: this.product_id?.brand,
+            attributeString: constructAttributeString(this),
+        };
     }
-}
+});
