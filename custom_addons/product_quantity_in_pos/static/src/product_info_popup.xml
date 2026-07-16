@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<template xml:space="preserve">
+    <t t-name="product_quantity_in_pos.ProductInfoPopup" t-inherit="point_of_sale.ProductInfoPopup"
+       t-inherit-mode="extension">
+        <xpath expr="//t[@t-foreach='props.info.productInfo.warehouses']" position="replace">
+            <t t-esc="props.info.productInfo.location"/> : <t t-esc="props.info.productInfo.available_quantity"/> <t t-esc="props.info.productInfo.warehouses[0].uom"/> available,
+        </xpath>
+    </t>
+</template>

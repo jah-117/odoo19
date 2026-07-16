@@ -22,9 +22,6 @@
             </div>
         </xpath>
         <xpath expr="//ActionpadWidget[@actionName.translate='Payment']" position="replace">
-<!--            <div class="subpads d-flex flex-column gap-2 pt-2">-->
-<!--                <Numpad t-if="!currentOrder?.isEmpty() and pos.getOrder()?.uiState.selected_orderline_uuid"-->
-<!--                                class="'d-grid'" buttons="getNumpadButtons()" onClick.bind="onNumpadClick"/>-->
                 <ActionpadWidget
                     partner="currentOrder?.getPartner()"
                     order="currentOrder"
@@ -33,7 +30,6 @@
                     actionToTrigger="() => pos.pay()"
                     showActionButton="!currentOrder?.isEmpty()"
                     fastValidate="(paymentMethod) => this.fastValidate(paymentMethod)"/>
-<!--            </div>-->
         </xpath>
     </t>
 </templates>

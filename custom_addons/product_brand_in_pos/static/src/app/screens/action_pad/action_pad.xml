@@ -3,8 +3,6 @@
     <t t-name="product_brand_in_pos.ActionpadWidget" t-inherit="point_of_sale.ActionpadWidget"
        t-inherit-mode="extension">
         <xpath expr="//button[@t-out='props.actionName']" position="replace">
-            <span t-out="console.log(props.partner.credit_limit)"/>
-            <span t-out="console.log(props.order.displayPrice)"/>
             <t t-if="props.partner and props.order.displayPrice > props.partner.credit_limit">
                  <button class="disabled pay pay-order-button button btn btn-primary btn-lg py-3 d-flex align-items-center justify-content-center flex-fill"
                             t-att-class="{'col-3': showFastPaymentMethods}" t-on-click="props.actionToTrigger" t-out="props.actionName" />
