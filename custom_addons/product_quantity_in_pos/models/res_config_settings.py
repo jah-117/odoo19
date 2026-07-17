@@ -18,10 +18,10 @@ class ResConfigSettings(models.TransientModel):
     def set_values(self):
         """Set the value. The new value stored in the configuration parameters."""
         res = super(ResConfigSettings, self).set_values()
-        # pos_config_id = (self.env['ir.config_parameter'].sudo().get_param('point_of_sale.pos_config_id'))
-        print(self.pos_config_id.picking_type_id.location_id)
-        print(self.pos_location)
-        self.pos_config_id.picking_type_id.location_id = self.pos_location.id
+        if self.pos_location:
+            self.pos_config_id.picking_type_id.default_location_src_id = self.pos_location.id
+        else:
+            self.pos_location = self.pos_config_id.picking_type_id.default_location_src_id
         self.env['ir.config_parameter'].sudo().set_param(
             'res.config.settings.pos_location',
             self.pos_location.id)
