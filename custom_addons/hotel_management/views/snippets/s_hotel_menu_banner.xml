@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="basic_snippet_template" name="Basic Snippet">
+        <section class="s_hotel_menu_banner" style="background-image:url('/hotel_management/static/src/img/banner_hotel_menu.jpg')">
+                <div class="container py-4">
+                    <div class="row">
+                        <div class="col-12 text-center" >
+                            <h2>Hotel Management</h2>
+                            <p>
+                                This is a simple static snippet created in Odoo 19.
+                                You can use it to display fixed content on your website.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+    </template>
+</odoo>

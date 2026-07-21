@@ -13,6 +13,8 @@
     'auto_install': True,
 
     'depends': [
+        'web',
+        'website',
         'product',
         'mail',
         'account',
@@ -43,12 +45,20 @@
         "report/hotel_management_report_views.xml",
         "report/hotel_management_report.xml",
 
-        "views/hotel_management_menus.xml"
+        "views/hotel_management_menus.xml",
 
+        "views/snippets/hotel_management_views.xml",
+        "views/snippets/s_hotel_menu_banner.xml",
+        "views/snippets/s_hotel_booking_form.xml",
+
+        "views/snippets/hotel_management_snippets.xml",
     ],
     'assets': {
         'web.assets_backend': [
             'hotel_management/static/src/js/action_manager.js',
         ],
+        'web.assets_frontend': [
+            'hotel_management/static/src/js/snippets/*',
+        ]
     }
 }

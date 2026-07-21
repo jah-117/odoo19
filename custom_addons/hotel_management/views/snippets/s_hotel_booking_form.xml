@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="s_hotel_booking_form" name="Hotel Booking">
+
+      <t t-set="head">
+        <t t-call-asssets="web.assets_frontend" t-js="false"/>
+      </t>
+        <section class="s_hotel_bookin">
+            <div class="o_container_small">
+                <form action="/booking/submit" method="POST" enctype="multipart/form-data" class="o_mark_required"
+                      data-success-mode="redirect" data-success-page="/contactus-thank-you">
+                    <div class="s_website_form_rows row s_col_no_bgcolor">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <div class="row">
+                            <!-- Name Field -->
+                            <div class="form-group col-12">
+                                <div class="row">
+                                    <label class="col-form-label col-sm-auto" style="width: 200px;" for="guest">
+                                        Name
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-sm">
+                                        <input id="guest" t-att-value="request.env.user.name" type="text" class="form-control" name="guest" required="1"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <br/>
+                            <!-- Phone Field -->
+                            <div class="form-group col-12">
+                                <div class="row">
+                                    <label class="col-form-label col-sm-auto" style="width: 200px;" for="bed_type">
+                                        Bed Type
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-sm">
+                                        <select id="bed_type" type="text" class="form-control" name="bed_type" required="1">
+                                            <option value="single">Single</option>
+                                            <option value="double">Double</option>
+                                            <option value="dormitory">Dormitory</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <br/>
+
+                            <div class="form-group col-12">
+                                <div class="row">
+                                    <label class="col-form-label col-sm-auto" style="width: 200px;"
+                                           for="check_in">
+                                        Expected time of check in
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-sm">
+                                        <input id="check_in" type="datetime-local" class="form-control"
+                                               name="check_in" required="1"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <br/>
+                            <div class="form-group col-12">
+                                <div class="row">
+                                    <label class="col-form-label col-sm-auto" style="width: 200px;" for="expected_days">
+                                        Expected days
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-sm">
+                                        <input id="expected_days" type="number" class="form-control"
+                                               name="expected_days" required="1"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <br/>
+                                    <div class="form-group col-12">
+                                        <div class="row">
+                                            <label class="col-form-label col-sm-auto" style="width: 200px;"
+                                                   for="other_guest_names">
+                                                Other Guest(s)
+                                            </label>
+                                            <div class="col-sm">
+                                                <input type="text" class="form-control" id="other_guest_names"
+                                                       name="other_guest_names"/>
+                                                <span>Separate with comma if more than 1 guests, leave empty if no other guests</span>
+                                            </div>
+                                        </div>
+                                    </div>
+<!--                             Submit Button-->
+                            <button class="demo-btn" type="button" onclick="printthis()">aaaa</button>
+                            <div class="form-group col-12">
+                                <div style="width: 200px;"></div>
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+    </template>
+</odoo>

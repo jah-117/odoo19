@@ -4,13 +4,13 @@
         <xpath expr="//ProductCard" position="attributes">
             <attribute name="available_quantity">product.pos_quantity_available</attribute>
         </xpath>
-        <xpath expr="//div" position="after">
-            <t t-foreach="pos.productToDisplayByCateg" t-as="categ" t-key="categ[0]">
-                <t t-foreach="categ[1]" t-as="pro" t-key="pro.id">
-                    <t t-out="console.log(pro.name)"/>
-                    <t t-out="console.log(pro.pos_quantity_available)"/>
-                </t>
-            </t>
-        </xpath>
+<!--        <xpath expr="//div" position="after">-->
+<!--            <t t-foreach="pos.productToDisplayByCateg" t-as="categ" t-key="categ[0]">-->
+<!--                <t t-foreach="categ[1]" t-as="pro" t-key="pro.id">-->
+<!--                    <t t-out="console.log(pro.name)"/>-->
+<!--                    <t t-out="console.log(pro.pos_quantity_available)"/>-->
+<!--                </t>-->
+<!--            </t>-->
+<!--        </xpath>-->
     </t>
 </templates>

@@ -3,7 +3,7 @@
     <t t-name="product_brand_in_pos.ProductCard" t-inherit="point_of_sale.ProductCard" t-inherit-mode="extension">
         <xpath expr="//img[@t-att-src='props.imageUrl']" position="after">
             <t t-out="props.available_quantity"/>
-            <div t-if="props.available_quantity" class="row-product-brand-2">
+            <div class="row-product-brand-2">
                 <t  t-esc="props.available_quantity"/>
             </div>
         </xpath>

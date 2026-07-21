@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="basic_snippet_banner" inherit_id="website.snippets"
+              name="Snippet banner">
+        <xpath  expr="//snippets[@id='snippet_groups']/*[1]" position="before">
+            <t snippet-group="basic_snippet" t-snippet="website.s_snippet_group"  string="Basic Snippet Registration"/>
+        </xpath>
+         <xpath expr="//snippets[@id='snippet_structure']" position="inside">
+            <t t-snippet="hotel_management.basic_snippet_template" string="Custom snippet" group="basic_snippet"/>
+        </xpath>
+        <xpath expr="//snippets[@id='snippet_structure']" position="inside">
+            <t t-snippet="hotel_management.s_hotel_booking_form" string="Custom snippet" group="basic_snippet"/>
+        </xpath>
+    </template>
+</odoo>
