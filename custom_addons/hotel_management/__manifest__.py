@@ -50,6 +50,9 @@
         "views/snippets/hotel_management_views.xml",
         "views/snippets/s_hotel_menu_banner.xml",
         "views/snippets/s_hotel_booking_form.xml",
+        "views/snippets/s_room_details_carousal.xml",
+        "views/snippets/s_room_details.xml",
+
 
         "views/snippets/hotel_management_snippets.xml",
     ],
@@ -58,7 +61,9 @@
             'hotel_management/static/src/js/action_manager.js',
         ],
         'web.assets_frontend': [
+            'hotel_management/static/src/snippets/*',
             'hotel_management/static/src/js/snippets/*',
+
         ]
     }
 }

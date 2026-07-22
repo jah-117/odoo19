@@ -3,13 +3,12 @@
     <template id="basic_snippet_banner" inherit_id="website.snippets"
               name="Snippet banner">
         <xpath  expr="//snippets[@id='snippet_groups']/*[1]" position="before">
-            <t snippet-group="basic_snippet" t-snippet="website.s_snippet_group"  string="Basic Snippet Registration"/>
+            <t snippet-group="s_hotel_management" t-snippet="website.s_snippet_group"  string="Hotel Management snippets"/>
         </xpath>
          <xpath expr="//snippets[@id='snippet_structure']" position="inside">
-            <t t-snippet="hotel_management.basic_snippet_template" string="Custom snippet" group="basic_snippet"/>
-        </xpath>
-        <xpath expr="//snippets[@id='snippet_structure']" position="inside">
-            <t t-snippet="hotel_management.s_hotel_booking_form" string="Custom snippet" group="basic_snippet"/>
+            <t t-snippet="hotel_management.basic_snippet_template" string="Hotel Banner" group="s_hotel_management"/>
+             <t t-snippet="hotel_management.s_hotel_booking_form" string="Booking Form" group="s_hotel_management"/>
+             <t t-snippet="hotel_management.s_room_details" string="Room Details" group="s_hotel_management"/>
         </xpath>
     </template>
 </odoo>

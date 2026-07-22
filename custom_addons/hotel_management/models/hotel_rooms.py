@@ -1,4 +1,4 @@
-from odoo import models,fields
+from odoo import models,fields,api
 
 BED_TYPES = [('single',"Single"),('double',"Double"),('dormitory',"Dormitory")]
 
@@ -19,4 +19,22 @@ class HotelRooms(models.Model):
                                         ('not_available',"Not Available")],
                              default='available',
                              help="Room availability state.")
-
+    @api.model
+    def get_available_rooms(self,bed_type):
+        available_rooms = self.search([('state','=','available'),('bed','=',bed_type)])
+        return [
+            {'room_no': room.room_no_id,
+            'room_id': room.id,}
+            for room in available_rooms
+        ] if available_rooms else {}
+    @api.model
+    def get_room_details(self):
+        rooms = self.search([],limit=4)
+        return [
+            {'room_no':room.room_no_id,
+             'bed_type':room.bed,
+             'rent':room.rent,
+             'facilities':[fac.name for fac in room.facility_ids],
+             'state':room.state,
+            } for room in rooms
+        ]
