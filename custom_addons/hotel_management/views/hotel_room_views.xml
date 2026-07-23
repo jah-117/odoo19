@@ -31,6 +31,7 @@
         <field name="arch" type="xml">
             <form>
                 <sheet>
+                    <field name="image" widget="image" class="oe_avatar" options="{'convert_to_webp': True, 'preview_image': 'image', 'zoom': True}"/>
                     <group>
                         <group>
                             <field name="room_no_id"/>

@@ -9,6 +9,7 @@
             <t t-snippet="hotel_management.basic_snippet_template" string="Hotel Banner" group="s_hotel_management"/>
              <t t-snippet="hotel_management.s_hotel_booking_form" string="Booking Form" group="s_hotel_management"/>
              <t t-snippet="hotel_management.s_room_details" string="Room Details" group="s_hotel_management"/>
+             <t t-snippet="hotel_management.s_hotel_images" string="Hotel Images" group="s_hotel_management"/>
         </xpath>
     </template>
 </odoo>

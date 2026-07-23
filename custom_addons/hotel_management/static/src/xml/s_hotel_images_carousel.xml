@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="hotel_management.hotel_images">
+        <section class="s_image_gallery o_slideshow pt24 pb24 s_image_gallery_controllers_outside s_image_gallery_controllers_outside_arrows_right s_image_gallery_indicators_dots s_image_gallery_arrows_default" data-vcss="002" data-columns="4">
+        <div class="o_container_small overflow-hidden">
+            <div id="hotel_image_carousel" class="carousel carousel-dark slide" data-bs-interval="3000" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <img class="img img-fluid d-block mh-100 mw-100 mx-auto rounded object-fit-cover" t-att-src="images[0]" data-name="Image" data-index="0" alt=""/>
+                    </div>
+                    <div class="carousel-item">
+                        <img class="img img-fluid d-block mh-100 mw-100 mx-auto rounded object-fit-cover" t-att-src="images[1]" data-name="Image" data-index="1" alt=""/>
+                    </div>
+                    <div class="carousel-item">
+                        <img class="img img-fluid d-block mh-100 mw-100 mx-auto rounded object-fit-cover" t-att-src="images[2]" data-name="Image" data-index="2" alt=""/>
+                    </div>
+                    <div class="carousel-item">
+                        <img class="img img-fluid d-block mh-100 mw-100 mx-auto rounded object-fit-cover" t-att-src="images[3]" data-name="Image" data-index="3" alt=""/>
+                    </div>
+                    <div class="carousel-item">
+                        <img class="img img-fluid d-block mh-100 mw-100 mx-auto rounded object-fit-cover" t-att-src="images[4]" data-name="Image" data-index="4" alt=""/>
+                    </div>
+                </div>
+                <div class="o_carousel_controllers">
+                    <button class="carousel-control-prev o_not_editable" contenteditable="false" t-attf-data-bs-target="#hotel_image_carousel" data-bs-slide="prev" aria-label="Previous" title="Previous">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"/>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#hotel_image_carousel" data-bs-slide-to="0" t-att="{'background-image': 'url(images[0])'}"  class="active" aria-label="Carousel indicator"/>
+                        <button type="button" t-att="{'background-image': 'url(images[1])'}"  data-bs-target="#hotel_image_carousel" data-bs-slide-to="1" aria-label="Carousel indicator"/>
+                        <button type="button" t-att="{'background-image': 'url(images[2])'}"   data-bs-target="#hotel_image_carousel" data-bs-slide-to="2" aria-label="Carousel indicator"/>
+                        <button type="button" t-att="{'background-image': 'url(images[3])'}"   data-bs-target="#hotel_image_carousel" data-bs-slide-to="3" aria-label="Carousel indicator"/>
+                        <button type="button" t-att="{'background-image': 'url(images[4])'}"   data-bs-target="#hotel_image_carousel" data-bs-slide-to="4" aria-label="Carousel indicator"/>
+                    </div>
+                    <button class="carousel-control-next o_not_editable" contenteditable="false" t-attf-data-bs-target="#hotel_image_carousel" data-bs-slide="next" aria-label="Next" title="Next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"/>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    </t>
+</templates>

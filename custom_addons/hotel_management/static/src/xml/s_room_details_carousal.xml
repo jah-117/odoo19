@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="hotel_management.carousal_snippet">
+    <section
+            class="s_image_gallery o_slideshow pt24 pb24 s_image_gallery_controllers_outside s_image_gallery_controllers_outside_arrows_right s_image_gallery_indicators_dots s_image_gallery_arrows_default"
+            data-vcss="002" data-columns="4">
+        <div class="o_container ">
+            <div id="room_image_carousel" class="carousel carousel-dark slide" data-bs-interval="false">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <div class="container">
+                            <div class="row g-0">
+                                <div class="col">
+                                    <img class="img img-fluid d-block mh-100 mw-100 mx-auto  object-fit-cover" t-att-src="rooms[0].image" data-name="Image" data-index="0" alt=""/>
+                                </div>
+                                <div class="col">
+                                     <div class="details">
+                                         <span class="room_label">Room No:</span><br/>
+                                         <span class="room_value"> <t t-esc="rooms[0].room_no"/></span><br/>
+                                         <span class="facility_label">Available facilities in this room</span><br/>
+                                         <span class="facility_value"><t t-esc="rooms[0].facilities"/></span><br/>
+                                         <span class="rent_label">Rent for 24hr is </span>
+                                         <span class="rent_value"><t t-esc="rooms[0].rent"/>$</span><br/>
+                                         <span class="bed_label">Is a </span>
+                                         <span class="bed_value"><t t-esc="rooms[0].bed_type"/></span>
+                                         <span class="bed_label"> bed room</span>
+                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="container">
+                            <div class="row  g-0">
+                                <div class="col">
+                                    <img class="img img-fluid d-block mh-100 mw-100 mx-auto  object-fit-cover" t-att-src="rooms[1].image" data-name="Image" data-index="1" alt=""/>
+                                </div>
+                                <div class="col">
+                                    <div class="details">
+                                        <span class="room_label">Room No:</span><br/>
+                                        <span class="room_value"> <t t-esc="rooms[1].room_no"/></span><br/>
+                                        <span class="facility_label">Available facilities in this room</span><br/>
+                                        <span class="facility_value"><t t-esc="rooms[1].facilities"/></span><br/>
+                                        <span class="rent_label">Rent for 24hr is </span>
+                                        <span class="rent_value"><t t-esc="rooms[1].rent"/>$</span><br/>
+                                        <span class="bed_label">Is a </span>
+                                        <span class="bed_value"><t t-esc="rooms[1].bed_type"/></span>
+                                        <span class="bed_label"> bed room</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="container">
+                            <div class="row g-0">
+                                <div class="col">
+                                    <img class="img img-fluid d-block mh-100 mw-100 mx-auto  object-fit-cover" t-att-src="rooms[2].image" data-name="Image" data-index="2" alt=""/>
+                                </div>
+                                <div class="col">
+                                    <div class="details">
+                                        <span class="room_label">Room No:</span><br/>
+                                        <span class="room_value"> <t t-esc="rooms[2].room_no"/></span><br/>
+                                        <span class="facility_label">Available facilities in this room</span><br/>
+                                        <span class="facility_value"><t t-esc="rooms[2].facilities"/></span><br/>
+                                        <span class="rent_label">Rent for 24hr is </span>
+                                        <span class="rent_value"><t t-esc="rooms[2].rent"/>$</span><br/>
+                                        <span class="bed_label">Is a </span>
+                                        <span class="bed_value"><t t-esc="rooms[2].bed_type"/></span>
+                                        <span class="bed_label"> bed room</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="container">
+                            <div class="row g-0 rounded">
+                                <div class="col">
+                                    <img class="img img-fluid d-block mh-100 mw-100 mx-auto  object-fit-cover" t-att-src="rooms[3].image" data-name="Image" data-index="3" alt=""/>
+                                </div>
+                                <div class="col-sm">
+                                    <div class="details">
+                                        <span class="room_label">Room No:</span><br/>
+                                        <span class="room_value"> <t t-esc="rooms[3].room_no"/></span><br/>
+                                        <span class="facility_label">Available facilities in this room</span><br/>
+                                        <span class="facility_value"><t t-esc="rooms[3].facilities"/></span><br/>
+                                        <span class="rent_label">Rent for 24hr is </span>
+                                        <span class="rent_value"><t t-esc="rooms[3].rent"/>$</span><br/>
+                                        <span class="bed_label">Is a </span>
+                                        <span class="bed_value"><t t-esc="rooms[3].bed_type"/></span>
+                                        <span class="bed_label"> bed room</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="o_carousel_controllers">
+                    <button class="carousel-control-prev o_not_editable" contenteditable="false"
+                            t-attf-data-bs-target="#room_image_carousel" data-bs-slide="prev" aria-label="Previous"
+                            title="Previous">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"/>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#room_image_carousel" data-bs-slide-to="0"
+                                t-att="{'background-image': 'url(rooms[0].image)'}" class="active"
+                                aria-label="Carousel indicator"/>
+                        <button type="button" t-att="{'background-image': 'url(rooms[1].image)'}"
+                            data-bs-target="#room_image_carousel" data-bs-slide-to="1"
+                            aria-label="Carousel indicator"/>
+                        <button type="button" t-att="{'background-image': 'url(rooms[2].image)'}"
+                            data-bs-target="#room_image_carousel" data-bs-slide-to="2"
+                            aria-label="Carousel indicator"/>
+                        <button type="button" t-att="{'background-image': 'url(rooms[3].image)'}"
+                            data-bs-target="#room_image_carousel" data-bs-slide-to="3"
+                            aria-label="Carousel indicator"/>
+                    </div>
+                    <button class="carousel-control-next o_not_editable" contenteditable="false"
+                        t-attf-data-bs-target="#room_image_carousel" data-bs-slide="next" aria-label="Next"
+                        title="Next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"/>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    </t>
+</templates>

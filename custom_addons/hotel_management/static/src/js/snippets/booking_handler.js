@@ -36,6 +36,7 @@ export class HotelBookingForm extends Interaction {
      deleteLine(event){
         event.preventDefault();
         event.currentTarget.parentElement.parentElement.remove();
+        //  $(event.currentTarget.tagName).parent('tr').remove();
     }
     updateRooms(event){
         $("#room_id").empty();
