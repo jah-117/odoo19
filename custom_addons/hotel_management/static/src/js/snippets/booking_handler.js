@@ -36,7 +36,6 @@ export class HotelBookingForm extends Interaction {
      deleteLine(event){
         event.preventDefault();
         event.currentTarget.parentElement.parentElement.remove();
-        //  $(event.currentTarget.tagName).parent('tr').remove();
     }
     updateRooms(event){
         $("#room_id").empty();
@@ -50,4 +49,4 @@ export class HotelBookingForm extends Interaction {
     }
 }
 
-registry.category("public.interactions").add("hotel_management.bookin_form", HotelBookingForm);
+registry.category("public.interactions").add("hotel_management.booking_form", HotelBookingForm);

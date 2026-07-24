@@ -68,3 +68,4 @@ class OrderFood(models.Model):
             })
             accommodation.total_amount = sum([payment_line.subtotal for payment_line in accommodation.payment_line_ids])
             self.state ='conform'
+

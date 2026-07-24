@@ -43,7 +43,6 @@
 
         "views/res_config_settings_views.xml",
 
-
         "wizard/make_order_food_views.xml",
 
         "report/hotel_management_report_views.xml",
@@ -58,17 +57,19 @@
         "views/snippets/s_room_details.xml",
         "views/snippets/s_hotel_images.xml",
 
-
         "views/snippets/hotel_management_snippets.xml",
     ],
     'assets': {
         'web.assets_backend': [
             'hotel_management/static/src/js/action_manager.js',
+
         ],
         'web.assets_frontend': [
-            'hotel_management/static/src/snippets/*',
+            'hotel_management/static/src/css/snippets/*',
+            'hotel_management/static/src/css/*',
             'hotel_management/static/src/js/snippets/*',
             'hotel_management/static/src/xml/*',
+            'hotel_management/static/src/js/order_food.js',
         ]
     }
 }

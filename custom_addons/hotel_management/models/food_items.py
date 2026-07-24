@@ -45,3 +45,15 @@ class FoodItem(models.Model):
                 'default_description': self.description
             }
         }
+
+    @api.model
+    def get_food_items(self):
+        return [{
+            'name': item.name,
+            'image':f'data:image/jpeg;charset=utf-8;base64,{item.image.decode("utf-8")}' if item.image else False,
+            'item':item.item,
+            'category':item.category_id.name,
+            'quantity':item.quantity,
+            'price':item.price,
+            'description':item.description,
+            } for item in self.search([]) ]

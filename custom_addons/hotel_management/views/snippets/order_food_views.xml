@@ -9,18 +9,37 @@
         <field name="arch" type="xml">
             <t name="Order food Page" t-name="hotel_management.hotel_order_food_page">
                 <t t-call="website.layout">
-                    <div class="order-food">
-
+                    <t t-set="head">
+                        <t t-call-asssets="web.assets_frontend" t-js="false"/>
+                    </t>
+                    <div id="order-food" data-vcss="order_food">
+                        <div class="container-main">
+                            <div id="food_items" class="col food-items scroll">
+                                Item
+                            </div>
+                            <div class="col">
+                                <div id="cart" class="row cart scroll">
+                                    cart
+                                </div>
+                                <div class="row">
+                                    <div id="total" class="col total">
+                                        total
+                                    </div>
+                                    <div id="confirm" class="col confirm">
+                                        confirm
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </t>
             </t>
         </field>
     </record>
-
     <record id="menu_order_food" model="website.menu">
         <field name="name">Order food</field>
         <field name="url">/hotel_management/order_food</field>
         <field name="page_id" ref="hotel_management.hotel_order_food_page"/>
-        <field name="parent_id" ref="hotel_management.main_menu_hotel_mangement"/>
+        <field name="parent_id" ref="website.main_menu"/>
     </record>
 </odoo>

@@ -1,0 +1,17 @@
+.container-main{
+    display:flex;
+    flex-direction:column;
+    max-height:100vh;
+    min-height: 600px;
+}
+.food-items{
+    height:100%;
+    border-style: solid;
+    border-color: black;
+}
+.scroll {
+  overflow-y: auto;
+}
+.confirm{
+    justify-self:flex-end;
+}

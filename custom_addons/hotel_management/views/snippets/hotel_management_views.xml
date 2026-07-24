@@ -73,15 +73,11 @@
             </t>
         </field>
     </record>
-    <record id="main_menu_hotel_mangement" model="website.menu">
-        <field name="name">Hotel Management</field>
-        <field name="url">/</field>
-        <field name="parent_id" ref="website.main_menu"/>
-    </record>
+
     <record id="menu_hotel_mangement" model="website.menu">
         <field name="name">Hotel Management</field>
         <field name="url">/hotel_management</field>
         <field name="page_id" ref="hotel_management.hotel_management_page"/>
-        <field name="parent_id" ref="hotel_management.main_menu_hotel_mangement"/>
+        <field name="parent_id" ref="website.main_menu"/>
     </record>
 </odoo>
