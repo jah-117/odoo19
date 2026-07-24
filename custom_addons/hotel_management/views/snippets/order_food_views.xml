@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="hotel_order_food_page" model="website.page">
+        <field name="name">Order food page</field>
+        <field name="type">qweb</field>
+        <field name="url">/hotel_management/order_food</field>
+        <field name="is_published">True</field>
+        <field name="key">hotel_management.hotel_order_food_page</field>
+        <field name="arch" type="xml">
+            <t name="Order food Page" t-name="hotel_management.hotel_order_food_page">
+                <t t-call="website.layout">
+                    <div class="order-food">
+
+                    </div>
+                </t>
+            </t>
+        </field>
+    </record>
+
+    <record id="menu_order_food" model="website.menu">
+        <field name="name">Order food</field>
+        <field name="url">/hotel_management/order_food</field>
+        <field name="page_id" ref="hotel_management.hotel_order_food_page"/>
+        <field name="parent_id" ref="hotel_management.main_menu_hotel_mangement"/>
+    </record>
+</odoo>

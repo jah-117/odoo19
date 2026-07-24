@@ -13,6 +13,7 @@
     'auto_install': True,
 
     'depends': [
+        'base',
         'web',
         'website',
         'product',
@@ -40,6 +41,9 @@
         "views/order_food_views.xml",
         "views/hotel_guest_views.xml",
 
+        "views/res_config_settings_views.xml",
+
+
         "wizard/make_order_food_views.xml",
 
         "report/hotel_management_report_views.xml",
@@ -48,6 +52,7 @@
         "views/hotel_management_menus.xml",
 
         "views/snippets/hotel_management_views.xml",
+        "views/snippets/order_food_views.xml",
         "views/snippets/s_hotel_menu_banner.xml",
         "views/snippets/s_hotel_booking_form.xml",
         "views/snippets/s_room_details.xml",

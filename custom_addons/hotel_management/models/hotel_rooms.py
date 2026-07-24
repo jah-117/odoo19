@@ -35,17 +35,11 @@ class HotelRooms(models.Model):
 
     @api.model
     def get_room_details(self):
-        rooms = self.search([], limit=4)
-        result = []
-        index = 1
-        for room in rooms:
-            result.append({'room_no': room.room_no_id,
-                           'bed_type': 'Single' if room.bed == 'single' else 'Double' if room.bed == 'double' else 'Dormitory',
+        return [({'room_no': room.room_no_id,
+                           'bed_type': room.bed.capitalize(),
                            'rent': room.rent,
                            'facilities': ' & '.join([fac.name for fac in room.facility_ids]),
                            'state': room.state,
                            'is_active': room.state == 'available',
-                           'image': f'hotel_management/static/src/img/room_{index}.jpg'
-                           })
-            index+=1
-        return result
+                           'image': f'data:image/jpeg;charset=utf-8;base64,{room.image.decode("utf-8")}',
+            })for room in self.search([('image','!=',False)], limit=4) ]

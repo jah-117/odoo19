@@ -10,8 +10,7 @@ class ResConfigSettings(models.TransientModel):
     def get_values(self):
         """Get the value from settings."""
         res = super(ResConfigSettings, self).get_values()
-        icp_sudo = self.env['ir.config_parameter'].sudo()
-        pos_location = icp_sudo.get_param('res.config.settings.pos_location')
+        pos_location = self.env['ir.config_parameter'].sudo().get_param('res.config.settings.pos_location')
         res.update(pos_location=self.env['stock.location'].browse(int(pos_location)))
         return res
 

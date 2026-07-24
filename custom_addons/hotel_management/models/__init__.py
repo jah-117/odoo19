@@ -8,3 +8,5 @@ from . import accommodation_guests_lines
 from . import food_order_lines
 from . import payment_lines
 from . import res_partner
+from . import hotel_image
+from . import res_config_settings

@@ -11,10 +11,12 @@
         <menuitem id="hotel_management_report" name="Report" parent="menu_hotel_management_root" sequence="3" groups="group_hotel_receptionist"/>
             <menuitem id="hotel_report" name="Report" parent="hotel_management_report" action="hotel_management_report_view" sequence="1" groups="group_hotel_receptionist"/>
 
-        <menuitem id="hotel_management_config" name="Configuration" parent="menu_hotel_management_root" sequence="5" groups="group_hotel_manager"/>
-            <menuitem id="hotel_management_rooms" name="Rooms" parent="hotel_management_config" sequence="1" action="action_rooms" groups="group_hotel_manager"/>
-            <menuitem id="hotel_management_facilities" name="Facility" parent="hotel_management_config" sequence="2" action="action_facilities" groups="group_hotel_manager"/>
-            <menuitem id="hotel_management_fooditems" name="Food Items" parent="hotel_management_config" sequence="3" action="action_fooditems" groups="group_hotel_manager"/>
-            <menuitem id="hotel_management_categories" name="Food Category" parent="hotel_management_config" sequence="4" action="action_categories" groups="group_hotel_manager"/>
+        <menuitem id="hotel_management_config" name="Configuration" parent="menu_hotel_management_root" sequence="5" groups="group_hotel_receptionist"/>
+            <menuitem id="hotel_management_settings" name="Settings" parent="hotel_management_config" action="hotel_management_settings_action" sequence="1" groups="group_hotel_receptionist"/>
+            <menuitem id="hotel_management_rooms" name="Rooms" parent="hotel_management_config" sequence="2" action="action_rooms" groups="group_hotel_manager"/>
+            <menuitem id="hotel_management_facilities" name="Facility" parent="hotel_management_config" sequence="3" action="action_facilities" groups="group_hotel_manager"/>
+            <menuitem id="hotel_management_fooditems" name="Food Items" parent="hotel_management_config" sequence="4" action="action_fooditems" groups="group_hotel_manager"/>
+            <menuitem id="hotel_management_categories" name="Food Category" parent="hotel_management_config" sequence="5" action="action_categories" groups="group_hotel_manager"/>
+            <menuitem id="hotel_management_settings" name="Settings" parent="hotel_management_config" action="hotel_management_settings_action" sequence="1" groups="group_hotel_receptionist"/>
 
 </odoo>
