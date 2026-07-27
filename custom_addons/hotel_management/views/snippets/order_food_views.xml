@@ -12,25 +12,28 @@
                     <t t-set="head">
                         <t t-call-asssets="web.assets_frontend" t-js="false"/>
                     </t>
-                    <div id="order-food" data-vcss="order_food">
-                        <div class="container-main">
-                            <div id="food_items" class="col food-items scroll">
-                                Item
+                    <div class="order-food" data-vcss="order_food">
+                            <div class="split left">
+                                <div id="food_items" class="row row-cols-1 row-cols-md-5 g-3">
+                                    <div class="centered">
+                                        Loading available food items
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col">
-                                <div id="cart" class="row cart scroll">
+                            <div class="split right">
+                                <div id="cart" class="row row-cols-1 row-cols-md-2 g-3">
                                     cart
                                 </div>
                                 <div class="row">
                                     <div id="total" class="col total">
                                         total
+                                        <button class="add_add">button</button>
                                     </div>
                                     <div id="confirm" class="col confirm">
-                                        confirm
+                                        <button class="confirm btn btn-primary">Confirm</button>
                                     </div>
                                 </div>
                             </div>
-                        </div>
                     </div>
                 </t>
             </t>

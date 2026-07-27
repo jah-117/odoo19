@@ -1,10 +1,11 @@
-from odoo import api, fields,models
+from odoo import fields,models
 
 class FoodOrderLines(models.Model):
     _name = 'food.order.lines'
 
     food_order_id = fields.Many2one(comodel_name='order.food')
     food_item_id = fields.Many2one(comodel_name='food.items')
+    website_cart_id = fields.Many2one(comodel_name='website.website')
 
     country_id = fields.Many2one(comodel_name='res.country', default=lambda self: self.env.user.company_id.country_id.id)
     currency_id = fields.Many2one(comodel_name='res.currency', related='country_id.currency_id')

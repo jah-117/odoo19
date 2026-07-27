@@ -6,7 +6,7 @@ class FoodItem(models.Model):
     _description = 'Details of food item'
 
     name = fields.Char(string="Name", required=True, help="Name of food.")
-    image = fields.Image(string="Image", max_width=10, max_height=10, help="Image of food.")
+    image = fields.Image(string="Image",  help="Image of food.")
     item = fields.Char(string="Item", help="Item of food.")
     category_id = fields.Many2one("food.categories", string="Category", required=True, help="Category of food item.")
     quantity = fields.Integer(string="Quantity", help="Quantity of food item available.")
@@ -49,6 +49,7 @@ class FoodItem(models.Model):
     @api.model
     def get_food_items(self):
         return [{
+            'id':item.id,
             'name': item.name,
             'image':f'data:image/jpeg;charset=utf-8;base64,{item.image.decode("utf-8")}' if item.image else False,
             'item':item.item,

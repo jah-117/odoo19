@@ -10,3 +10,4 @@ from . import payment_lines
 from . import res_partner
 from . import hotel_image
 from . import res_config_settings
+from . import website_cart

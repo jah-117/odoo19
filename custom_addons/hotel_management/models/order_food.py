@@ -7,7 +7,6 @@ class OrderFood(models.Model):
     _rec_name = ''
 
     state = fields.Selection(selection=[('draft', 'Draft'),('conform','Conform')], default='draft')
-
     accommodation_id = fields.Many2one(comodel_name='hotel.accommodation',
                                        domain="[('state','=','check_in')]",
                                        string="Accommodation",

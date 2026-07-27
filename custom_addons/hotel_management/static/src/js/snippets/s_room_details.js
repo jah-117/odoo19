@@ -7,6 +7,11 @@ export class RoomDetails extends Interaction{
     static selector = '.s_room_details';
     async setup(){
         this.rooms = await this.env.services.orm.call("hotel.room","get_room_details");
+        console.log(this.rooms)
+        if (! this.rooms.length){
+            document.querySelector('.display_carousal').innerHTML = `<p> Unable to get room details </p>`;
+            return
+        }
         const carousalElement = renderToElement('hotel_management.carousal_snippet',{rooms :this.rooms})
         document.querySelector('.display_carousal').innerHTML = carousalElement.innerHTML
     }

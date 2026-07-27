@@ -1,17 +1,18 @@
-.container-main{
-    display:flex;
-    flex-direction:column;
-    max-height:100vh;
-    min-height: 600px;
+.split {
+  height: 100%;
+  position: fixed;
+  z-index: 1;
+  overflow-x: hidden;
+  padding: 10px;
 }
-.food-items{
-    height:100%;
-    border-style: solid;
-    border-color: black;
+
+.left {
+  left: 0;
+  width: 70%;
 }
-.scroll {
-  overflow-y: auto;
-}
-.confirm{
-    justify-self:flex-end;
+
+.right {
+  display: none;
+  right: 0;
+  width: 30%;
 }

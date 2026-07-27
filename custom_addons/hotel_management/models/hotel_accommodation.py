@@ -40,6 +40,7 @@ class HotelAccommodation(models.Model):
                             required=True,
                             help="Accommodating guest, invoice will be issued in this partner's name."
                             )
+    is_online_booking = fields.Boolean(string="Is Online Booking",default=False)
     company_id = fields.Many2one('res.company', default=lambda self: self.env.context.get('allowed_company_ids')[0])
     currency_id = fields.Many2one('res.currency', string="Currency", related='company_id.currency_id')
     number_of_guests = fields.Integer(string="Number of Guests", default=1,
