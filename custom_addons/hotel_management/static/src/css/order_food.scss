@@ -1,7 +1,12 @@
+// .order-food{
+//     padding-top:25px;
+//     position:fixed;
+//     padding-bottom:30%;
+//     }
 .split {
   height: 100%;
   position: fixed;
-  z-index: 1;
+  z-index: 0;
   overflow-x: hidden;
   padding: 10px;
 }
@@ -12,7 +17,19 @@
 }
 
 .right {
-  display: none;
+//   display: none;
   right: 0;
   width: 30%;
+}
+
+.count-btn{
+  margin-top: auto;
+  background-color: rgb(22, 66, 105);
+  padding: 10px 15px;
+  border-radius: 1000px;
+  font-size: 12px;
+}
+.buttonDiv{
+  display: flex;
+  justify-content: space-between;
 }

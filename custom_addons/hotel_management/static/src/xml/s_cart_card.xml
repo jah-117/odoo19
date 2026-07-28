@@ -10,6 +10,11 @@
                             <h5 class="card-title"><t t-esc="item.name"/></h5>
                             <p class="card-text"><t t-esc="item.description"/></p>
                             <button t-att-data-item_id="item.id" class="remove_from_cart btn btn-primary">Remove from cart</button>
+                            <div class="countButtonDiv">
+                                <button id="increment" class="count-btn btn-primary" t-att-data-item_id="item.id">+</button>
+                                <span class="count" t-att-data-item_id="item.id"><t t-esc="item.quantity"/> </span>
+                                <button id="decrement" class="count-btn btn-primary" t-att-data-item_id="item.id">-</button>
+                            </div>
                         </div>
                     </div>
                 </div>

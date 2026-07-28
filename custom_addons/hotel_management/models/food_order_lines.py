@@ -5,7 +5,7 @@ class FoodOrderLines(models.Model):
 
     food_order_id = fields.Many2one(comodel_name='order.food')
     food_item_id = fields.Many2one(comodel_name='food.items')
-    website_cart_id = fields.Many2one(comodel_name='website.website')
+    website_cart_id = fields.Many2one(comodel_name='website.cart')
 
     country_id = fields.Many2one(comodel_name='res.country', default=lambda self: self.env.user.company_id.country_id.id)
     currency_id = fields.Many2one(comodel_name='res.currency', related='country_id.currency_id')

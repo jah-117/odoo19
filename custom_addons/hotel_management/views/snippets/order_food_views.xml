@@ -13,27 +13,61 @@
                         <t t-call-asssets="web.assets_frontend" t-js="false"/>
                     </t>
                     <div class="order-food" data-vcss="order_food">
-                            <div class="split left">
-                                <div id="food_items" class="row row-cols-1 row-cols-md-5 g-3">
-                                    <div class="centered">
-                                        Loading available food items
+                        <div class="split left">
+                            <div id="food_items" class="row row-cols-1 row-cols-md-4 g-3">
+                                <t t-set="items" t-value="request.env['food.items'].sudo().search([])">
+                                <t t-foreach="items" t-as="item" t-key="item.id">
+                                    <div class="col">
+                                        <div class="card h-100">
+                                            <img t-att-src="item.get_image_url()" class="card-img-top" t-att-alt="item.item"/>
+                                            <div class="card-body">
+                                                <h5 class="card-title"><t t-esc="item.name"/> </h5>
+                                                <p class="card-text">
+                                                    <t t-esc="item.description"/><br/>
+                                                    Available quantity = <t t-esc="item.quantity"/>
+                                                </p>
+                                                <button t-att-data-item_id="item.id" class="add_to_cart btn btn-primary">Add to Cart - <t t-esc="item.price"/>$</button>
+                                            </div>
+                                        </div>
                                     </div>
+                                </t>
+                                </t>
+                            </div>
+                        </div>
+                        <div class="split right">
+                            <div id="cart" class="row row-cols-1 row-cols-md-2 g-3">
+<!--                                <t t-set="cart" t-value="request.env['website.cart'].sudo().search([('user_id','=',request.session.uid),('active','=',True)])">-->
+<!--                                <t t-foreach="cart.food_order_line_ids" t-as="order_line" t-key="order_line.id">-->
+<!--                                    <t t-set="food_item" t-value="order_line.food_item_id"/>-->
+<!--                                    <div class="col">-->
+<!--                                        <div class="card h-100">-->
+<!--                                            <img t-att-src="food_item.get_image_url()" class="card-img-top" t-att-alt="food_item.item"/>-->
+<!--                                            <div class="card-body">-->
+<!--                                                <h5 class="card-title"><t t-esc="food_item.name"/></h5>-->
+<!--                                                <p class="card-text"><t t-esc="food_item.description"/></p>-->
+<!--                                                <button t-att-data-item_id="order_line.id" class="remove_from_cart btn btn-primary">Remove from cart</button>-->
+<!--                                                <div class="countButtonDiv">-->
+<!--                                                    <button id="increment" class="count-btn btn-primary" t-att-data-item_id="order_line.id">+</button>-->
+<!--                                                    <span class="count" t-att-data-item_id="order_line.id"><t t-esc="order_line.quantity"/> </span>-->
+<!--                                                    <button id="decrement" class="count-btn btn-primary" t-att-data-item_id="order_line.id">-</button>-->
+<!--                                                </div>-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                </t>-->
+<!--                                </t>-->
+                            </div>
+                            <div class="row">
+                                <button class="add_add">button</button>
+                                <div id="total" class="col total">
+                                    total
+                                </div>
+                                <div id="confirm" class="col confirm">
+                                    <button class="confirm-btn btn btn-primary">Confirm</button>
+
                                 </div>
                             </div>
-                            <div class="split right">
-                                <div id="cart" class="row row-cols-1 row-cols-md-2 g-3">
-                                    cart
-                                </div>
-                                <div class="row">
-                                    <div id="total" class="col total">
-                                        total
-                                        <button class="add_add">button</button>
-                                    </div>
-                                    <div id="confirm" class="col confirm">
-                                        <button class="confirm btn btn-primary">Confirm</button>
-                                    </div>
-                                </div>
-                            </div>
+                        </div>
                     </div>
                 </t>
             </t>

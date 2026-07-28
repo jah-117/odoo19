@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<templates xml:space="preserve">
+<odoo>
+<template  xml:space="preserve">
     <t t-name="hotel_management.item_card">
         <div class="item-card">
             <t t-foreach="items" t-as="item" t-key="item.id">
@@ -19,4 +20,6 @@
             </t>
         </div>
     </t>
-</templates>
+</template>
+
+</odoo>

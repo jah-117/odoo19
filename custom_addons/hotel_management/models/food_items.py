@@ -54,7 +54,12 @@ class FoodItem(models.Model):
             'image':f'data:image/jpeg;charset=utf-8;base64,{item.image.decode("utf-8")}' if item.image else False,
             'item':item.item,
             'category':item.category_id.name,
-            'quantity':item.quantity,
+            'available_quantity':item.quantity,
             'price':item.price,
             'description':item.description,
             } for item in self.search([]) ]
+    def get_image_url(self):
+        if self.image:
+            return f'data:image/jpeg;charset=utf-8;base64,{self.image.decode("utf-8")}'
+        else:
+            return ''

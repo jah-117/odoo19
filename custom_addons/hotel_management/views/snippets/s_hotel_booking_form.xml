@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-
     <template id="s_hotel_booking_form" name="Hotel Booking">
       <t t-set="head">
         <t t-call-asssets="web.assets_frontend" t-js="false"/>
@@ -13,6 +12,7 @@
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                         <div class="row">
                             <div class="col">
+
                                 <div class="form-group col-12">
                                 <div class="row">
                                     <label class="col-form-label col-sm-auto" style="width: 200px;" for="guest">
