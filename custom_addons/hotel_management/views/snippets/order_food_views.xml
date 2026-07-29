@@ -16,38 +16,38 @@
                     <t t-set="items" t-value="request.env['food.items'].sudo().search([])"/>
                     <div class="order-food" data-vcss="order_food">
                         <div class="split left">
-                            <div id="food_items" class="row row-cols-1 row-cols-md-4 g-3">
+                            <div id="food_items" class="row row-cols-2 row-cols-md-5 g-3">
                                 <t t-foreach="items" t-as="item" t-key="item.id">
-                                    <t t-if="item.get_item_in_cart(cart.id)">
-                                        <div t-attf-class="col {{'food-item-'+str(item.id)}}">
-                                            <div class="card h-100">
-                                                <img t-att-src="item.get_image_url()" class="card-img-top" t-att-alt="item.item"/>
-                                                <div class="card-body">
-                                                    <h5 class="card-title"><t t-esc="item.name"/> </h5>
-                                                    <p class="card-text">
-                                                        <t t-esc="item.description"/><br/>
-                                                        Available quantity = <t t-esc="item.quantity"/>
-                                                    </p>
-                                                    <button t-att-data-item_id="item.id" t-att-data-cart_id="cart.id" class="add_to_cart btn btn-primary">Add to Cart - <t t-esc="item.price"/>$</button>
-                                                </div>
+                                    <div t-attf-class="col {{'food-item-'+str(item.id)}}">
+                                        <div class="card h-100">
+                                            <img t-att-src="item.get_image_url()" class="card-img-top" t-att-alt="item.item"/>
+                                            <div class="card-body">
+                                                <h5 class="card-title"><t t-esc="item.name"/> </h5>
+                                                <p class="card-text">
+                                                    <t t-esc="item.description"/><br/>
+                                                    <t t-if="item.quantity &lt; 1"><span style="color:red">Out of stock</span></t>
+                                                    <t t-else="">Available quantity = <t t-esc="item.quantity"/></t>
+                                                </p>
+                                                <button t-att-data-item_id="item.id" t-att-data-cart_id="cart.id"
+                                                        t-attf-class="add_to_cart btn btn-primary {{'disabled' if item.quantity &lt; 1 else ''}}">
+                                                    Add to Cart - <t t-esc="item.price"/>$
+                                                </button>
                                             </div>
                                         </div>
-                                    </t>
+                                    </div>
                                 </t>
                             </div>
                         </div>
-                        <t t-if="cart and cart.food_order_line_ids.ids != []">
-                        <div class="split right">
+                        <div  class="split right">
                             <div id="cart" class="col">
-                                <t t-foreach="cart.food_order_line_ids" t-as="order_line" t-key="order_line.id">
-                                    <t t-set="food_item" t-value="order_line.food_item_id"/>
-                                    <div t-attf-class="col {{'order-id-'+str(order_line.id)}}">
-                                        <div class="card h-100">
-                                            <img t-att-src="food_item.get_image_url()" class="card-img-top" t-att-alt="food_item.item"/>
-                                            <div class="card-body">
-                                                <h5 class="card-title"><t t-esc="food_item.name"/></h5>
-                                                <p class="card-text"><t t-esc="food_item.description"/></p>
-                                                <div class="css_quantity input-group d-inline-flex order-firstalign-middle border">
+                                <ol t-if="cart and cart.food_order_line_ids.ids != []" class="list-group list-group-numbered">
+                                    <t t-foreach="cart.food_order_line_ids" t-as="order_line" t-key="order_line.id"><t t-set="food_item" t-value="order_line.food_item_id"/>
+                                        <li t-attf-class="{{'order-id-'+str(order_line.id)}} list-group-item d-flex justify-content-between align-items-start">
+                                            <div class="ms-2 me-auto">
+                                                <div class="fw-bold"><t t-esc="food_item.name"/></div>
+                                                <t t-esc="food_item.description"/>
+                                            </div>
+                                            <div class="css_quantity input-group d-inline-flex order-firstalign-middle border">
                                                     <a t-attf-href="#"
                                                        id="decrement"
                                                        t-att-data-order_id="order_line.id" t-att-data-cart_id="cart.id"
@@ -65,24 +65,28 @@
                                                         <i class="oi oi-plus text-600"/>
                                                     </a>
                                                 </div>
-                                                <div style="height:10px"/>
-                                                <button t-att-data-order_id="order_line.id" t-att-data-cart_id="cart.id"
-                                                        class="remove_from_cart btn btn-primary">Remove from cart</button>
-                                            </div>
-                                        </div>
-                                    </div>
+<!--                                            <span class="badge bg-primary rounded-pill"><t t-esc="order_line.quantity"/> </span>-->
+                                            <div style="width:5px"> </div>
+                                            <span t-attf-class="badge bg-primary rounded-pill {{'order-line-'+str(order_line.id)}}"><t t-esc="order_line.subtotal"/>$ </span>
+                                            <div style="width:5px"> </div>
+                                            <span class="badge remove_from_cart btn-primary rounded-pill"
+                                                  t-att-data-order_id="order_line.id" t-att-data-cart_id="cart.id">
+                                                <i class="fa fa-trash" aria-hidden="true"> </i>
+                                            </span>
+                                        </li>
                                     </t>
+                                </ol>
                             </div>
-                            <div class="row">
+                            <div class=" col total-confirm">
                                 <div id="total" class="col total">
-                                    <span>Total amount:<span class="cart-total"> <t t-esc="cart.total"/> </span>$</span>
+                                    <span>Total amount:</span> <span class="cart-total"><t t-esc="cart.total"/>$</span>
                                 </div>
-                                <div id="confirm" class="col confirm">
-                                    <button t-att-data-cart_id="cart.id" class="confirm-btn btn btn-primary">Confirm</button>
+                                <div id="confirm" class="confirm">
+                                    <button t-att-data-cart_id="cart.id"
+                                            t-attf-class="confirm-btn btn btn-primary {{'' if cart and cart.food_order_line_ids.ids != [] else 'disabled'}}">Place Order</button>
                                 </div>
                             </div>
                         </div>
-                        </t>
                     </div>
                 </t>
             </t>

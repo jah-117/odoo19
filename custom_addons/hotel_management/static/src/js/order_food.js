@@ -36,12 +36,14 @@ export class OrderFood extends Interaction {
     async addToCart(event) {
         event.preventDefault();
         let cart = event.currentTarget.attributes.getNamedItem('data-cart_id');
-        console.log(event.currentTarget)
-        await this.env.services.orm.rpc('/add_to_cart',{
+        let res = await this.env.services.orm.rpc('/add_to_cart',{
             item_id:event.currentTarget.attributes.getNamedItem('data-item_id').value,
             cart_id:cart !== null ? cart.value : false,
             accommodation_id: this.user.accommodation_id,
         });
+        if(parseInt(res.code)===400){
+            window.alert(res.message)
+        }
         window.location.reload();
     }
     async removeFromCart(event) {
@@ -59,9 +61,14 @@ export class OrderFood extends Interaction {
             order_id: order_id,
             is_increment: event.currentTarget.getAttribute('id') === 'increment',
         })
+        if(parseInt(res.code) === 400){
+            window.alert(res.message)
+            window.location.reload();
+            return
+        }
         document.querySelector(`.quantity-${order_id}`).value = res.quantity;
-        document.querySelector(`.cart-total`).innerHTML = ` ${res.total} `;
-
+        document.querySelector(`.order-line-${order_id}`).innerHTML = `${res.subtotal}$`
+        document.querySelector(`.cart-total`).innerHTML = `${res.total} $`;
      }
     async confirmOrder(event) {
         event.preventDefault();
@@ -69,8 +76,9 @@ export class OrderFood extends Interaction {
             cart_id:event.currentTarget.attributes.getNamedItem('data-cart_id').value,
         });
         console.log(res);
-        window.alert(res.message)
-        window.location.reload();
+        window.alert(res.message);
+        window.location.replace('/');
+
     }
 }
 

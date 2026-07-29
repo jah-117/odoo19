@@ -70,7 +70,6 @@
             'hotel_management/static/src/js/snippets/*',
             'hotel_management/static/src/xml/*',
             'hotel_management/static/src/js/order_food.js',
-            # 'hotel_management/static/src/js/item_card.js',
         ]
     }
 }

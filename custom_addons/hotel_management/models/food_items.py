@@ -15,11 +15,6 @@ class FoodItem(models.Model):
     price = fields.Monetary(string="Price", currency_field="currency_id", help="Price of food item.")
     description = fields.Char(string="Description")
 
-    def get_item_in_cart(self, cart_id):
-        cart = self.env['website.cart'].sudo().browse(int(cart_id))
-        if self.id in [order.food_item_id.id for order in cart.food_order_line_ids]:
-            return False
-        return True
 
 
     @api.model
