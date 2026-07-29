@@ -7,17 +7,10 @@ export class OrderFood extends Interaction {
     static selector = '.order-food';
 
     setup() {
-        this.cart = [];
-    }
-
-    willStart() {
-        // thisxs();
+        this.loadCart();
     }
 
     dynamicContent = {
-        ".add_add": {
-            "t-on-click": (event) => this.addadd(event)
-        },
         ".add_to_cart": {
             "t-on-click": (event) => this.addToCart(event)
         },
@@ -32,115 +25,52 @@ export class OrderFood extends Interaction {
         }
     }
 
-    addadd(event) {
-        event.preventDefault();
-        console.log(event)
-    }
-
-    loadFoodItems() {
-        this.services.orm.call("food.items", "get_food_items").then((data) => {
-            this.foodItems = data;
-            this.updateFoodItems();
-            this.loadCart()
-        });
-    }
-
     async loadCart() {
-        this.user = await this.env.services.orm.rpc("/get_cart_data");
+        this.user = await this.env.services.orm.rpc("/load_user_data");
         if (this.user.code === 404) {
             window.alert(this.user.error);
             window.location.pathname = this.user.redirect_url;
-        } else {
-            if (this.user.cart !== false) {
-                let right_split = document.querySelector('.right');
-                for (let index = 0; index < this.user.cart.items.length; index++) {
-                    let item = this.foodItems.find((item) => item.id === parseInt(this.user.cart.items[index].id))
-                    if(item !== undefined) {
-                        item.order_line_id = parseInt(this.user.cart.items[index].order_line_id)
-                        item.quantity = parseInt(this.user.cart.items[index].quantity)
-                        this.cart.push(item);
-                        this.foodItems = this.foodItems.filter((item) => item.id !== parseInt(this.user.cart.items[index].id));
-                    }
-                }
-                this.total = this.user.cart.total;
-                document.querySelector('#total').innerHTML = `<p>Total Order amount: \$<span class="amount">${this.total}</span></p>`
-                let cart_card = renderToElement('hotel_management.cart_card', {items: this.cart})
-                document.querySelector('#cart').innerHTML = cart_card.innerHTML;
-                right_split.style.display = 'block';
-
-            }
-            this.updateFoodItems();
         }
     }
 
-    updateFoodItems() {
-        if (!this.foodItems.length) {
-            document.querySelector('#food_items').innerHTML = `<p>No food items found</p>`;
-            return
-        }
-        let item_cards = renderToElement('hotel_management.item_card', {items: this.foodItems});
-        document.querySelector('#food_items').innerHTML = item_cards.innerHTML
-    }
-
-    async updateCart(order_line_id=0) {
-        let cart_card = renderToElement('hotel_management.cart_card', {items: this.cart})
-        document.querySelector('#cart').innerHTML = cart_card.innerHTML;
-        console.log(this.cart)
-        this.user.cart = await this.env.services.orm.rpc('/update_cart', {items: this.cart, user: this.user,removed_order_line:order_line_id});
-        this.total = this.user.cart.total;
-        for (let index = 0; index < this.cart.length; index++) {
-            this.cart[index].order_line_id = this.user.cart.items[index].order_line_id
-        }
-        document.querySelector('#total').innerHTML = `<p>Total Order amount: \$<span class="amount">${this.total}</span></p>`
-    }
-
-    addToCart(event) {
+    async addToCart(event) {
         event.preventDefault();
-        let item_id= parseInt(event.currentTarget.attributes.getNamedItem('data-item_id').value);
-        let item = this.foodItems.find((item) => item.id === item_id);
-        item.quantity = 1;
-        this.cart.push(item);
-        this.foodItems = this.foodItems.filter((item) => item.id !== item_id);
-        this.updateFoodItems();
-        this.updateCart();
+        let cart = event.currentTarget.attributes.getNamedItem('data-cart_id');
+        console.log(event.currentTarget)
+        await this.env.services.orm.rpc('/add_to_cart',{
+            item_id:event.currentTarget.attributes.getNamedItem('data-item_id').value,
+            cart_id:cart !== null ? cart.value : false,
+            accommodation_id: this.user.accommodation_id,
+        });
+        window.location.reload();
     }
-    updateQuantity(event){
-        let item_id = parseInt(event.currentTarget.getAttribute('data-item_id'));
-        event.currentTarget.getAttribute('id') === 'increment'?
-            this.cart.forEach((item,index, cart)=>{
-                if(item.id === item_id){
-                    cart[index].quantity = item.quantity+1;
-                    cart[index].subtotal = item.price * cart[index].quantity;
-                    this.updateCart()
-                }
-            }):
-            this.cart.forEach((item,index,cart)=>{
-                if (item.id === item_id) {
-                    cart[index].quantity = item.quantity-1;
-                    cart[index].subtotal = item.price * cart[index].quantity;
-                    if(! item.quantity){
-                        this.removeFromCart(false, item.id);
-                    }
-                    else{
-                        this.updateCart();
-                    }
-                }
-            });
+    async removeFromCart(event) {
+        event.preventDefault();
+        await this.env.services.orm.rpc('/remove_from_cart',{
+            order_id:event.currentTarget.attributes.getNamedItem('data-order_id').value,
+            cart_id:event.currentTarget.attributes.getNamedItem('data-cart_id').value,
+        });
+        window.location.reload();
+    }
+
+    async updateQuantity(event){
+        let order_id = event.currentTarget.getAttribute('data-order_id')
+        let res = await this.env.services.orm.rpc('/update_quantity',{
+            order_id: order_id,
+            is_increment: event.currentTarget.getAttribute('id') === 'increment',
+        })
+        document.querySelector(`.quantity-${order_id}`).value = res.quantity;
+        document.querySelector(`.cart-total`).innerHTML = ` ${res.total} `;
+
      }
-    removeFromCart(event =false, item_id=-1,) {
-        event !== false ? event.preventDefault() : undefined;
-        item_id = item_id !== -1 ? item_id : parseInt(event.currentTarget.attributes.getNamedItem('data-item_id').value);
-        let item = this.cart.find((item) => item.id === item_id)
-        this.cart = this.cart.filter((item) => item.id !== item_id);
-        this.updateCart(item.order_line_id);
-        item.order_line_id = 0;
-        this.foodItems.push(item);
-        this.updateFoodItems();
-    }
-    confirmOrder(event) {
+    async confirmOrder(event) {
         event.preventDefault();
-        console.log('confirming')
-        this.env.services.orm.rpc('/confirm_order', {cart: this.user.cart, user: this.user});
+        let res = await this.env.services.orm.rpc('/confirm_order', {
+            cart_id:event.currentTarget.attributes.getNamedItem('data-cart_id').value,
+        });
+        console.log(res);
+        window.alert(res.message)
+        window.location.reload();
     }
 }
 

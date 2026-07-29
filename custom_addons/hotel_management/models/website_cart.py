@@ -11,20 +11,25 @@ class WebsiteCart(models.Model):
     total = fields.Float(string='Total Price')
     active = fields.Boolean(string="Active", default=True)
 
+
+    def compute_total(self):
+        self.total = sum([order.subtotal for order in self.food_order_line_ids])
+        return self.total
+
     def confirm_order(self):
         order_lines = self.food_order_line_ids
-        print(order_lines)
-        self.food_order_line_ids = False
-        print(self.food_order_line_ids)
-        order_food_id = self.env['order.food'].sudo().create({
-            'accommodation_id': self.accommodation_id.id,
-            'food_order_line_ids': [fields.Command.link(line.id) for line in order_lines],
-            'total_amount':self.total,
-        })
-        print(order_food_id)
-        order_food_id.compute_total()
-        print('computed total')
-        order_food_id.conform_order()
-        print('conformed order')
-        self.active = False
-        print('active',self.active)
+        try:
+            order_food_id = self.env['order.food'].sudo().create({
+                'accommodation_id': self.accommodation_id.id,
+                'food_order_line_ids': [fields.Command.link(line.id) for line in order_lines],
+                'total_amount': self.total,
+            })
+            self.food_order_line_ids = False
+            order_food_id.compute_total()
+            order_food_id.conform_order()
+            self.active = False
+            return True, 'Success'
+        except Exception as e:
+            self.food_order_line_ids = order_lines
+            return False, str(e)
+

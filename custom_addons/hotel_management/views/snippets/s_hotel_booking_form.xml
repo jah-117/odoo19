@@ -12,7 +12,6 @@
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                         <div class="row">
                             <div class="col">
-
                                 <div class="form-group col-12">
                                 <div class="row">
                                     <label class="col-form-label col-sm-auto" style="width: 200px;" for="guest">
