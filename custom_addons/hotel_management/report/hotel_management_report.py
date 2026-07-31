@@ -61,7 +61,7 @@ class HotelManagementReport(models.Model):
         return {
             'type':'ir.actions.report',
             'data': {
-                  'model': 'hotel.management.report',
+                'model': 'hotel.management.report',
                 'options': json.dumps(data, default=json_default),
                 'output_format': 'xlsx',
                 'report_name': 'Hotel Management Report'

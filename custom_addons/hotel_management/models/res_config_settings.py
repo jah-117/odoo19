@@ -4,7 +4,7 @@ from odoo import fields, models, api
 class ResConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
 
-    hotel_image_ids = fields.Many2many('hotel.image', string="Hotel Images",inverse_name='id')
+    hotel_image_ids = fields.Many2many('hotel.image', string="Hotel Images")
 
     def set_values(self):
         res = super(ResConfigSettings, self).set_values()

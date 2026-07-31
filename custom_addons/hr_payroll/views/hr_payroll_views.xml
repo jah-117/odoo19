@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem id="hr_payroll_root" name="Payroll"/>
+        <menuitem id="hr_payroll_manage_employees" name="Employees" parent="hr_payroll_root" sequence="1"/>
+            <menuitem id="hr_payroll_employees" name="Employees" parent="hr_payroll_manage_employees" action="hr.open_view_employee_list_my" sequence="1"/>
+        <menuitem id="hr_payroll_timeoff" name="Time Off" parent="hr_payroll_root" action="hr_holidays.action_hr_holidays_dashboard" sequence="2"/>
+        <menuitem id="hr_payroll_config" name="Configuration" parent="hr_payroll_root" sequence="10"/>
+            <menuitem id="hr_payroll_contracts" name="Contracts" parent="hr_payroll_config" sequence="1"/>
+                <menuitem id="hr_payroll_templates" name="Templates" parent="hr_payroll_contracts" action="hr.action_hr_contract_templates" sequence="1"/>
+                <menuitem id="hr_payroll_employee_types" name="Employee Types" parent="hr_payroll_contracts" action="hr_contract_type_action" sequence="2"/>
+            <menuitem id="hr_payroll_time" name="Time" parent="hr_payroll_config" sequence="2"/>
+                <menuitem id="hr_payroll_time_types" name="Time Types" parent="hr_payroll_time" action="hr_holidays.open_view_holiday_status" sequence="1"/>
+                <menuitem id="hr_payroll_working_schedules" name="Working Schedules" parent="hr_payroll_time" action="resource.action_resource_calendar_form" sequence="2"/>
+</odoo>

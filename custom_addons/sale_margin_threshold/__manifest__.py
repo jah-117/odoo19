@@ -15,8 +15,10 @@
     'depends': [
         'product',
         'sale',
+        'web',
     ],
     'data': [
         "views/product_category_views.xml",
+        "views/sale_order_views.xml",
     ]
 }
