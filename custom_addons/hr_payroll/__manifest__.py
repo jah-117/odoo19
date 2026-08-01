@@ -22,6 +22,11 @@
         "security/ir.model.access.csv",
 
         "views/hr_employee_type_views.xml",
+        "views/hr_contract_salary_benefit_views.xml",
+        "views/hr_structure_type_views.xml",
+        "views/hr_structure_views.xml",
+        "views/hr_salary_rule_views.xml",
+        "views/hr_employee_views.xml",
         "views/hr_payroll_views.xml",
     ],
 }

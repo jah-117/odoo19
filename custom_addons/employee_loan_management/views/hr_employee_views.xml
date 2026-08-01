@@ -6,8 +6,8 @@
         <field name="model">hr.employee</field>
         <field name="inherit_id" ref="hr.view_employee_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='employee_type']" position="replace">
-                <field name="employee_type_id" placeholder="Select employee type"/>
+            <xpath expr="//field[@name='parent_id']" position="after">
+                <field name="loan_not_allowed"/>
             </xpath>
         </field>
     </record>

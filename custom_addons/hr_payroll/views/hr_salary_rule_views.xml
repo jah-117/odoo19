@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="salary_rule_action" model="ir.actions.act_window">
+        <field name="name">Salary Rules</field>
+        <field name="res_model">hr.salary.rule</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="salary_rule_list_view" model="ir.ui.view">
+        <field name="name">salary.rule.list.view</field>
+        <field name="model">hr.salary.rule</field>
+        <field name="type">list</field>
+        <field name="arch" type="xml">
+            <list string="Salary Rules" >
+                <field name="name"/>
+                <field name="code"/>
+                <field name="struct_ids" widget="many2many_tags" optional="show"/>
+                <field name="category_ids" widget="many2many_tags" optional="show"/>
+                <field name="sequence" column_invisible="True"/>
+                <field name="country_id" optional="hidden"/>
+            </list>
+        </field>
+    </record>
+    <record id="salary_rule_form_view" model="ir.ui.view">
+        <field name="name">salary.rule.form.view</field>
+        <field name="model">hr.salary.rule</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form string="Salary Rules" >
+            <sheet>
+                <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                <label for="name" string="Rule Name"/>
+                <h1><field name="name" class="w-100" placeholder="e.g. Net Salary"/></h1>
+                <group name="main_details">
+                    <group>
+                        <field name="code"/>
+                        <field name="category_ids" placeholder="e.g. Net" widget="many2many_tags"/>
+                        <field name="struct_ids" widget="many2many_tags" />
+                    </group>
+                    <group>
+                        <field name="country_id" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="sequence"/>
+                    </group>
+                </group>
+                <notebook colspan="6">
+                    <page name="general" string="General">
+                        <group string="Condition">
+                            <group colspan="2">
+                                <field name="condition_select" class="radio_grid" widget="radio" options="{'horizontal': true}" invisible="condition_select == 'property_input'"/>
+                                <field name="condition_domain" invisible="condition_select != 'domain'" widget="domain" options="{'foldable': True, 'model': 'hr.payslip'}"/>
+                                <field name="condition_other_input_id" invisible="condition_select != 'input'" required="condition_select == 'input'"/>
+                            </group>
+                            <group colspan="2" invisible="condition_select != 'property_input'">
+                                <group>
+                                    <field name="condition_select" class="radio_grid" widget="radio" options="{'horizontal':true}" />
+                                    <field name="input_name" string="Name" invisible="condition_select != 'property_input'"/>
+                                </group>
+                                <group>
+                                    <field name="input_unit" class="radio_grid"  widget="radio" options="{'horizontal':true}" required="condition_select == 'property_input'"/>
+                                    <field name="input_default_boolean" invisible="input_unit != 'boolean' or condition_select != 'property_input'"/>
+                                    <label for="input_default_value" invisible="input_unit in ['boolean', 'selection', 'many2one'] or condition_select != 'property_input'"/>
+                                    <div class="o_row" invisible="input_unit in ['boolean', 'selection', 'many2one'] or condition_select != 'property_input'">
+                                        <field name="currency_id" invisible="1"/>
+                                        <field name="input_default_value" class="o_hr_narrow_field" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}" invisible="input_unit != 'monetary'"/>
+                                        <field name="input_default_value" class="o_hr_narrow_field" nolabel="1" invisible="input_unit == 'monetary'"/>
+                                        <span invisible="input_unit != 'percentage'">%</span>
+                                        <field name="input_suffix" nolabel="1" placeholder="Suffix (e.g. monthly, ...)"/>
+                                    </div>
+                                    <field name="input_comodel" invisible="condition_select != 'property_input' or input_unit != 'many2one'" required="input_unit == 'many2one'"/>
+                                    <field name="input_selection_ids" string="Options" invisible="condition_select != 'property_input' or input_unit != 'selection'" class="w-100" help="The default selection will be the first one in the sequence">
+                                        <list editable="bottom">
+                                            <field name="sequence" widget="handle" width="40"/>
+                                            <field name="key"/>
+                                            <field name="value"/>
+                                        </list>
+                                    </field>
+                                    <field name="input_no_transfer" invisible="condition_select != 'property_input'" groups="base.group_no_one"/>
+                                </group>
+                            </group>
+                            <group colspan="4" invisible="condition_select != 'python'">
+                                <div class="w-100 d-flex flex-row gap-3" invisible="condition_select != 'python'" colspan="2">
+                                    <field name="condition_python" class="w-50" widget="code" options="{'mode': 'python', 'lineWrapping': True}" required="condition_select == 'python'"/>
+                                    <div class="w-50 opacity-75 text-muted" colspan="2">
+                                        <span> Available variables: </span>
+                                        <ul>
+                                            <li><code>payslip</code>: hr.payslip object</li>
+                                            <li><code>employee</code>: hr.employee object</li>
+                                            <li><code>version</code>: hr.version object</li>
+                                            <li><code>company</code>: res.company object</li>
+                                            <li><code>result_rules</code>: dict containing the rules amounts, quantities, rates and totals (previously computed)</li>
+                                            <li><code>categories</code>: dict containing the computed salary rule categories (sum of amount of all rules belonging to that category).</li>
+                                            <li><code>worked_days</code>: dict containing the computed worked days</li>
+                                            <li><code>inputs</code>: dict containing the computed inputs.</li>
+                                        </ul>
+                                        <span>Output:</span>
+                                        <ul>
+                                            <li><code>result</code>: boolean True if the rule should be calculated, False otherwise</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </group>
+                        </group>
+
+                        <group string="Computation" colspan="4">
+                            <group colspan="2">
+                                <field name="amount_select" widget="radio" options="{'horizontal':true}"/>
+                            </group>
+                            <group>
+                                <field name="amount_percentage_base" invisible="amount_select != 'percentage'" required="amount_select == 'percentage' and condition_select != 'property_input'"/>
+                                <field name="quantity" invisible="amount_select in ['code', 'input', 'property_input']" required="amount_select not in ['code', 'input']"/>
+                                <field name="amount_fix" invisible="amount_select != 'fix'" required="amount_select == 'fix'"/>
+                                <field name="amount_other_input_id" invisible="amount_select != 'input'" required="amount_select == 'input'"/>
+                                <field name="amount_percentage" invisible="amount_select != 'percentage'" required="amount_select == 'percentage'"/>
+                            </group>
+                            <group colspan="4" invisible="amount_select != 'code'">
+                                <div class="w-100 d-flex flex-row gap-3" invisible="amount_select != 'code'" colspan="2">
+                                    <field name="amount_python_compute" class="w-50" widget="code" options="{'mode': 'python', 'lineWrapping': True}" required="amount_select == 'code'"/>
+                                    <div class="w-50 opacity-75 text-muted" colspan="2">
+                                        <span> Available variables: </span>
+                                        <ul>
+                                            <li><code>payslip</code>: hr.payslip object</li>
+                                            <li><code>employee</code>: hr.employee object</li>
+                                            <li><code>version</code>: hr.version object</li>
+                                            <li><code>company</code>: res.company object</li>
+                                            <li><code>result_rules</code>: dict containing the rules amounts, quantities, rates and totals (previously computed)</li>
+                                            <li><code>categories</code>: dict containing the computed salary rule categories (sum of amount of all rules belonging to that category).</li>
+                                            <li><code>worked_days</code>: dict containing the computed worked days</li>
+                                            <li><code>inputs</code>: dict containing the computed inputs.</li>
+                                        </ul>
+                                        <span>Output:</span>
+                                        <ul>
+                                            <li><code>result</code>: float, base amount of the rule</li>
+                                            <li><code>result_rate</code>: float, rate between -100.0 and 100.0, which defaults to 100.0 (%).</li>
+                                            <li><code>result_qty</code>: float, quantity, which defaults to 1.</li>
+                                            <li><code>result_name</code>: string, name of the line, which defaults to the name field of the salary rule (useful if the name depends or should depend on something computed in the rule).</li>
+                                            <li>The total returned by the salary rule is calculated as:</li>
+                                            <code>total = result * result_rate / 100 * result_qty</code>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </group>
+                            <group colspan="2" string="Company Contribution">
+<!--                                <field name="partner_id"/>-->
+                            </group>
+                        </group>
+                    </page>
+                </notebook>
+            </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -1,7 +1,7 @@
 from odoo import fields,models
 CONDITION = [
     ('none','Always Present'),
-    ('property_inio0put','Salary Input'),
+    ('property_input','Salary Input'),
     ('input','Other Input'),
     ('domain','Domain'),
     ('python','Python Expression'),
@@ -23,8 +23,12 @@ UNIT = [
 ]
 class SalaryRule(models.Model):
     _name = 'hr.salary.rule'
+    _description = 'Salary Rule'
 
     name = fields.Char(string="Name")
+    code = fields.Char(string="Code")
+    active = fields.Boolean(string="Active",default=True)
+    sequence = fields.Integer(string="Sequence",default=10)
     category_ids = fields.Many2many(comodel_name='hr.salary.rule.category', string="Categories")
     struct_ids = fields.Many2many(comodel_name='hr.payroll.structure', string="Pay Structures")
     country_id = fields.Many2one(comodel_name='res.country', string="Country", default=lambda self: self.env.user.company_id.country_id)

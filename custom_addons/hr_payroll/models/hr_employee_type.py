@@ -24,6 +24,7 @@ CLOSING_DATE = [
 
 class HrEmployeeType(models.Model):
     _name = 'hr.employee.type'
+    _description = 'Employee Type'
 
     sequence = fields.Integer(string="Sequence")
     code = fields.Char(string="Code")

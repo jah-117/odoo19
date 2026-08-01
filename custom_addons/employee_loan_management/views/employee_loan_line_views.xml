@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="employee_loan_line_action" model="ir.actions.act_window">
+        <field name="name">Loans</field>
+        <field name="res_model">employee.loan.line</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <record id="loan_line_list_view" model="ir.ui.view">
+        <field name="name">loan_line.list.view</field>
+        <field name="model">employee.loan.line</field>
+        <field name="type">list</field>
+        <field name="arch" type="xml">
+            <list string="Loan Lines">
+                <field name="loan_id"/>
+                <field name="date"/>
+                <field name="amount"/>
+                <field name="paid"/>
+            </list>
+        </field>
+    </record>
+    <record id="loan_line_form_view" model="ir.ui.view">
+        <field name="name">loan_line.form.view</field>
+        <field name="model">employee.loan.line</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form string="Loan Lines">
+                <sheet>
+                    <group>
+                        <field name="loan_id"/>
+                        <field name="date"/>
+                    </group>
+                    <group>
+                        <field name="amount"/>
+                        <field name="paid"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

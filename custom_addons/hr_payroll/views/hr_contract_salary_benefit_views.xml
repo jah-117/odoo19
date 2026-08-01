@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="salary_benefit_action" model="ir.actions.act_window">
+        <field name="name">Salary Benefits</field>
+        <field name="res_model">hr.contract.salary.benefit</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="salary_benefit_view_list_view" model="ir.ui.view">
+        <field name="name">salary.benefit.list.view</field>
+        <field name="model">hr.contract.salary.benefit</field>
+        <field name="type">list</field>
+        <field name="arch" type="xml">
+            <list string="Salary Package Benefit" multi_edit="1">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="description"/>
+                <field name="country_id" optional="hide"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+    <record id="salary_benefit_view_form_view" model="ir.ui.view">
+        <field name="name">salary.benefit.form.view</field>
+        <field name="model">hr.contract.salary.benefit</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form string="Salary Package Benefit">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active"/>
+                    <label for="name" string="Benefits"/>
+                    <div class="oe_title mb-3">
+                        <h1><field name="name" placeholder="e.g. Meal Vouchers"/></h1>
+                    </div>
+                    <group class="px-3">
+                        <group class="o_form_fw_labels">
+                            <field name="active" widget="boolean_toggle"/>
+                            <field name="salary_rule_id"/>
+                        </group>
+                        <group>
+                            <field name="structure_type_id"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

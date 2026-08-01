@@ -9,3 +9,4 @@ from . import hr_salary_rule_section
 from . import hr_rule_parameter
 from . import hr_rule_parameter_value
 from . import hr_payslip_input_type
+from . import hr_employee

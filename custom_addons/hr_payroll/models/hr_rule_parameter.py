@@ -2,6 +2,7 @@ from odoo import fields,models
 
 class HrRuleParameter(models.Model):
     _name = 'hr.rule.parameter'
+    _description = 'Rule Parameter'
 
     name = fields.Char(string='Name')
     code = fields.Char(string='Code')

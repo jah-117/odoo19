@@ -2,6 +2,7 @@ from odoo import fields, models
 
 class HrSalaryRuleCategory(models.Model):
     _name = 'hr.salary.rule.category'
+    _description = 'Salary Rule Category'
 
     name = fields.Char(string='Name')
     code = fields.Char(string='Code')
