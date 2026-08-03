@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 from odoo import fields,models
 CONDITION = [
     ('none','Always Present'),
@@ -60,3 +61,4 @@ class SalaryRule(models.Model):
     amount_fix = fields.Float(string="Fixed Amount")
     amount_other_input_id = fields.Many2one(comodel_name='hr.payslip.input.type', string="Amount Other Input")
     amount_python_compute = fields.Text()
+    parameter_id = fields.Many2one(comodel_name='hr.rule.parameter', string="Parameter")

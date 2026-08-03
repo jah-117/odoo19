@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="hr_rule_parameter_action" model="ir.actions.act_window">
+        <field name="name">Salary Input Types</field>
+        <field name="res_model">hr.payslip.input.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <record id="input_type_list_view" model="ir.ui.view">
+        <field name="name">input.type.list.view</field>
+        <field name="model">hr.payslip.input.type</field>
+        <field name="type">list</field>
+        <field name="arch" type="xml">
+           <list string="Payslip Input">
+                <field name="name" placeholder="Payslip Input Name"/>
+                <field name="code"/>
+                <field name="struct_ids" widget="many2many_tags"/>
+                <field name="available_in_attachments" optional="hide"/>
+                <field name="country_id" optional="hide"/>
+            </list>
+        </field>
+    </record>
+    <record id="input_type_form_view" model="ir.ui.view">
+        <field name="name">input.type.form.view</field>
+        <field name="model">hr.payslip.input.type</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+           <form string="Payslip Input">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Child Support" class="w-100"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="country_id" options="{'no_create': True, 'no_open': True}" groups="base.group_no_one"/>
+                            <field name="country_code" invisible="1"/>
+                            <field name="available_in_attachments"/>
+                            <field name="is_quantity" invisible="not available_in_attachments"/>
+                            <field name="default_no_end_date" invisible="not available_in_attachments"/>
+                        </group>
+                        <group>
+                            <field name="code"/>
+                            <field name="struct_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

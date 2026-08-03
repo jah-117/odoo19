@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 from odoo import fields, models
 class HrPayrollStructure(models.Model):
     _name = 'hr.payroll.structure'

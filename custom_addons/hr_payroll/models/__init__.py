@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 from . import hr_employee_type
 from . import hr_contract_salary_benefit
 from . import hr_payroll_structure_type

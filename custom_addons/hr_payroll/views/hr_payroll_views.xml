@@ -16,4 +16,7 @@
                 <menuitem id="hr_salary_structure_type" name="Structure Type" parent="hr_salary" action="structure_type_action" sequence="2"/>
                 <menuitem id="hr_salary_structure" name="Structure" parent="hr_salary" action="structure_action" sequence="3"/>
                 <menuitem id="hr_salary_rule" name="Rules" parent="hr_salary" action="salary_rule_action" sequence="4"/>
+                <menuitem id="hr_rule_parameter" name="Rule Parameter" parent="hr_salary" action="hr_rule_parameter_action" sequence="5"/>
+                <menuitem id="hr_rule_category" name="Rule Category" parent="hr_salary" action="hr_rule_category_action" sequence="6"/>
+                <menuitem id="hr_input_type" name="Salary Input Types" parent="hr_salary" action="hr_input_type_action" sequence="7"/>
 </odoo>

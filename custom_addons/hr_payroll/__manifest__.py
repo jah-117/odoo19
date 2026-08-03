@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 {
     'name': "Pyroll",
     'version': "19.0.1.1",
@@ -26,6 +27,9 @@
         "views/hr_structure_type_views.xml",
         "views/hr_structure_views.xml",
         "views/hr_salary_rule_views.xml",
+        "views/hr_rule_parameter_views.xml",
+        "views/hr_salary_rule_category_views.xml",
+        "views/hr_payroll_input_type_views.xml",
         "views/hr_employee_views.xml",
         "views/hr_payroll_views.xml",
     ],
