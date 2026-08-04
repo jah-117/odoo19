@@ -5,9 +5,16 @@ from . import hr_payroll_structure_type
 from . import hr_payroll_structure
 from . import hr_salary_rule
 from . import hr_salary_rule_category
-from . import hr_slary_rule_input_selection
+from . import hr_salary_rule_input_selection
 from . import hr_salary_rule_section
 from . import hr_rule_parameter
 from . import hr_rule_parameter_value
 from . import hr_payslip_input_type
+from . import hr_payslip_input
 from . import hr_employee
+from . import hr_expense
+from . import hr_payslip
+from . import hr_payslip_worked_days
+from . import hr_payslip_line
+from . import hr_salary_attachment
+

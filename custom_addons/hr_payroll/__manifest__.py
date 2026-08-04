@@ -18,6 +18,7 @@
         'hr_work_entry',
         'hr_attendance',
         'resource',
+        'hr_expense',
     ],
     'data': [
         "security/ir.model.access.csv",
@@ -30,6 +31,7 @@
         "views/hr_rule_parameter_views.xml",
         "views/hr_salary_rule_category_views.xml",
         "views/hr_payroll_input_type_views.xml",
+        "views/hr_payroll_payslip_views.xml",
         "views/hr_employee_views.xml",
         "views/hr_payroll_views.xml",
     ],

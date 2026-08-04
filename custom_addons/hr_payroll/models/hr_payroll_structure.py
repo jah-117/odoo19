@@ -6,6 +6,7 @@ class HrPayrollStructure(models.Model):
 
     name = fields.Char(string="Structure Name")
     active = fields.Boolean(default=True)
+    code = fields.Char(string="Structure Code")
     sequence = fields.Integer(string="Sequence",default=10)
     employee_type_ids = fields.Many2many(comodel_name='hr.employee.type',string="Employee Types")
     type_id = fields.Many2one(comodel_name='hr.payroll.structure.type',string="Type")
@@ -19,4 +20,5 @@ class HrPayrollStructure(models.Model):
     rule_ids= fields.Many2many(comodel_name='hr.salary.rule',string="Salary Rules")
     unpaid_work_entry_type_ids = fields.Many2many('hr.work.entry.type',string="Unpaid Time Types")
     ytd_computation = fields.Boolean(string="Year to Date Computation",default=False)
+    journal_id = fields.Many2one(comodel_name='account.journal', string="Salary Journal")
 

@@ -45,6 +45,7 @@
                         <field name="report_id"/>
                         <field name="payslip_name"/>
                         <field name="hide_basic_on_pdf"/>
+                        <field name="journal_id" required="True"/>
                     </group>
                 </group>
                 <notebook colspan="4">
