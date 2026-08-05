@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 from odoo import models, fields
 
 
@@ -23,6 +24,6 @@ class HrPayslipWorkedDays(models.Model):
     number_of_days = fields.Float(string="Number of Days")
     number_of_hours = fields.Float(string="Number of Hours")
     amount = fields.Monetary(string="Amount",currency_field='currency_id')
-    ytd = fields.Boolean(string="YTD",related='payslip_id.ytd')
+    ytd = fields.Boolean(string="YTD",related='payslip_id.ytd_computation')
     is_paid = fields.Boolean(string="Is Paid")
     resource_calendar_id = fields.Many2one(comodel_name='resource.calendar', string="Working Hours")

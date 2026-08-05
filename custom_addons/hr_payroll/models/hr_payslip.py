@@ -1,8 +1,12 @@
+#-*- coding: utf-8 -*
 from odoo import fields, models
 
 class HrPayslip(models.Model):
     _name = 'hr.payslip'
 
+
+    name = fields.Char(string="Payslip Name")
+    title =fields.Char(string="Title")
     employee_id = fields.Many2one(comodel_name='hr.employee', string="Employee")
     employee_type_id = fields.Many2one(comodel_name='hr.employee.type', string="Employee Type",
                                        related='employee_id.employee_type_id')
@@ -32,7 +36,7 @@ class HrPayslip(models.Model):
     net_wage = fields.Monetary(string="Net Wage", currency_field='currency_id')
     sum_worked_hours = fields.Float(string="Sum of Worked Hours")
     worked_days_line_ids = fields.One2many(comodel_name='hr.payslip.worked_days',string="Worked Days",inverse_name='payslip_id')
-    ytd = fields.Boolean(string="YTD",related='struct_id.ytd_computation')
+    ytd_computation = fields.Boolean(string="YTD",related='struct_id.ytd_computation')
     state_display = fields.Selection([
         ('01_error', 'Blocked'),
         ('02_warning', 'Warning'),
@@ -40,14 +44,19 @@ class HrPayslip(models.Model):
         ('04_validated', 'Done'),
         ('05_paid', 'Paid'),
         ('06_cancel', 'Canceled')
-    ],string="Status")
+    ],default='03_draft',string="Status")
     state = fields.Selection([
         ('draft', 'Draft'),
         ('validated', 'Validated'),
         ('paid', 'Paid'),
         ('cancel', 'Canceled')
-    ])
+    ],default='draft',string="State")
     input_line_ids = fields.Many2one(comodel_name='hr.payslip.input', string="Salary Input")
+    ignore_worked_day_lines = fields.Boolean(string="No worked days")
+    note = fields.Html(string="Note")
+    paid_date = fields.Date(string="Paid Date")
+    paid = fields.Boolean(string="Made Payment?")
+    struct_use_worked_day_lines = fields.Boolean(string="Use Worked Days",related='struct_id.use_worked_day_lines')
 
     def action_validate(self):
         pass

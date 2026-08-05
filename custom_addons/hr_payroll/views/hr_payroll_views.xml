@@ -5,7 +5,7 @@
             <menuitem id="hr_payroll_employees" name="Employees" parent="hr_payroll_manage_employees" action="hr.open_view_employee_list_my" sequence="1"/>
         <menuitem id="hr_payroll_timeoff" name="Time Off" parent="hr_payroll_root" action="hr_holidays.action_hr_holidays_dashboard" sequence="2"/>
         <menuitem id="hr_payroll_payslip" name="Payslips" parent="hr_payroll_root" sequence="3"/>
-        <menuitem id="hr_payroll_payslips" name="Payslips" parent="hr_payroll_payslip" action="action_payroll_payslips" sequence="1"/>
+            <menuitem id="hr_payroll_payslips" name="Payslips" parent="hr_payroll_payslip" action="action_payroll_payslips" sequence="1"/>
         <menuitem id="hr_payroll_config" name="Configuration" parent="hr_payroll_root" sequence="10"/>
             <menuitem id="hr_payroll_contracts" name="Contracts" parent="hr_payroll_config" sequence="1"/>
                 <menuitem id="hr_payroll_templates" name="Templates" parent="hr_payroll_contracts" action="hr.action_hr_contract_templates" sequence="1"/>
