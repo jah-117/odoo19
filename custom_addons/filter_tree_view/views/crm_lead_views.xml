@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="crm_list_view_filter" model="ir.ui.view">
+        <field name="name">crm.lead.dropdown.list</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_case_tree_view_oppor"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="attributes">
+                <attribute name="js_class">sale_person_filter</attribute>
+            </xpath>
+<!--            <xpath expr="//header" position="inside">-->
+<!--                <widget name="sale_person_filter"/>-->
+
+<!--            </xpath>-->
+        </field>
+    </record>
+</odoo>

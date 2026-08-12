@@ -94,19 +94,10 @@ class EmployeeLoan(models.Model):
         self.state = 'ongoing'
     def action_pay_installment(self):
         unpaid = self.loan_line_ids.filtered(lambda line:not line.paid)
+        unpaid[0].date=datetime.now()
+        unpaid[0].paid = True
         if len(unpaid) > 1:
-            unpaid[0].date=datetime.now()
-            unpaid[0].paid = True
-        else:
-            unpaid[0].paid = True
-            unpaid[0].date = datetime.now()
             self.state = 'paid'
-        # for line in self.loan_line_ids:
-        #     if not line.paid:
-        #         line.paid = True
-        #         break
-        # else:
-        #     self.state = 'paid'
     @api.depends('loan_line_ids.paid')
     def _compute_paid_amount(self):
         for rec in self:
