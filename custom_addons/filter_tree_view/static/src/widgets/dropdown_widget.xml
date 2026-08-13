@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <template id="template" xml:space="preserve">
-    <t t-name="filter_tree_view.DropDownField" t-inherit="web.ListView" t-inherit-mode="extension">
-        <xpath expr="//t[@t-set-slot='control-panel-create-button']" position="after">
-<!--            <t t-esc="console.log('fasdfas')"/>-->
-           <t t-if="this.salesPersons.length">
-                <select name="sales_person" t-on-change="(event)=>{this.onChange(event)}">
-                <option value="null">Select a sales person to filter records...</option>
-                <t t-foreach="this.salesPersons" t-as="salesPerson" t-key="salesPerson.id">
-                    <option t-att-value="salesPerson.id"><t t-esc="salesPerson.name"/></option>
-                </t>
-            </select>
-           </t>
+    <t t-name="filter_tree_view.DropDownField" t-inherit="web.ListRenderer" t-inherit-mode="extension">
+        <xpath expr="//table" position="before">
+            <t t-if="this.env.searchModel.resModel==='crm.lead'">
+                <div class="col" style="display: flex;
+              justify-content: center;
+              align-items: center;
+              gap:10px;
+            padding: 10px">
+                    <label for="sales_person">Filter based on salesperson: </label>
+                    <select class="form-select" name="sales_person" t-on-change="(event)=>{this.onChange(event)}" style="width: 300px;">
+                    <option value="0">Select a sales person to filter records...</option>
+                        <t t-foreach="this.salesPersons" t-as="salesPerson" t-key="salesPerson.id">
+                        <option t-att-value="salesPerson.id"><t t-esc="salesPerson.name"/></option>
+                    </t>
+                </select>
+                </div>
+            </t>
         </xpath>
     </t>
 </template>
