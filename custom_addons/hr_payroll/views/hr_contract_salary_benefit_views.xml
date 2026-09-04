@@ -26,6 +26,9 @@
         <field name="type">form</field>
         <field name="arch" type="xml">
             <form string="Salary Package Benefit">
+                <header>
+                    <button name="pdfprint" type="object" string="Action"/>
+                </header>
                 <sheet>
                     <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active"/>
                     <label for="name" string="Benefits"/>

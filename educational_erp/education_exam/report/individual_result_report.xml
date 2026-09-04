@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ═══════════════════════════════════════════════════════════════════
+         Individual Examination Result / Mark Sheet PDF Report
+         Simple & Minimalistic layout with eye-friendly soft tones
+         ═══════════════════════════════════════════════════════════════════ -->
+
+    <record id="action_report_individual_result" model="ir.actions.report">
+        <field name="name">Individual Mark Sheet / Result</field>
+        <field name="model">edu.exam.result</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">education_exam.report_individual_result_template</field>
+        <field name="report_file">education_exam.report_individual_result_template</field>
+        <field name="print_report_name">'Result - %s - %s' % (object.student_name, object.exam_id.name)</field>
+        <field name="binding_model_id" ref="model_edu_exam_result"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_individual_result_template">
+        <t t-call="web.html_container">
+            <t t-set="students_exams" t-value="list(set((r.exam_id, r.enrollment_id) for r in docs))"/>
+            <t t-foreach="students_exams" t-as="pair">
+                <t t-set="exam" t-value="pair[0]"/>
+                <t t-set="enr" t-value="pair[1]"/>
+                <t t-set="student_results" t-value="docs.filtered(lambda r: r.exam_id == exam and r.enrollment_id == enr)"/>
+                <t t-set="seating" t-value="exam.seating_ids.filtered(lambda s: s.enrollment_id == enr)[:1]"/>
+                <t t-set="total_obt" t-value="sum(r.marks_obtained for r in student_results if not r.absent)"/>
+                <t t-set="total_max" t-value="sum(r.max_marks for r in student_results)"/>
+                <t t-set="total_pct" t-value="(total_obt / total_max * 100) if total_max else 0.0"/>
+                <t t-set="has_failed" t-value="any(r.pass_fail == 'fail' for r in student_results)"/>
+                <t t-set="has_absent" t-value="any(r.absent for r in student_results)"/>
+                <t t-set="has_reval" t-value="any(r.history_ids for r in student_results)"/>
+
+                <t t-set="company" t-value="exam.company_id or res_company or user.company_id or env.company"/>
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13.5px; color: #334155; line-height: 1.5; padding: 10px 0;">
+
+                        <!-- ── Centered Company Header ───────────────────────── -->
+                        <div class="text-center pb-3 mb-4" style="border-bottom: 2px solid #cbd5e1;">
+                            <h2 style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 0 0 5px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+                                <t t-esc="company.name"/>
+                            </h2>
+                            <div style="font-size: 13px; color: #475569; line-height: 1.45; max-width: 90%; margin: 0 auto;">
+                                <t t-if="company.street"><t t-esc="company.street"/>, </t>
+                                <t t-if="company.street2"><t t-esc="company.street2"/>, </t>
+                                <t t-if="company.city"><t t-esc="company.city"/>, </t>
+                                <t t-if="company.state_id"><t t-esc="company.state_id.name"/>, </t>
+                                <t t-if="company.zip"><t t-esc="company.zip"/>, </t>
+                                <t t-if="company.country_id"><t t-esc="company.country_id.name"/></t>
+                                <t t-if="company.phone"><span class="d-inline-block ms-2">&amp;bull; Tel: <t t-esc="company.phone"/></span></t>
+                                <t t-if="company.email"><span class="d-inline-block ms-2">&amp;bull; Email: <t t-esc="company.email"/></span></t>
+                            </div>
+                        </div>
+
+                        <!-- ── Exam & Student Sub-Header ───────────────────── -->
+                        <div class="row align-items-end pb-3 mb-4" style="border-bottom: 1.5px solid #e2e8f0;">
+                            <div class="col-8">
+                                <div style="font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #0284c7; font-weight: 700; margin-bottom: 3px;">
+                                    Statement of Marks
+                                </div>
+                                <h3 style="font-size: 19px; font-weight: 700; color: #1e293b; margin: 0 0 4px 0;">
+                                    <t t-esc="exam.name"/>
+                                </h3>
+                                <div style="font-size: 12.5px; color: #64748b;">
+                                    <span>Academic Year: <strong style="color: #334155;"><t t-esc="exam.academic_year_id.name or '—'"/></strong></span>
+                                    <span class="mx-2">&amp;bull;</span>
+                                    <span>Exam Period: <t t-esc="exam.date_from"/> to <t t-esc="exam.date_to"/></span>
+                                </div>
+                            </div>
+                            <div class="col-4 text-end">
+                                <div style="font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase;">
+                                    Enrollment No.
+                                </div>
+                                <div style="font-size: 17px; font-weight: 800; color: #0f172a; letter-spacing: 0.5px;">
+                                    <t t-esc="enr.enrollment_no or '—'"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ── Student Details ─────────────────────────────── -->
+                        <div class="mb-4" style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 14px 18px;">
+                            <table style="width: 100%; font-size: 13.5px; border-collapse: collapse;">
+                                <tr>
+                                    <td style="width: 16%; color: #64748b; font-weight: 600; padding: 4px 0;">Student Name</td>
+                                    <td style="width: 34%; font-weight: 700; color: #0f172a; padding: 4px 0;">: <t t-esc="enr.student_name"/></td>
+                                    <td style="width: 16%; color: #64748b; font-weight: 600; padding: 4px 0;">Exam Hall</td>
+                                    <td style="width: 34%; color: #334155; padding: 4px 0;">: <t t-esc="seating.classroom_id.display_name or '—'"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="color: #64748b; font-weight: 600; padding: 4px 0;">Class / Section</td>
+                                    <td style="color: #334155; font-weight: 600; padding: 4px 0;">: <t t-esc="enr.class_id.name or '—'"/></td>
+                                    <td style="color: #64748b; font-weight: 600; padding: 4px 0;">Seat No.</td>
+                                    <td style="color: #334155; font-weight: 600; padding: 4px 0;">: <t t-esc="seating.seat_no or '—'"/></td>
+                                </tr>
+                                <tr>
+                                    <td style="color: #64748b; font-weight: 600; padding: 4px 0;">Program</td>
+                                    <td style="color: #334155; padding: 4px 0;">: <t t-esc="enr.program_id.name or '—'"/></td>
+                                    <td style="color: #64748b; font-weight: 600; padding: 4px 0;">Overall Result</td>
+                                    <td style="padding: 4px 0;">: 
+                                        <t t-if="has_failed">
+                                            <span style="color: #b91c1c; font-weight: 800; font-size: 14px;">FAIL</span>
+                                        </t>
+                                        <t t-elif="has_absent">
+                                            <span style="color: #b45309; font-weight: 800; font-size: 14px;">INCOMPLETE</span>
+                                        </t>
+                                        <t t-else="">
+                                            <span style="color: #15803d; font-weight: 800; font-size: 14px;">PASS</span>
+                                        </t>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- ── Marks Table ─────────────────────────────────── -->
+                        <div class="mb-4">
+                            <table class="table table-sm mb-0" style="width: 100%; border-collapse: collapse; font-size: 13.5px;">
+                                <thead>
+                                    <tr style="background-color: #f1f5f9; border-bottom: 2px solid #94a3b8; color: #334155; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        <th style="padding: 10px 10px; text-align: left; width: 28%;">Subject</th>
+                                        <th style="padding: 10px 6px; text-align: center; width: 10%;">Max Marks</th>
+                                        <th style="padding: 10px 6px; text-align: center; width: 10%;">Pass Marks</th>
+                                        <th style="padding: 10px 6px; text-align: center; width: 11%;">Obtained</th>
+                                        <th style="padding: 10px 6px; text-align: center; width: 10%;">Percentage</th>
+                                        <th style="padding: 10px 6px; text-align: center; width: 8%;">Grade</th>
+                                        <th style="padding: 10px 8px; text-align: center; width: 13%;">Remarks</th>
+                                        <th style="padding: 10px 6px; text-align: center; width: 10%;">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="student_results" t-as="res">
+                                        <tr style="border-bottom: 1px solid #e2e8f0;">
+                                            <td style="padding: 10px 10px; color: #0f172a; font-weight: 600;">
+                                                <t t-esc="res.subject_id.name"/>
+                                                <t t-if="res.history_ids">
+                                                    <span style="font-size: 11px; color: #0284c7; font-weight: normal; margin-left: 4px;">(Revaluated)</span>
+                                                </t>
+                                            </td>
+                                            <td style="padding: 10px 6px; text-align: center; color: #64748b;"><t t-esc="'%.1f' % res.max_marks"/></td>
+                                            <td style="padding: 10px 6px; text-align: center; color: #64748b;"><t t-esc="'%.1f' % res.pass_marks"/></td>
+                                            <td style="padding: 10px 6px; text-align: center; font-weight: 700; color: #0f172a; font-size: 14px;">
+                                                <t t-if="res.absent">
+                                                    <span style="color: #b45309;">ABSENT</span>
+                                                </t>
+                                                <t t-else="">
+                                                    <t t-esc="'%.1f' % res.marks_obtained"/>
+                                                </t>
+                                            </td>
+                                            <td style="padding: 10px 6px; text-align: center; color: #334155; font-weight: 600;">
+                                                <t t-if="res.absent">—</t>
+                                                <t t-else=""><t t-esc="'%.1f' % res.percentage"/>%</t>
+                                            </td>
+                                            <td style="padding: 10px 6px; text-align: center; font-weight: 700; color: #1e293b;">
+                                                <t t-esc="res.grade or '—'"/>
+                                            </td>
+                                            <td style="padding: 10px 8px; text-align: center; color: #475569;">
+                                                <t t-esc="res.grade_remarks or '—'"/>
+                                            </td>
+                                            <td style="padding: 10px 6px; text-align: center;">
+                                                <t t-if="res.pass_fail == 'pass'">
+                                                    <span style="color: #15803d; font-weight: 700;">Pass</span>
+                                                </t>
+                                                <t t-elif="res.pass_fail == 'fail'">
+                                                    <span style="color: #b91c1c; font-weight: 700;">Fail</span>
+                                                </t>
+                                                <t t-else="">
+                                                    <span style="color: #b45309; font-weight: 700;">Absent</span>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                                <tfoot>
+                                    <tr style="border-top: 2px solid #94a3b8; border-bottom: 2px solid #94a3b8; font-weight: 800; color: #0f172a; background-color: #f8fafc; font-size: 14px;">
+                                        <td style="padding: 10px 10px; text-transform: uppercase; font-size: 13px;">Total</td>
+                                        <td style="padding: 10px 6px; text-align: center;"><t t-esc="'%.1f' % total_max"/></td>
+                                        <td style="padding: 10px 6px; text-align: center;">—</td>
+                                        <td style="padding: 10px 6px; text-align: center; color: #0284c7;"><t t-esc="'%.1f' % total_obt"/></td>
+                                        <td style="padding: 10px 6px; text-align: center; color: #0284c7;"><t t-esc="'%.1f' % total_pct"/>%</td>
+                                        <td style="padding: 10px 6px; text-align: center;">—</td>
+                                        <td style="padding: 10px 8px; text-align: center;">—</td>
+                                        <td style="padding: 10px 6px; text-align: center;">
+                                            <t t-if="has_failed">
+                                                <span style="color: #b91c1c;">Fail</span>
+                                            </t>
+                                            <t t-elif="has_absent">
+                                                <span style="color: #b45309;">Incomplete</span>
+                                            </t>
+                                            <t t-else="">
+                                                <span style="color: #15803d;">Pass</span>
+                                            </t>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        <!-- ── Summary & Grading Note ──────────────────────── -->
+                        <div class="row pt-2 pb-3 mb-4" style="border-bottom: 1px solid #e2e8f0; font-size: 12.5px; color: #475569;">
+                            <div class="col-8">
+                                <t t-set="scale" t-value="exam.grade_system_id or env['edu.exam.grade.system'].search([('is_default', '=', True), '|', ('company_id', '=', company.id), ('company_id', '=', False)], limit=1) or env['edu.exam.grade.system'].search([], limit=1)"/>
+                                <div>
+                                    <strong style="color: #334155;">Grading Scale:</strong>
+                                    <t t-if="scale and scale.line_ids">
+                                        <t t-foreach="scale.line_ids.sorted(key=lambda l: (l.sequence, -l.min_percentage))" t-as="gl">
+                                            <span class="me-1"><t t-esc="gl.name"/> (<t t-esc="'%.0f' % gl.min_percentage"/>–<t t-esc="'%.0f' % gl.max_percentage"/>%)<t t-if="not gl_last"> &amp;bull;</t></span>
+                                        </t>
+                                    </t>
+                                    <t t-else="">
+                                        A+ (90-100%) &amp;bull; A (80-89%) &amp;bull; B (70-79%) &amp;bull; C (60-69%) &amp;bull; D (50-59%) &amp;bull; F (&lt;50%)
+                                    </t>
+                                </div>
+                                <t t-if="has_reval">
+                                    <div class="mt-1" style="color: #0369a1; font-weight: 500;">
+                                        * Marks include approved revaluation modifications.
+                                    </div>
+                                </t>
+                            </div>
+                            <div class="col-4 text-end">
+                                <div>Overall Score: <strong style="color: #0f172a; font-size: 15px;"><t t-esc="'%.1f' % total_pct"/>%</strong></div>
+                            </div>
+                        </div>
+
+                        <!-- ── Signatures ──────────────────────────────────── -->
+                        <div style="margin-top: 50px; padding-top: 15px;">
+                            <div class="row text-center" style="font-size: 13px; color: #475569; font-weight: 600;">
+                                <div class="col-4">
+                                    <div style="border-top: 1.5px solid #94a3b8; padding-top: 8px; margin: 0 15px;">
+                                        Class Teacher
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div style="border-top: 1.5px solid #94a3b8; padding-top: 8px; margin: 0 15px;">
+                                        Controller of Examinations
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div style="border-top: 1.5px solid #94a3b8; padding-top: 8px; margin: 0 15px;">
+                                        Principal
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

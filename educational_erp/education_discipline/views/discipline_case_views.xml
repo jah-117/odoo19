@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Search View -->
+        <record id="view_discipline_case_search" model="ir.ui.view">
+            <field name="name">education.discipline.case.search</field>
+            <field name="model">education.discipline.case</field>
+            <field name="arch" type="xml">
+                <search string="Discipline Cases">
+                    <field name="name"/>
+                    <field name="student_id"/>
+                    <field name="violation_type_id"/>
+                    <field name="severity"/>
+                    <field name="state"/>
+                    <field name="date"/>
+                    <filter string="Draft" name="draft" domain="[('state','=','draft')]"/>
+                    <filter string="Reported" name="reported" domain="[('state','=','reported')]"/>
+                    <filter string="Under Review" name="under_review" domain="[('state','=','under_review')]"/>
+                    <filter string="Action Taken" name="action_taken" domain="[('state','=','action_taken')]"/>
+                    <filter string="Resolved" name="resolved" domain="[('state','=','resolved')]"/>
+                    <group>
+                        <filter string="Student" name="group_student" context="{'group_by':'student_id'}"/>
+                        <filter string="Violation Type" name="group_violation_type" context="{'group_by':'violation_type_id'}"/>
+                        <filter string="Severity" name="group_severity" context="{'group_by':'severity'}"/>
+                        <filter string="Status" name="group_state" context="{'group_by':'state'}"/>
+                        <filter string="Date" name="group_date" context="{'group_by':'date:month'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- List View -->
+        <record id="view_discipline_case_tree" model="ir.ui.view">
+            <field name="name">education.discipline.case.list</field>
+            <field name="model">education.discipline.case</field>
+            <field name="arch" type="xml">
+                <list string="Discipline Cases">
+                    <field name="name"/>
+                    <field name="student_id"/>
+                    <field name="date"/>
+                    <field name="violation_type_id"/>
+                    <field name="severity"/>
+                    <field name="action_id"/>
+                    <field name="state" widget="badge" 
+                           decoration-info="state == 'draft'"
+                           decoration-warning="state == 'reported'"
+                           decoration-primary="state == 'under_review'"
+                           decoration-danger="state == 'action_taken'"
+                           decoration-success="state == 'resolved'"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Kanban View -->
+        <record id="view_discipline_case_kanban" model="ir.ui.view">
+            <field name="name">education.discipline.case.kanban</field>
+            <field name="model">education.discipline.case</field>
+            <field name="arch" type="xml">
+                <kanban default_group_by="state" class="o_kanban_small_column" sample="1">
+                    <field name="name"/>
+                    <field name="student_id"/>
+                    <field name="violation_type_id"/>
+                    <field name="severity"/>
+                    <field name="state"/>
+                    <templates>
+                        <t t-name="card">
+                            <div t-attf-class="oe_kanban_global_click">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <field name="name"/>
+                                        </strong>
+                                    </div>
+                                    <div class="o_kanban_record_title">
+                                        <field name="student_id"/>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_record_body">
+                                    <field name="violation_type_id"/>
+                                </div>
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left">
+                                        <field name="severity"/>
+                                    </div>
+                                    <div class="oe_kanban_bottom_right">
+                                        <field name="date"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <!-- Form View -->
+        <record id="view_discipline_case_form" model="ir.ui.view">
+            <field name="name">education.discipline.case.form</field>
+            <field name="model">education.discipline.case</field>
+            <field name="arch" type="xml">
+                <form string="Discipline Case">
+                    <header>
+                        <button name="action_report" string="Report" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                        <button name="action_under_review" string="Review" type="object" class="oe_highlight" invisible="state != 'reported'"/>
+                        <button name="action_take_action" string="Take Action" type="object" class="oe_highlight" invisible="state != 'under_review'"/>
+                        <button name="action_resolve" string="Resolve" type="object" class="oe_highlight" invisible="state != 'action_taken'"/>
+                        <button name="action_draft" string="Set to Draft" type="object" invisible="state == 'draft'"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,reported,under_review,action_taken,resolved"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="student_id" readonly="state != 'draft'"/>
+                                <field name="violation_type_id" readonly="state != 'draft'"/>
+                                <field name="severity" readonly="state != 'draft'"/>
+                            </group>
+                            <group>
+                                <field name="date" readonly="state != 'draft'"/>
+                                <field name="reported_by" readonly="state != 'draft'"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Description">
+                                <group>
+                                    <field name="description" nolabel="1" placeholder="Provide details of the incident..." readonly="state != 'draft'"/>
+                                </group>
+                            </page>
+                            <page string="Action Details">
+                                <group>
+                                    <group>
+                                        <field name="action_id" readonly="state in ['draft', 'resolved']"/>
+                                        <field name="action_date" readonly="state in ['draft', 'resolved']"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <field name="remarks" placeholder="Additional remarks on the action taken..." readonly="state in ['draft', 'resolved']"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_discipline_case" model="ir.actions.act_window">
+            <field name="name">Discipline Cases</field>
+            <field name="res_model">education.discipline.case</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="search_view_id" ref="view_discipline_case_search"/>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a new Discipline Case!
+              </p>
+            </field>
+        </record>
+    </data>
+</odoo>

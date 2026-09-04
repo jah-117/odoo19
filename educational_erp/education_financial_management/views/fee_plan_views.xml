@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ═══════════════════════════════════════════════════════════════════
+         edu.fee.plan — Views
+         ═══════════════════════════════════════════════════════════════════ -->
+
+    <!-- ── Form View ──────────────────────────────────────────────────── -->
+    <record id="view_edu_fee_plan_form" model="ir.ui.view">
+        <field name="name">edu.fee.plan.form</field>
+        <field name="model">edu.fee.plan</field>
+        <field name="arch" type="xml">
+            <form string="Fee Plan">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="e.g. Standard High School Plan 2025-26"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Academic Target">
+                            <field name="academic_year_id"/>
+                            <field name="program_id"/>
+                            <field name="class_ids" widget="many2many_tags"/>
+                        </group>
+                        <group string="Fee Summary &amp; Status">
+                            <field name="total_amount" readonly="1" widget="monetary"
+                                   options="{'currency_field': 'currency_id'}"/>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                    <group string="Schedule Configuration">
+                        <group>
+                            <field name="schedule_type"/>
+                            <field name="auto_generate_invoices"/>
+                        </group>
+                        <group>
+                            <button name="action_generate_installments" type="object"
+                                    string="⚡ Auto-populate Installments" class="btn-secondary"
+                                    help="Generate installment lines based on schedule type and academic year dates."/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Fee Components" name="components">
+                            <field name="line_ids">
+                                <list string="Fee Components" editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="component"/>
+                                    <field name="fee_type"/>
+                                    <field name="amount"/>
+                                    <field name="due_date"/>
+                                    <field name="account_id" optional="show"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Payment Schedule / Installments" name="schedule">
+                            <field name="installment_ids">
+                                <list string="Installments" editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="percentage"/>
+                                    <field name="due_date"/>
+                                    <field name="amount" readonly="1" widget="monetary"
+                                           options="{'currency_field': 'currency_id'}"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer">
+                                <field name="total_installment_percentage" string="Total Allocation (%)" readonly="1"/>
+                            </group>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" nolabel="1" placeholder="Internal remarks or payment guidelines..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ── List View ─────────────────────────────────────────────────── -->
+    <record id="view_edu_fee_plan_list" model="ir.ui.view">
+        <field name="name">edu.fee.plan.list</field>
+        <field name="model">edu.fee.plan</field>
+        <field name="arch" type="xml">
+            <list string="Fee Plans">
+                <field name="name"/>
+                <field name="academic_year_id"/>
+                <field name="program_id" optional="show"/>
+                <field name="schedule_type" optional="show"/>
+                <field name="total_amount" widget="monetary"
+                       options="{'currency_field': 'currency_id'}"/>
+                <field name="active" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ── Search View ────────────────────────────────────────────────── -->
+    <record id="view_edu_fee_plan_search" model="ir.ui.view">
+        <field name="name">edu.fee.plan.search</field>
+        <field name="model">edu.fee.plan</field>
+        <field name="arch" type="xml">
+            <search string="Search Fee Plans">
+                <field name="name"/>
+                <field name="academic_year_id"/>
+                <field name="program_id"/>
+                <field name="schedule_type"/>
+                <group>
+                    <filter string="Academic Year" name="group_year"
+                            context="{'group_by': 'academic_year_id'}"/>
+                    <filter string="Programme" name="group_program"
+                            context="{'group_by': 'program_id'}"/>
+                    <filter string="Schedule Type" name="group_schedule"
+                            context="{'group_by': 'schedule_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ── Window Action ─────────────────────────────────────────────── -->
+    <record id="action_edu_fee_plan" model="ir.actions.act_window">
+        <field name="name">Fee Plans</field>
+        <field name="res_model">edu.fee.plan</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No fee plans yet</p>
+            <p>Create a fee plan with components, configurable schedules, and due dates.</p>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         Enrollment — inherit: add Fee tab (S5-T06)
+         ═══════════════════════════════════════════════════════════════════ -->
+
+    <record id="view_enrollment_fee_inherit" model="ir.ui.view">
+        <field name="name">education.enrollment.fee.inherit</field>
+        <field name="model">education.enrollment</field>
+        <field name="inherit_id" ref="education_core.view_education_enrollment_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <notebook>
+                    <page string="Fees" name="fees">
+                        <group>
+                            <group>
+                                <field name="fee_plan_id"/>
+                                <field name="scholarship_amount" widget="monetary"/>
+                            </group>
+                            <group>
+                                <field name="fee_state" widget="badge"
+                                       decoration-success="fee_state == 'paid'"
+                                       decoration-warning="fee_state in ['invoiced','partial']"
+                                       decoration-danger="fee_state == 'overdue'"
+                                       decoration-muted="fee_state == 'not_invoiced'"/>
+                                <field name="total_fee" readonly="1" widget="monetary"/>
+                                <field name="amount_paid" readonly="1" widget="monetary"/>
+                                <field name="amount_due" readonly="1" widget="monetary"/>
+                            </group>
+                        </group>
+                        <div class="o_row mb-3">
+                            <button name="action_generate_invoice" type="object"
+                                    string="Generate Next Invoice" class="btn-primary"
+                                    invisible="fee_state == 'paid' or not fee_plan_id"/>
+                            <button name="action_generate_all_invoices" type="object"
+                                    string="Generate All Invoices" class="btn-secondary"
+                                    invisible="fee_state == 'paid' or not fee_plan_id"/>
+                            <button name="action_view_invoices" type="object"
+                                    string="View Invoices" class="btn-secondary"
+                                    invisible="invoice_count == 0"/>
+                        </div>
+                        <separator string="Scheduled Fee Installments"/>
+                        <field name="installment_ids">
+                            <list string="Installments" editable="bottom">
+                                <field name="sequence" widget="handle"/>
+                                <field name="name"/>
+                                <field name="percentage"/>
+                                <field name="due_date"/>
+                                <field name="amount" readonly="1" widget="monetary"/>
+                                <field name="fee_state" widget="badge"
+                                       decoration-success="fee_state == 'paid'"
+                                       decoration-warning="fee_state in ['invoiced','partial']"
+                                       decoration-danger="fee_state == 'overdue'"
+                                       decoration-muted="fee_state == 'draft'"/>
+                                <field name="invoice_id" readonly="1" optional="show"/>
+                                <button name="action_generate_invoice" type="object"
+                                        string="Generate Invoice" class="btn-sm btn-primary"
+                                        invisible="invoice_id != False and fee_state != 'draft'"/>
+                            </list>
+                        </field>
+                    </page>
+                </notebook>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         account.move — inherit: show student/class info (S5-T06)
+         ═══════════════════════════════════════════════════════════════════ -->
+
+    <record id="view_account_move_fee_list_inherit" model="ir.ui.view">
+        <field name="name">account.move.fee.list.inherit</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_out_invoice_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='currency_id']" position="after">
+                <field name="student_name" optional="show"/>
+                <field name="class_id" optional="show"/>
+                <field name="academic_year_id" optional="hide"/>
+                <field name="invoice_line_labels" string="Fee Components" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_account_move_form_inherit_education" model="ir.ui.view">
+    <field name="name">account.move.form.inherit.education</field>
+    <field name="model">account.move</field>
+    <field name="inherit_id" ref="account.view_move_form"/>
+    <field name="arch" type="xml">
+
+        <xpath expr="//field[@name='partner_id']" position="attributes">
+            <attribute name="domain">
+                [('enrollment_ids', '!=', False)]
+            </attribute>
+
+            <attribute name="context">
+                {
+                    'res_partner_search_mode': (context.get('default_move_type', 'entry') in ('out_invoice', 'out_refund', 'out_receipt')) and 'customer' or 'supplier',
+                    'show_address': 1,
+                    'default_is_company': True,
+                    'show_vat': True
+                }
+            </attribute>
+        </xpath>
+        <xpath expr="//group[@id='header_left_group']" position="inside">
+            <field name="installment_id" readonly="1"/>
+            <field name="invoice_line_labels" string="Fee Components"
+                   readonly="1"
+                   help="Fees included in this invoice."/>
+        </xpath>
+    </field>
+</record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         Outstanding Fee Report — list + pivot (S5-T08, S5-T09)
+         ═══════════════════════════════════════════════════════════════════ -->
+
+    <record id="view_edu_fee_outstanding_list" model="ir.ui.view">
+        <field name="name">edu.fee.outstanding.list</field>
+        <field name="model">edu.fee.outstanding</field>
+        <field name="arch" type="xml">
+            <list string="Outstanding Fees" create="false" delete="false"
+                  decoration-danger="fee_state == 'overdue'">
+                <field name="student_name"/>
+                <field name="class_id"/>
+                <field name="academic_year_id"/>
+                <field name="fee_plan_id"/>
+                <field name="total_fee" widget="monetary"/>
+                <field name="amount_paid" widget="monetary"/>
+                <field name="amount_due" widget="monetary"/>
+                <field name="invoice_date_due"/>
+                <field name="fee_state" widget="badge"
+                       decoration-warning="fee_state == 'invoiced'"
+                       decoration-info="fee_state == 'partial'"
+                       decoration-danger="fee_state == 'overdue'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_edu_fee_outstanding_search" model="ir.ui.view">
+        <field name="name">edu.fee.outstanding.search</field>
+        <field name="model">edu.fee.outstanding</field>
+        <field name="arch" type="xml">
+            <search string="Search Outstanding Fees">
+                <field name="student_name"/>
+                <field name="class_id"/>
+                <field name="academic_year_id"/>
+                <separator/>
+                <filter string="Overdue" name="overdue"
+                        domain="[('fee_state','=','overdue')]"/>
+                <filter string="Partial" name="partial"
+                        domain="[('fee_state','=','partial')]"/>
+                <group>
+                    <filter string="Class" name="group_class"
+                            context="{'group_by': 'class_id'}"/>
+                    <filter string="Academic Year" name="group_year"
+                            context="{'group_by': 'academic_year_id'}"/>
+                    <filter string="Fee Plan" name="group_plan"
+                            context="{'group_by': 'fee_plan_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ── Accountant Dashboard — Pivot (S5-T09) ─────────────────────── -->
+    <record id="view_edu_fee_outstanding_pivot" model="ir.ui.view">
+        <field name="name">edu.fee.outstanding.pivot</field>
+        <field name="model">edu.fee.outstanding</field>
+        <field name="arch" type="xml">
+            <pivot string="Fee Analysis" sample="1">
+                <field name="class_id" type="row"/>
+                <field name="academic_year_id" type="col"/>
+                <field name="amount_due" type="measure"/>
+                <field name="amount_paid" type="measure"/>
+                <field name="total_fee" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_edu_fee_outstanding_graph" model="ir.ui.view">
+        <field name="name">edu.fee.outstanding.graph</field>
+        <field name="model">edu.fee.outstanding</field>
+        <field name="arch" type="xml">
+            <graph string="Fee Collection vs Outstanding" type="bar" sample="1">
+                <field name="class_id"/>
+                <field name="amount_due" type="measure"/>
+                <field name="amount_paid" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_edu_fee_outstanding" model="ir.actions.act_window">
+        <field name="name">Outstanding Fees</field>
+        <field name="res_model">edu.fee.outstanding</field>
+        <field name="view_mode">list,pivot,graph</field>
+        <field name="search_view_id" ref="view_edu_fee_outstanding_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No outstanding fees</p>
+        </field>
+    </record>
+
+    <!-- ── Fee Invoices shortcut (all enrollment-linked invoices) ──────── -->
+    <record id="action_edu_fee_invoices" model="ir.actions.act_window">
+        <field name="name">Fee Invoices</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('partner_id.enrollment_ids', '!=', False), ('move_type', '=', 'out_invoice')]</field>
+        <field name="context">{'default_move_type': 'out_invoice'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No fee invoices yet</p>
+            <p>Generate invoices from an enrollment's Fees tab.</p>
+        </field>
+    </record>
+
+    <record id="account.action_move_out_invoice_type" model="ir.actions.act_window">
+        <field name="domain">[('move_type', 'in', ('out_invoice', 'out_refund', 'out_receipt')), ('partner_id.enrollment_ids', '!=', False)]</field>
+    </record>
+
+</odoo>

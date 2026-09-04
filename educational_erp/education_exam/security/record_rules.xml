@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- G-01: Portal users see only their own exam results -->
+    <record id="rule_exam_result_portal_own" model="ir.rule">
+        <field name="name">Exam Result: portal sees own record only</field>
+        <field name="model_id" ref="model_edu_exam_result"/>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="domain_force">
+            [
+                ('enrollment_id.student_partner_id', '=', user.partner_id.id),
+                ('state', '=', 'published'),
+                ('exam_id.state', 'in', ['result_published', 'closed'])
+            ]
+        </field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Portal users see only their own seating allocation -->
+    <record id="rule_exam_seating_portal_own" model="ir.rule">
+        <field name="name">Exam Seating: portal sees own seating only</field>
+        <field name="model_id" ref="model_edu_exam_seating"/>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="domain_force">
+            [('enrollment_id.student_partner_id', '=', user.partner_id.id)]
+        </field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Portal users see and submit only their own revaluation requests -->
+    <record id="rule_exam_reevaluation_request_portal_own" model="ir.rule">
+        <field name="name">Exam Revaluation: portal sees and creates own requests only</field>
+        <field name="model_id" ref="model_edu_exam_reevaluation_request"/>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="domain_force">
+            [('enrollment_id.student_partner_id', '=', user.partner_id.id)]
+        </field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- G-03: Re-evaluation wizard — portal users can only request for own results -->
+    <record id="rule_reevaluation_wizard_portal_own" model="ir.rule">
+        <field name="name">Re-evaluation: portal scoped to own result</field>
+        <field name="model_id" ref="model_edu_exam_reevaluation_wizard"/>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="domain_force">
+            [('result_id.enrollment_id.student_partner_id', '=', user.partner_id.id)]
+        </field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    <!-- Portal users see only their own exam result history -->
+    <record id="rule_exam_result_history_portal_own" model="ir.rule">
+        <field name="name">Exam Result History: portal sees own record only</field>
+        <field name="model_id" ref="model_edu_exam_result_history"/>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="domain_force">
+            [('result_id.enrollment_id.student_partner_id', '=', user.partner_id.id)]
+        </field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+</odoo>

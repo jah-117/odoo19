@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="seq_edu_exam" model="ir.sequence">
+        <field name="name">Examination Code</field>
+        <field name="code">edu.exam</field>
+        <field name="prefix">EXAM/%(year)s/</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+        <field name="number_next">1</field>
+    </record>
+
+    <record id="seq_edu_exam_reevaluation_request" model="ir.sequence">
+        <field name="name">Exam Revaluation Request</field>
+        <field name="code">edu.exam.reevaluation.request</field>
+        <field name="prefix">REV/%(year)s/</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+        <field name="number_next">1</field>
+    </record>
+</odoo>

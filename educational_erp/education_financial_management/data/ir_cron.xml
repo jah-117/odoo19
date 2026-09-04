@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ═══════════════════════════════════════════════════════════════════
+         Scheduled Action: Daily overdue fee reminder (S5-T05)
+         ═══════════════════════════════════════════════════════════════════ -->
+
+    <record id="ir_cron_fee_overdue_reminder" model="ir.cron">
+        <field name="name">Education: Send Overdue Fee Reminders</field>
+        <field name="model_id" ref="base.model_res_lang"/>
+        <!-- Use code field to call abstract model method -->
+        <field name="code">env['edu.fee.overdue.cron']._cron_send_overdue_reminders()</field>
+        <field name="active" eval="True"/>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="priority">5</field>
+    </record>
+
+    <!-- ── Scheduled Action: Daily Auto-generation of Scheduled Fee Invoices ── -->
+    <record id="ir_cron_fee_auto_generate_invoices" model="ir.cron">
+        <field name="name">Education: Auto-generate Scheduled Fee Invoices</field>
+        <field name="model_id" ref="base.model_res_lang"/>
+        <field name="code">env['edu.fee.overdue.cron']._cron_auto_generate_scheduled_invoices()</field>
+        <field name="active" eval="True"/>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="priority">6</field>
+    </record>
+
+</odoo>

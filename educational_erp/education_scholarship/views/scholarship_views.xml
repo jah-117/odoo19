@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Action -->
+    <record id="action_education_scholarship" model="ir.actions.act_window">
+        <field name="name">Scholarships</field>
+        <field name="res_model">education.scholarship</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Scholarship Program
+            </p>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="view_education_scholarship_tree" model="ir.ui.view">
+        <field name="name">education.scholarship.tree</field>
+        <field name="model">education.scholarship</field>
+        <field name="arch" type="xml">
+            <list string="Scholarships">
+                <field name="name"/>
+                <field name="academic_year_id"/>
+                <field name="scholarship_type"/>
+                <field name="amount"/>
+                <field name="available_scholarships"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'active'" decoration-danger="state == 'closed'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_education_scholarship_form" model="ir.ui.view">
+        <field name="name">education.scholarship.form</field>
+        <field name="model">education.scholarship</field>
+        <field name="arch" type="xml">
+            <form string="Scholarship">
+                <header>
+                    <button name="action_open_scholarship"
+                            string="Open Scholarship"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_close_scholarship"
+                            string="Close Scholarship"
+                            type="object"
+                            class="btn-danger"
+                            invisible="state != 'active'"
+                            confirm="Are you sure you want to close this scholarship? This action cannot be undone."/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,active,closed"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_applications"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-file-text-o">
+                            <field name="application_count" widget="statinfo" string="Applications"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Scholarship Name..."/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="academic_year_id" readonly="state != 'draft'"/>
+                            <field name="scholarship_type" readonly="state != 'draft'"/>
+                            <field name="amount" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="available_scholarships" readonly="state != 'draft'"/>
+                            <field name="start_date"
+                                   readonly="state != 'draft'"
+                                   options='{"datepicker": {"minDate": 0}}'/>
+                            <field name="end_date" invisible="state == 'draft'" readonly="state !='active'" required="state == 'active'"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description">
+                            <field name="description" placeholder="Enter details about this scholarship..." readonly="state =='closed'"/>
+                        </page>
+                        <page string="Eligibility Criteria">
+                            <field name="eligibility_ids" widget="many2many_tree"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+</odoo>

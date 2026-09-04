@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ═══════════════════════════════════════════════════════════════════
+         Mark Sheet / Progress Card PDF Report — S4-T10
+         Triggered from edu.exam.result (per student, all subjects in one exam)
+         ═══════════════════════════════════════════════════════════════════ -->
+
+    <record id="action_report_mark_sheet" model="ir.actions.report">
+        <field name="name">Mark Sheet / Progress Card</field>
+        <field name="model">edu.exam</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">education_exam.report_mark_sheet_template</field>
+        <field name="report_file">education_exam.report_mark_sheet_template</field>
+        <field name="print_report_name">'Mark Sheet - %s' % object.name</field>
+    </record>
+
+    <template id="report_mark_sheet_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="exam">
+                <!-- Group results: {enrollment_id: [result, ...]} -->
+                <t t-set="all_results" t-value="exam.result_ids.filtered(lambda r: r.state == 'published')"/>
+                <t t-set="student_ids" t-value="all_results.mapped('enrollment_id')"/>
+
+                <t t-foreach="student_ids" t-as="enr">
+                    <t t-set="student_results" t-value="all_results.filtered(lambda r: r.enrollment_id == enr)"/>
+                    <t t-set="seating" t-value="exam.seating_ids.filtered(lambda s: s.enrollment_id == enr)[:1]"/>
+
+                    <t t-set="company" t-value="exam.company_id or res_company or user.company_id or env.company"/>
+                    <t t-call="web.external_layout">
+                        <div class="page" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; color: #334155; line-height: 1.5; padding: 10px 0;">
+
+                            <!-- ── Centered Company Header ──────────── -->
+                            <div class="text-center pb-3 mb-4" style="border-bottom: 2px solid #cbd5e1;">
+                                <h2 style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 0 0 5px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    <t t-esc="company.name"/>
+                                </h2>
+                                <div style="font-size: 13px; color: #475569; line-height: 1.45; max-width: 90%; margin: 0 auto;">
+                                    <t t-if="company.street"><t t-esc="company.street"/>, </t>
+                                    <t t-if="company.street2"><t t-esc="company.street2"/>, </t>
+                                    <t t-if="company.city"><t t-esc="company.city"/>, </t>
+                                    <t t-if="company.state_id"><t t-esc="company.state_id.name"/>, </t>
+                                    <t t-if="company.zip"><t t-esc="company.zip"/>, </t>
+                                    <t t-if="company.country_id"><t t-esc="company.country_id.name"/></t>
+                                    <t t-if="company.phone"><span class="d-inline-block ms-2">&amp;bull; Tel: <t t-esc="company.phone"/></span></t>
+                                    <t t-if="company.email"><span class="d-inline-block ms-2">&amp;bull; Email: <t t-esc="company.email"/></span></t>
+                                </div>
+                            </div>
+
+                            <!-- ── Sub-Header ───────────────────────── -->
+                            <div class="row mb-3 border-bottom pb-3 align-items-end">
+                                <div class="col-8">
+                                    <div style="font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #0284c7; font-weight: 700; margin-bottom: 2px;">
+                                        Progress Card / Mark Sheet
+                                    </div>
+                                    <h3 style="font-size: 19px; font-weight: 700; color: #1e293b; margin: 0 0 4px 0;"><t t-esc="exam.name"/></h3>
+                                    <p class="text-muted mb-0" style="font-size: 12.5px;">
+                                        Academic Year: <strong style="color: #334155;"><t t-esc="exam.academic_year_id.name"/></strong>
+                                    </p>
+                                </div>
+                                <div class="col-4 text-end">
+                                    <div class="border p-2 d-inline-block rounded">
+                                        <strong class="small text-muted text-uppercase" style="font-size: 11.5px;">Enrollment No.</strong><br/>
+                                        <span class="fs-4 text-primary fw-bold">
+                                            <t t-esc="seating.enrollment_id.enrollment_no if seating else '—'"/>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ── Student Info ─────────────────────── -->
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <table class="table table-sm table-borderless">
+                                        <tr>
+                                            <td class="fw-bold" style="width:140px">Student Name</td>
+                                            <td>: <strong><t t-esc="enr.student_name"/></strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold">Class / Section</td>
+                                            <td>: <t t-esc="enr.class_id.name"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold">Exam Period</td>
+                                            <td>: <t t-esc="exam.date_from"/> to <t t-esc="exam.date_to"/></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- ── Marks Table ─────────────────────── -->
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th style="width:26%">Subject</th>
+                                        <th class="text-center">Max Marks</th>
+                                        <th class="text-center">Marks Obtained</th>
+                                        <th class="text-center">Pass Marks</th>
+                                        <th class="text-center">%</th>
+                                        <th class="text-center">Grade</th>
+                                        <th class="text-center">Remarks</th>
+                                        <th class="text-center">Result</th>
+                                        <th class="text-center">Rank</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="student_results" t-as="res">
+                                        <tr t-attf-class="{{ 'table-success' if res.pass_fail == 'pass' else ('table-danger' if res.pass_fail == 'fail' else 'table-warning') }}">
+                                            <td><t t-esc="res.subject_id.name"/></td>
+                                            <td class="text-center"><t t-esc="res.max_marks"/></td>
+                                            <td class="text-center fw-bold">
+                                                <t t-esc="'ABSENT' if res.absent else res.marks_obtained"/>
+                                            </td>
+                                            <td class="text-center"><t t-esc="res.pass_marks"/></td>
+                                            <td class="text-center">
+                                                <t t-esc="'%.1f%%' % res.percentage if not res.absent else '—'"/>
+                                            </td>
+                                            <td class="text-center fw-bold"><t t-esc="res.grade"/></td>
+                                            <td class="text-center"><t t-esc="res.grade_remarks or '—'"/></td>
+                                            <td class="text-center">
+                                                <t t-if="res.pass_fail == 'pass'">
+                                                    <span class="text-success fw-bold">PASS</span>
+                                                </t>
+                                                <t t-elif="res.pass_fail == 'fail'">
+                                                    <span class="text-danger fw-bold">FAIL</span>
+                                                </t>
+                                                <t t-else="">
+                                                    <span class="text-warning fw-bold">ABSENT</span>
+                                                </t>
+                                            </td>
+                                            <td class="text-center"><t t-esc="res.rank or '—'"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                                <tfoot class="fw-bold">
+                                    <tr>
+                                        <td>TOTAL</td>
+                                        <td class="text-center">
+                                            <t t-esc="sum(student_results.mapped('max_marks'))"/>
+                                        </td>
+                                        <td class="text-center">
+                                            <t t-esc="sum(r.marks_obtained for r in student_results if not r.absent)"/>
+                                        </td>
+                                        <td colspan="2" class="text-center">
+                                            <t t-set="total_max" t-value="sum(student_results.mapped('max_marks'))"/>
+                                            <t t-set="total_obt" t-value="sum(r.marks_obtained for r in student_results if not r.absent)"/>
+                                            <t t-esc="'%.1f%%' % ((total_obt / total_max * 100) if total_max else 0)"/>
+                                        </td>
+                                        <td class="text-center">—</td>
+                                        <td class="text-center">—</td>
+                                        <td class="text-center">
+                                            <t t-set="all_passed" t-value="all(r.pass_fail == 'pass' for r in student_results)"/>
+                                            <t t-if="all_passed">
+                                                <span class="text-success">PASS</span>
+                                            </t>
+                                            <t t-else="">
+                                                <span class="text-danger">FAIL</span>
+                                            </t>
+                                        </td>
+                                        <td class="text-center">—</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+
+                            <!-- ── Remarks ─────────────────────────── -->
+                            <div class="row mt-3">
+                                <div class="col-8">
+                                    <strong>Remarks:</strong>
+                                    <span class="border-bottom d-inline-block" style="width:300px;"> </span>
+                                </div>
+                            </div>
+
+                            <!-- ── Signatures ──────────────────────── -->
+                            <div class="row mt-5">
+                                <div class="col-3 text-center">
+                                    <div class="border-top pt-1">Class Teacher</div>
+                                </div>
+                                <div class="col-3 text-center">
+                                    <div class="border-top pt-1">Parent / Guardian</div>
+                                </div>
+                                <div class="col-3 text-center">
+                                    <div class="border-top pt-1">Vice Principal</div>
+                                </div>
+                                <div class="col-3 text-center">
+                                    <div class="border-top pt-1">Principal</div>
+                                </div>
+                            </div>
+
+                        </div><!-- page -->
+                    </t>
+
+                </t><!-- student loop -->
+            </t><!-- exam loop -->
+        </t>
+    </template>
+
+</odoo>

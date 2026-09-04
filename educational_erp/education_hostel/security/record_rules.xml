@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Portal students can only read allocations linked to their own enrollment. -->
+    <record id="rule_hostel_allocation_portal_own" model="ir.rule">
+        <field name="name">Hostel allocation: portal sees own records only</field>
+        <field name="model_id" ref="model_edu_hostel_allocation"/>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="domain_force">[('enrollment_id.student_partner_id', '=', user.partner_id.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+</odoo>

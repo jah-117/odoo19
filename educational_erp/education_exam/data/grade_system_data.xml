@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ═══════════════════════════════════════════════════════════════════
+             Default Grading Scale 1: Standard Letter Grade (A+ to F)
+             ═══════════════════════════════════════════════════════════════════ -->
+        <record id="grade_system_standard_letter" model="edu.exam.grade.system">
+            <field name="name">Standard Letter Grade (A+ – F)</field>
+            <field name="code">LETTER_GRADE</field>
+            <field name="is_default">True</field>
+            <field name="description">Standard institutional letter grading scale based on percentages with a 4.0 GPA weighting.</field>
+        </record>
+
+        <!-- Grade Lines for Standard Letter Grade -->
+        <record id="grade_line_std_aplus" model="edu.exam.grade.line">
+            <field name="grade_system_id" ref="grade_system_standard_letter"/>
+            <field name="sequence">1</field>
+            <field name="name">A+</field>
+            <field name="min_percentage">90.0</field>
+            <field name="max_percentage">100.0</field>
+            <field name="grade_point">4.0</field>
+            <field name="pass_fail">pass</field>
+            <field name="description">Outstanding</field>
+        </record>
+
+        <record id="grade_line_std_a" model="edu.exam.grade.line">
+            <field name="grade_system_id" ref="grade_system_standard_letter"/>
+            <field name="sequence">2</field>
+            <field name="name">A</field>
+            <field name="min_percentage">80.0</field>
+            <field name="max_percentage">89.99</field>
+            <field name="grade_point">3.7</field>
+            <field name="pass_fail">pass</field>
+            <field name="description">Excellent</field>
+        </record>
+
+        <record id="grade_line_std_b" model="edu.exam.grade.line">
+            <field name="grade_system_id" ref="grade_system_standard_letter"/>
+            <field name="sequence">3</field>
+            <field name="name">B</field>
+            <field name="min_percentage">70.0</field>
+            <field name="max_percentage">79.99</field>
+            <field name="grade_point">3.0</field>
+            <field name="pass_fail">pass</field>
+            <field name="description">Very Good</field>
+        </record>
+
+        <record id="grade_line_std_c" model="edu.exam.grade.line">
+            <field name="grade_system_id" ref="grade_system_standard_letter"/>
+            <field name="sequence">4</field>
+            <field name="name">C</field>
+            <field name="min_percentage">60.0</field>
+            <field name="max_percentage">69.99</field>
+            <field name="grade_point">2.0</field>
+            <field name="pass_fail">pass</field>
+            <field name="description">Good</field>
+        </record>
+
+        <record id="grade_line_std_d" model="edu.exam.grade.line">
+            <field name="grade_system_id" ref="grade_system_standard_letter"/>
+            <field name="sequence">5</field>
+            <field name="name">D</field>
+            <field name="min_percentage">50.0</field>
+            <field name="max_percentage">59.99</field>
+            <field name="grade_point">1.0</field>
+            <field name="pass_fail">pass</field>
+            <field name="description">Satisfactory</field>
+        </record>
+
+        <record id="grade_line_std_f" model="edu.exam.grade.line">
+            <field name="grade_system_id" ref="grade_system_standard_letter"/>
+            <field name="sequence">6</field>
+            <field name="name">F</field>
+            <field name="min_percentage">0.0</field>
+            <field name="max_percentage">49.99</field>
+            <field name="grade_point">0.0</field>
+            <field name="pass_fail">fail</field>
+            <field name="description">Fail</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════════════
+             Default Grading Scale 2: 10-Point University / UGC Scale
+             ═══════════════════════════════════════════════════════════════════ -->
+        <record id="grade_system_10_point" model="edu.exam.grade.system">
+            <field name="name">10-Point University Scale (UGC / CGPA)</field>
+            <field name="code">10_POINT_CGPA</field>
+            <field name="is_default">False</field>
+            <field name="description">10-Point CGPA Letter Grade system widely used in higher education and universities.</field>
+        </record>
+
+        <!-- Grade Lines for 10-Point Scale -->
+        <record id="grade_line_10p_o" model="edu.exam.grade.line">
+            <field name="grade_system_id" ref="grade_system_10_point"/>
+            <field name="sequence">1</field>
+            <field name="name">O</field>
+            <field name="min_percentage">90.0</field>
+            <field name="max_percentage">100.0</field>
+            <field name="grade_point">10.0</field>
+            <field name="pass_fail">pass</field>
+            <field name="description">Outstanding</field>
+        </record>
+
+        <record id="grade_line_10p_aplus" model="edu.exam.grade.line">
+            <field name="grade_system_id" ref="grade_system_10_point"/>
+            <field name="sequence">2</field>
+            <field name="name">A+</field>
+            <field name="min_percentage">80.0</field>
+            <field name="max_percentage">89.99</field>
+            <field name="grade_point">9.0</field>
+            <field name="pass_fail">pass</field>
+            <field name="description">Excellent</field>
+        </record>
+
+        <record id="grade_line_10p_a" model="edu.exam.grade.line">
+            <field name="grade_system_id" ref="grade_system_10_point"/>
+            <field name="sequence">3</field>
+            <field name="name">A</field>
+            <field name="min_percentage">70.0</field>
+            <field name="max_percentage">79.99</field>
+            <field name="grade_point">8.0</field>
+            <field name="pass_fail">pass</field>
+            <field name="description">Very Good</field>
+        </record>
+
+        <record id="grade_line_10p_bplus" model="edu.exam.grade.line">
+            <field name="grade_system_id" ref="grade_system_10_point"/>
+            <field name="sequence">4</field>
+            <field name="name">B+</field>
+            <field name="min_percentage">60.0</field>
+            <field name="max_percentage">69.99</field>
+            <field name="grade_point">7.0</field>
+            <field name="pass_fail">pass</field>
+            <field name="description">Good</field>
+        </record>
+
+        <record id="grade_line_10p_b" model="edu.exam.grade.line">
+            <field name="grade_system_id" ref="grade_system_10_point"/>
+            <field name="sequence">5</field>
+            <field name="name">B</field>
+            <field name="min_percentage">55.0</field>
+            <field name="max_percentage">59.99</field>
+            <field name="grade_point">6.0</field>
+            <field name="pass_fail">pass</field>
+            <field name="description">Above Average</field>
+        </record>
+
+        <record id="grade_line_10p_c" model="edu.exam.grade.line">
+            <field name="grade_system_id" ref="grade_system_10_point"/>
+            <field name="sequence">6</field>
+            <field name="name">C</field>
+            <field name="min_percentage">50.0</field>
+            <field name="max_percentage">54.99</field>
+            <field name="grade_point">5.0</field>
+            <field name="pass_fail">pass</field>
+            <field name="description">Average</field>
+        </record>
+
+        <record id="grade_line_10p_p" model="edu.exam.grade.line">
+            <field name="grade_system_id" ref="grade_system_10_point"/>
+            <field name="sequence">7</field>
+            <field name="name">P</field>
+            <field name="min_percentage">40.0</field>
+            <field name="max_percentage">49.99</field>
+            <field name="grade_point">4.0</field>
+            <field name="pass_fail">pass</field>
+            <field name="description">Pass</field>
+        </record>
+
+        <record id="grade_line_10p_f" model="edu.exam.grade.line">
+            <field name="grade_system_id" ref="grade_system_10_point"/>
+            <field name="sequence">8</field>
+            <field name="name">F</field>
+            <field name="min_percentage">0.0</field>
+            <field name="max_percentage">39.99</field>
+            <field name="grade_point">0.0</field>
+            <field name="pass_fail">fail</field>
+            <field name="description">Fail</field>
+        </record>
+
+    </data>
+</odoo>

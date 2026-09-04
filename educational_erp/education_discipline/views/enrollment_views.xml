@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_education_enrollment_form_inherit_discipline" model="ir.ui.view">
+            <field name="name">education.enrollment.form.inherit.discipline</field>
+            <field name="model">education.enrollment</field>
+            <field name="inherit_id" ref="education_core.view_education_enrollment_form"/>
+            <field name="arch" type="xml">
+                <!-- Smart Button -->
+                <div name="button_box" position="inside">
+                    <button name="action_view_discipline_cases" type="object" class="oe_stat_button" icon="fa-gavel">
+                        <field name="discipline_case_count" widget="statinfo" string="Discipline Cases"/>
+                    </button>
+                </div>
+
+                <!-- Notebook Tab -->
+                <xpath expr="//sheet" position="inside">
+                    <notebook>
+                        <page string="Discipline Cases">
+                            <field name="discipline_case_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="date"/>
+                                    <field name="violation_type_id"/>
+                                    <field name="severity"/>
+                                    <field name="action_id"/>
+                                    <field name="state" widget="badge" 
+                                        decoration-info="state == 'draft'"
+                                        decoration-warning="state == 'reported'"
+                                        decoration-primary="state == 'under_review'"
+                                        decoration-danger="state == 'action_taken'"
+                                        decoration-success="state == 'resolved'"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

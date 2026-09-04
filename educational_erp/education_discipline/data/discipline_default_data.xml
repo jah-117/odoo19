@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Default Violation Types -->
+        <record id="violation_type_misbehavior" model="education.violation.type">
+            <field name="name">Misbehavior</field>
+            <field name="description">General misbehavior in class or on campus.</field>
+        </record>
+        <record id="violation_type_late" model="education.violation.type">
+            <field name="name">Late Arrival</field>
+            <field name="description">Arriving late to school or class.</field>
+        </record>
+        <record id="violation_type_absence" model="education.violation.type">
+            <field name="name">Absence</field>
+            <field name="description">Unexcused absence from school.</field>
+        </record>
+        <record id="violation_type_fighting" model="education.violation.type">
+            <field name="name">Fighting</field>
+            <field name="description">Physical altercation with another student.</field>
+        </record>
+        <record id="violation_type_bullying" model="education.violation.type">
+            <field name="name">Bullying</field>
+            <field name="description">Harassing, intimidating, or bullying another student.</field>
+        </record>
+        <record id="violation_type_uniform" model="education.violation.type">
+            <field name="name">Uniform Violation</field>
+            <field name="description">Not adhering to the school uniform policy.</field>
+        </record>
+        <record id="violation_type_academic" model="education.violation.type">
+            <field name="name">Academic Misconduct</field>
+            <field name="description">Cheating, plagiarism, or other academic dishonesty.</field>
+        </record>
+
+        <!-- Default Disciplinary Actions -->
+        <record id="action_warning" model="education.disciplinary.action">
+            <field name="name">Warning</field>
+            <field name="description">A verbal or written warning given to the student.</field>
+        </record>
+        <record id="action_counseling" model="education.disciplinary.action">
+            <field name="name">Counseling</field>
+            <field name="description">Student is required to attend counseling sessions.</field>
+        </record>
+        <record id="action_parent_meeting" model="education.disciplinary.action">
+            <field name="name">Parent Meeting</field>
+            <field name="description">A meeting with the student's parents is required.</field>
+        </record>
+        <record id="action_suspension" model="education.disciplinary.action">
+            <field name="name">Suspension</field>
+            <field name="description">Temporary removal of the student from school.</field>
+        </record>
+        <record id="action_other" model="education.disciplinary.action">
+            <field name="name">Other</field>
+            <field name="description">Other disciplinary action taken.</field>
+        </record>
+    </data>
+</odoo>

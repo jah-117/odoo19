@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_library_book_admin,edu.library.book admin,model_edu_library_book,education_security.group_education_admin,1,1,1,1
+access_library_book_user,edu.library.book user,model_edu_library_book,base.group_user,1,0,0,0
+access_library_book_category_admin,edu.library.book.category admin,model_edu_library_book_category,education_security.group_education_admin,1,1,1,1
+access_library_book_category_user,edu.library.book.category user,model_edu_library_book_category,base.group_user,1,0,0,0
+access_library_member_admin,edu.library.member admin,model_edu_library_member,education_security.group_education_admin,1,1,1,1
+access_library_member_user,edu.library.member user,model_edu_library_member,base.group_user,1,0,0,0
+access_library_loan_admin,edu.library.loan admin,model_edu_library_loan,education_security.group_education_admin,1,1,1,1
+access_library_loan_user,edu.library.loan user,model_edu_library_loan,base.group_user,1,0,0,0
+access_library_issue_wizard_admin,edu.library.issue.wizard admin,model_edu_library_issue_wizard,education_security.group_education_admin,1,1,1,1
+access_library_issue_wizard_user,edu.library.issue.wizard user,model_edu_library_issue_wizard,base.group_user,1,1,1,1

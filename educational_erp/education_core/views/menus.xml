@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        education_core — Menu structure
+        Hangs all academic management menus under the root app menu
+        defined in education_config.
+    -->
+
+    <!-- ── Academics submenu ──────────────────────────────────────────── -->
+    <menuitem
+        id="menu_education_academics"
+        name="Academics"
+        parent="education_config.menu_education_root"
+        sequence="10"
+        groups="education_security.group_education_admin,education_security.group_education_admission_officer,education_security.group_education_teacher"/>
+
+    <!-- Academic Years -->
+    <menuitem
+        id="menu_academic_year"
+        name="Academic Years"
+        parent="menu_education_academics"
+        action="action_academic_year"
+        sequence="10"
+        groups="education_security.group_education_admin"/>
+
+    <!-- Departments -->
+    <menuitem
+        id="menu_education_department"
+        name="Departments"
+        parent="menu_education_academics"
+        action="action_education_department"
+        sequence="20"
+        groups="education_security.group_education_admin"/>
+
+    <!-- Programs -->
+    <menuitem
+        id="menu_education_program"
+        name="Programs"
+        parent="menu_education_academics"
+        action="action_education_program"
+        sequence="30"
+        groups="education_security.group_education_admin"/>
+
+    <!-- Classes -->
+    <menuitem
+        id="menu_education_class"
+        name="Classes / Sections"
+        parent="menu_education_academics"
+        action="action_education_class"
+        sequence="40"
+        groups="education_security.group_education_admin,education_security.group_education_teacher"/>
+
+    <!-- ── Admissions submenu (Sprint 2) ─────────────────────────────── -->
+    <menuitem
+        id="menu_education_admissions"
+        name="Admissions"
+        parent="education_config.menu_education_root"
+        sequence="20"
+        groups="education_security.group_education_admin,education_security.group_education_admission_officer"/>
+
+    <menuitem
+        id="menu_education_application"
+        name="Applications"
+        parent="menu_education_admissions"
+        action="action_education_application"
+        sequence="10"
+        groups="education_security.group_education_admin,education_security.group_education_admission_officer"/>
+
+    <menuitem
+        id="menu_education_enrollment"
+        name="Enrollments"
+        parent="menu_education_admissions"
+        action="action_education_enrollment"
+        sequence="20"
+        groups="education_security.group_education_admin,education_security.group_education_admission_officer"/>
+
+    <!-- ── Attendance submenu (Sprint 3) ────────────────────────────── -->
+    <menuitem
+        id="menu_education_attendance_root"
+        name="Attendance"
+        parent="education_config.menu_education_root"
+        sequence="30"
+        groups="education_security.group_education_admin,education_security.group_education_teacher"/>
+
+    <menuitem
+        id="menu_education_attendance"
+        name="Daily Attendance"
+        parent="menu_education_attendance_root"
+        action="action_education_attendance"
+        sequence="10"
+        groups="education_security.group_education_admin,education_security.group_education_teacher"/>
+
+    <menuitem
+        id="menu_education_leave"
+        name="Leave Requests"
+        parent="menu_education_attendance_root"
+        action="action_education_leave"
+        sequence="20"
+        groups="education_security.group_education_admin,education_security.group_education_teacher"/>
+
+    <menuitem
+        id="menu_attendance_summary"
+        name="Attendance Summary Report"
+        parent="menu_education_attendance_root"
+        action="action_attendance_summary_wizard"
+        sequence="30"
+        groups="education_security.group_education_admin,education_security.group_education_teacher"/>
+
+    <menuitem
+        id="menu_education_timetable"
+        name="Timetables"
+        parent="menu_education_academics"
+        action="action_education_timetable"
+        sequence="50"
+        groups="education_security.group_education_admin,education_security.group_education_teacher"/>
+
+    <!-- Weekly Schedule — slot kanban grid by weekday (S3-T10) -->
+    <menuitem
+        id="menu_education_timetable_slot"
+        name="Weekly Schedule"
+        parent="menu_education_academics"
+        action="action_education_timetable_slot"
+        sequence="55"
+        groups="education_security.group_education_admin,education_security.group_education_teacher"/>
+
+    <!-- Subjects (linked to Programs) -->
+    <menuitem
+        id="menu_education_subject"
+        name="Subjects"
+        parent="menu_education_academics"
+        action="action_education_subject"
+        sequence="35"
+        groups="education_security.group_education_admin"/>
+
+    <!-- Classrooms / Exam Halls (S4-T12) -->
+    <menuitem
+        id="menu_edu_classroom"
+        name="Classrooms &amp; Halls"
+        parent="menu_education_academics"
+        action="action_edu_classroom"
+        sequence="60"
+        groups="education_security.group_education_admin"/>
+
+    <!-- ── Faculty submenu ──────────────────────────────────────────── -->
+    <menuitem
+        id="menu_education_faculty_root"
+        name="Faculty"
+        parent="education_config.menu_education_root"
+        sequence="15"
+        groups="education_security.group_education_admin,education_security.group_education_teacher"/>
+
+    <menuitem
+        id="menu_education_faculty"
+        name="Faculty Members"
+        parent="menu_education_faculty_root"
+        action="action_education_faculty"
+        sequence="10"
+        groups="education_security.group_education_admin,education_security.group_education_teacher"/>
+
+    <!-- ── Faculty submenu ──────────────────────────────────────────── -->
+    <menuitem
+        id="menu_education_faculty_root"
+        name="Faculty"
+        parent="education_config.menu_education_root"
+        sequence="15"
+        groups="education_security.group_education_admin,education_security.group_education_teacher"/>
+
+    <menuitem
+        id="menu_education_faculty"
+        name="Faculty Members"
+        parent="menu_education_faculty_root"
+        action="action_education_faculty"
+        sequence="10"
+        groups="education_security.group_education_admin,education_security.group_education_teacher"/>
+
+    <!-- ── Configuration (extends education_config submenu) ─────────── -->
+    <menuitem
+        id="menu_education_core_config"
+        name="Academic Structure"
+        parent="education_config.menu_education_config"
+        sequence="20"
+        groups="education_security.group_education_admin"/>
+
+    <menuitem
+        id="menu_academic_year_config"
+        name="Academic Years"
+        parent="menu_education_core_config"
+        action="action_academic_year"
+        sequence="10"
+        groups="education_security.group_education_admin"/>
+
+    <menuitem
+        id="menu_department_config"
+        name="Departments"
+        parent="menu_education_core_config"
+        action="action_education_department"
+        sequence="20"
+        groups="education_security.group_education_admin"/>
+
+    <menuitem
+        id="menu_program_config"
+        name="Programs"
+        parent="menu_education_core_config"
+        action="action_education_program"
+        sequence="30"
+        groups="education_security.group_education_admin"/>
+
+    <menuitem
+        id="menu_document_type_config"
+        name="Document Types"
+        parent="menu_education_core_config"
+        action="action_education_document_type"
+        sequence="40"
+        groups="education_security.group_education_admin"/>
+
+</odoo>

@@ -1,0 +1,16 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_fee_plan_admin,edu.fee.plan admin,model_edu_fee_plan,education_security.group_education_admin,1,1,1,1
+access_fee_plan_accountant,edu.fee.plan accountant,model_edu_fee_plan,account.group_account_user,1,1,1,0
+access_fee_plan_user,edu.fee.plan user,model_edu_fee_plan,base.group_user,1,0,0,0
+access_fee_line_admin,edu.fee.line admin,model_edu_fee_line,education_security.group_education_admin,1,1,1,1
+access_fee_line_accountant,edu.fee.line accountant,model_edu_fee_line,account.group_account_user,1,1,1,0
+access_fee_line_user,edu.fee.line user,model_edu_fee_line,base.group_user,1,0,0,0
+access_fee_plan_installment_admin,edu.fee.plan.installment admin,model_edu_fee_plan_installment,education_security.group_education_admin,1,1,1,1
+access_fee_plan_installment_accountant,edu.fee.plan.installment accountant,model_edu_fee_plan_installment,account.group_account_user,1,1,1,0
+access_fee_plan_installment_user,edu.fee.plan.installment user,model_edu_fee_plan_installment,base.group_user,1,0,0,0
+access_enrollment_installment_admin,edu.enrollment.installment admin,model_edu_enrollment_installment,education_security.group_education_admin,1,1,1,1
+access_enrollment_installment_accountant,edu.enrollment.installment accountant,model_edu_enrollment_installment,account.group_account_user,1,1,1,0
+access_enrollment_installment_user,edu.enrollment.installment user,model_edu_enrollment_installment,base.group_user,1,0,0,0
+access_fee_outstanding_admin,edu.fee.outstanding admin,model_edu_fee_outstanding,education_security.group_education_admin,1,0,0,0
+access_fee_outstanding_accountant,edu.fee.outstanding accountant,model_edu_fee_outstanding,account.group_account_user,1,0,0,0
+

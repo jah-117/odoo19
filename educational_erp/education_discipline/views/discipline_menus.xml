@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <menuitem id="menu_education_discipline_root"
+                  name="Discipline"
+                  parent="education_config.menu_education_root"
+                  sequence="30"
+                  groups="education_security.group_education_admin"/>
+
+        <menuitem id="menu_education_discipline_cases"
+                  name="Discipline Cases"
+                  parent="menu_education_discipline_root"
+                  action="action_discipline_case"
+                  sequence="10"/>
+
+        <menuitem id="menu_education_discipline_config"
+                  name="Configuration"
+                  parent="menu_education_discipline_root"
+                  sequence="100"/>
+
+        <menuitem id="menu_education_violation_types"
+                  name="Violation Types"
+                  parent="menu_education_discipline_config"
+                  action="action_violation_type"
+                  sequence="10"/>
+
+        <menuitem id="menu_education_disciplinary_actions"
+                  name="Disciplinary Actions"
+                  parent="menu_education_discipline_config"
+                  action="action_disciplinary_action"
+                  sequence="20"/>
+
+        <menuitem id="menu_education_school_rules"
+                  name="School Rules"
+                  parent="menu_education_discipline_config"
+                  action="action_school_rule"
+                  sequence="30"/>
+    </data>
+</odoo>

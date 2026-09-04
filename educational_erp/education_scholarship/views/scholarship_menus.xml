@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Scholarships Menu -->
+    <menuitem id="parent_menu_education_scholarship"
+              name="Scholarships"
+              parent="education_config.menu_education_root"
+              sequence="30"
+              groups="education_security.group_education_admin,education_security.group_education_admission_officer"/>
+
+    <!-- Scholarship Applications Menu -->
+    <menuitem id="menu_education_scholarship"
+              name="Scholarship"
+              parent="parent_menu_education_scholarship"
+              action="action_education_scholarship"
+              sequence="31"
+              groups="base.group_user"/>
+
+    <menuitem id="menu_education_scholarship_application"
+              name="Scholarship Applications"
+              parent="parent_menu_education_scholarship"
+              action="action_education_scholarship_application"
+              sequence="31"
+              groups="base.group_user"/>
+
+    <!-- Scholarship Criteria Menu -->
+    <menuitem id="menu_education_scholarship_criteria"
+              name="Scholarship Criteria"
+              parent="parent_menu_education_scholarship"
+              action="action_education_scholarship_criteria"
+              sequence="32"
+              groups="education_security.group_education_admin"/>
+
+    <!-- Scholarship Eligibility Criteria Menu -->
+    <menuitem id="menu_education_scholarship_eligibilty_criteria"
+              name="Scholarship Eligibility Criteria"
+              parent="parent_menu_education_scholarship"
+              action="action_scholarship_eligibility_criteria"
+              sequence="32"
+              groups="education_security.group_education_admin"/>
+</odoo>

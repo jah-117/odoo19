@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_school_rule_tree" model="ir.ui.view">
+            <field name="name">education.school.rule.list</field>
+            <field name="model">education.school.rule</field>
+            <field name="arch" type="xml">
+                <list string="School Rules">
+                    <field name="name"/>
+                    <field name="category"/>
+                    <field name="active" widget="boolean_toggle"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_school_rule_form" model="ir.ui.view">
+            <field name="name">education.school.rule.form</field>
+            <field name="model">education.school.rule</field>
+            <field name="arch" type="xml">
+                <form string="School Rule">
+                    <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active"/>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" placeholder="Rule Title"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="category"/>
+                                <field name="active" invisible="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Description">
+                                <field name="description" placeholder="Detailed description of the rule..."/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_school_rule_search" model="ir.ui.view">
+            <field name="name">education.school.rule.search</field>
+            <field name="model">education.school.rule</field>
+            <field name="arch" type="xml">
+                <search string="Search School Rules">
+                    <field name="name"/>
+                    <field name="category"/>
+                    <filter string="Archived" name="inactive" domain="[('active','=',False)]"/>
+                    <group>
+                        <filter string="Category" name="group_category" context="{'group_by':'category'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_school_rule" model="ir.actions.act_window">
+            <field name="name">School Rules</field>
+            <field name="res_model">education.school.rule</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_school_rule_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create your first School Rule!
+                </p>
+            </field>
+        </record>
+    </data>
+</odoo>

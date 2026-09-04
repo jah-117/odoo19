@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ═══════════════════════════════════════════════════════════════════
+         Mail template: document expiry alert (S5-T11)
+         Sent by education.document._cron_send_expiry_alerts to student / guardian
+         ═══════════════════════════════════════════════════════════════════ -->
+
+    <record id="mail_template_doc_expiry" model="mail.template">
+        <field name="name">Document Expiry Alert</field>
+        <field name="model_id" ref="education_core.model_education_document"/>
+        <field name="subject">Document Expiry Alert — {{ object.document_type_id.name }}</field>
+        <field name="email_to">{{ (object.enrollment_id.guardian_partner_id.email or object.enrollment_id.student_partner_id.email or '') }}</field>
+        <field name="email_from">{{ (user.email_formatted or user.login) }}</field>
+        <field name="body_html" type="html">
+            <p>Dear Parent / Guardian,</p>
+            <p>
+                This is an automated reminder that the following document is
+                <strong>
+                    <t t-if="object.expiry_state == 'expired'">EXPIRED.</t>
+                    <t t-else="">expiring soon.</t>
+                </strong>
+            </p>
+            <table border="0" cellpadding="4" style="margin-top: 10px; margin-bottom: 10px;">
+                <tr>
+                    <td>
+                        <strong>Document:</strong>
+                    </td>
+                    <td>
+                        <t t-out="object.document_type_id.name"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>Reference:</strong>
+                    </td>
+                    <td>
+                        <t t-out="object.name"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>Issue Date:</strong>
+                    </td>
+                    <td>
+                        <t t-out="format_date(object.issue_date) if object.issue_date else '—'"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong>Expiry Date:</strong>
+                    </td>
+                    <td>
+                        <t t-out="format_date(object.expiry_date) if object.expiry_date else '—'"/>
+                    </td>
+                </tr>
+            </table>
+            <p>Please renew / re-upload the document at the earliest to keep your records up to date.</p>
+            <p>
+                Regards,
+                <br/>
+                Admissions &amp; Records Office
+                <br/>
+                <t t-out="object.enrollment_id.company_id.name or user.company_id.name"/>
+            </p>
+        </field>
+        <field name="lang">{{ object.enrollment_id.student_partner_id.lang or object.enrollment_id.guardian_partner_id.lang or '' }}</field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+</odoo>

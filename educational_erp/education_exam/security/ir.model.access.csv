@@ -1,0 +1,45 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_edu_exam_admin,edu.exam admin,model_edu_exam,education_security.group_education_admin,1,1,1,1
+access_edu_exam_teacher,edu.exam teacher,model_edu_exam,education_security.group_education_teacher,1,0,0,0
+access_edu_exam_user,edu.exam user,model_edu_exam,base.group_user,1,0,0,0
+access_edu_exam_portal,edu.exam portal,model_edu_exam,base.group_portal,1,0,0,0
+access_edu_exam_subject_admin,edu.exam.subject admin,model_edu_exam_subject,education_security.group_education_admin,1,1,1,1
+access_edu_exam_subject_teacher,edu.exam.subject teacher,model_edu_exam_subject,education_security.group_education_teacher,1,0,0,0
+access_edu_exam_subject_user,edu.exam.subject user,model_edu_exam_subject,base.group_user,1,0,0,0
+access_edu_exam_subject_portal,edu.exam.subject portal,model_edu_exam_subject,base.group_portal,1,0,0,0
+access_edu_exam_seating_admin,edu.exam.seating admin,model_edu_exam_seating,education_security.group_education_admin,1,1,1,1
+access_edu_exam_seating_teacher,edu.exam.seating teacher,model_edu_exam_seating,education_security.group_education_teacher,1,0,0,0
+access_edu_exam_seating_user,edu.exam.seating user,model_edu_exam_seating,base.group_user,1,0,0,0
+access_edu_exam_seating_portal,edu.exam.seating portal,model_edu_exam_seating,base.group_portal,1,0,0,0
+access_edu_exam_invigilator_admin,edu.exam.invigilator admin,model_edu_exam_invigilator,education_security.group_education_admin,1,1,1,1
+access_edu_exam_invigilator_teacher,edu.exam.invigilator teacher,model_edu_exam_invigilator,education_security.group_education_teacher,1,0,0,0
+access_edu_exam_result_admin,edu.exam.result admin,model_edu_exam_result,education_security.group_education_admin,1,1,1,1
+access_edu_exam_result_teacher,edu.exam.result teacher,model_edu_exam_result,education_security.group_education_teacher,1,1,1,0
+access_edu_exam_result_portal,edu.exam.result portal,model_edu_exam_result,base.group_portal,1,0,0,0
+access_edu_exam_result_history_admin,edu.exam.result.history admin,model_edu_exam_result_history,education_security.group_education_admin,1,1,1,1
+access_edu_exam_result_history_teacher,edu.exam.result.history teacher,model_edu_exam_result_history,education_security.group_education_teacher,1,0,1,0
+access_edu_exam_result_history_user,edu.exam.result.history user,model_edu_exam_result_history,base.group_user,1,0,0,0
+access_edu_exam_result_history_portal,edu.exam.result.history portal,model_edu_exam_result_history,base.group_portal,1,0,0,0
+access_edu_exam_reevaluation_request_admin,edu.exam.reevaluation.request admin,model_edu_exam_reevaluation_request,education_security.group_education_admin,1,1,1,1
+access_edu_exam_reevaluation_request_teacher,edu.exam.reevaluation.request teacher,model_edu_exam_reevaluation_request,education_security.group_education_teacher,1,1,0,0
+access_edu_exam_reevaluation_request_portal,edu.exam.reevaluation.request portal,model_edu_exam_reevaluation_request,base.group_portal,1,1,1,0
+access_edu_mark_entry_wizard_admin,edu.exam.mark.entry.wizard admin,model_edu_exam_mark_entry_wizard,education_security.group_education_admin,1,1,1,1
+access_edu_mark_entry_wizard_teacher,edu.exam.mark.entry.wizard teacher,model_edu_exam_mark_entry_wizard,education_security.group_education_teacher,1,1,1,1
+access_edu_mark_entry_line_admin,edu.exam.mark.entry.line admin,model_edu_exam_mark_entry_line,education_security.group_education_admin,1,1,1,1
+access_edu_mark_entry_line_teacher,edu.exam.mark.entry.line teacher,model_edu_exam_mark_entry_line,education_security.group_education_teacher,1,1,1,1
+access_edu_reevaluation_wizard_admin,edu.exam.reevaluation.wizard admin,model_edu_exam_reevaluation_wizard,education_security.group_education_admin,1,1,1,1
+access_edu_reevaluation_wizard_portal,edu.exam.reevaluation.wizard portal,model_edu_exam_reevaluation_wizard,base.group_portal,1,1,1,1
+access_edu_result_revaluate_wizard_admin,edu.exam.result.revaluate.wizard admin,model_edu_exam_result_revaluate_wizard,education_security.group_education_admin,1,1,1,1
+access_edu_result_revaluate_wizard_teacher,edu.exam.result.revaluate.wizard teacher,model_edu_exam_result_revaluate_wizard,education_security.group_education_teacher,1,1,1,1
+access_edu_reevaluation_reject_wizard_admin,edu.exam.reevaluation.reject.wizard admin,model_edu_exam_reevaluation_reject_wizard,education_security.group_education_admin,1,1,1,1
+access_edu_exam_grade_system_admin,edu.exam.grade.system admin,model_edu_exam_grade_system,education_security.group_education_admin,1,1,1,1
+access_edu_exam_grade_system_teacher,edu.exam.grade.system teacher,model_edu_exam_grade_system,education_security.group_education_teacher,1,0,0,0
+access_edu_exam_grade_system_user,edu.exam.grade.system user,model_edu_exam_grade_system,base.group_user,1,0,0,0
+access_edu_exam_grade_system_portal,edu.exam.grade.system portal,model_edu_exam_grade_system,base.group_portal,1,0,0,0
+access_edu_exam_grade_line_admin,edu.exam.grade.line admin,model_edu_exam_grade_line,education_security.group_education_admin,1,1,1,1
+access_edu_exam_grade_line_teacher,edu.exam.grade.line teacher,model_edu_exam_grade_line,education_security.group_education_teacher,1,0,0,0
+access_edu_exam_grade_line_user,edu.exam.grade.line user,model_edu_exam_grade_line,base.group_user,1,0,0,0
+access_edu_exam_grade_line_portal,edu.exam.grade.line portal,model_edu_exam_grade_line,base.group_portal,1,0,0,0
+
+
+

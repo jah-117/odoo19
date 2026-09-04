@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Portal Home — Discipline counters -->
+    <template id="portal_my_home_discipline" name="Portal My Home: Discipline" inherit_id="portal.portal_my_home" priority="40">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="title">School Rules</t>
+                <t t-set="url">/my/school_rules</t>
+                <t t-set="count" t-value="school_rule_count"/>
+                <t t-set="placeholder_count" t-value="'school_rule_count'"/>
+                <t t-set="icon" t-value="'/education_discipline/static/src/img/rule.png'"/>
+                <t t-set="text">Active discipline rules</t>
+            </t>
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="title">Disciplinary Cases</t>
+                <t t-set="url">/my/discipline_cases</t>
+                <t t-set="count" t-value="discipline_case_count"/>
+                <t t-set="placeholder_count" t-value="'discipline_case_count'"/>
+                <t t-set="icon" t-value="'/education_discipline/static/src/img/case.png'"/>
+                <t t-set="text">Cases logged against you</t>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- Report Case Button on Portal Home — top right -->
+    <template id="portal_my_home_report_btn" name="Portal Home: Report Case Button" inherit_id="portal.portal_my_home" priority="41">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <div class="d-flex justify-content-end mb-3">
+                <a href="/my/discipline_cases/report" class="btn btn-primary">
+                    <i class="fa fa-flag me-1"/>Report a Discipline Case
+                </a>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- School Rules — Category Cards (2 per row) -->
+    <template id="portal_my_school_rules" name="School Rules">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">School Rules</t>
+            </t>
+            <t t-if="not categories">
+                <p class="alert alert-info">There are currently no active school rules configured.</p>
+            </t>
+            <t t-if="categories">
+                <div class="row row-cols-1 row-cols-md-2 g-4 mt-1">
+                    <t t-foreach="categories" t-as="cat">
+                        <div class="col">
+                            <a t-att-href="'/my/school_rules/' + cat['key']" class="text-decoration-none">
+                                <div class="card h-100 shadow-sm border-0" style="transition: transform 0.2s; cursor: pointer;"
+                                     onmouseover="this.style.transform='translateY(-4px)'"
+                                     onmouseout="this.style.transform='translateY(0)'">
+                                    <div class="card-body d-flex align-items-center gap-3 p-4">
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center"
+                                             style="width:54px;height:54px;background:var(--bs-primary);flex-shrink:0;">
+                                            <i class="fa fa-book text-white fs-5"/>
+                                        </div>
+                                        <div>
+                                            <h5 class="card-title mb-1 fw-semibold"><t t-esc="cat['label']"/></h5>
+                                            <p class="card-text text-muted mb-0">
+                                                <t t-esc="cat['count']"/> rule<t t-if="cat['count'] != 1">s</t>
+                                            </p>
+                                        </div>
+                                        <i class="fa fa-chevron-right text-muted ms-auto"/>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <!-- School Rules — Rules under a Category -->
+    <template id="portal_school_rules_category" name="School Rules by Category">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title" t-value="category_label + ' Rules'"/>
+            </t>
+            <div class="mb-3">
+                <a href="/my/school_rules" class="btn btn-sm btn-outline-secondary">
+                    <i class="fa fa-arrow-left me-1"/>Back to Categories
+                </a>
+            </div>
+            <t t-if="not rules">
+                <p class="alert alert-info">No rules found in this category.</p>
+            </t>
+            <t t-if="rules">
+                <div class="d-flex flex-column gap-3">
+                    <t t-foreach="rules" t-as="rule">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-4">
+                                <h5 class="fw-semibold mb-2">
+                                    <i class="fa fa-gavel text-primary me-2"/>
+                                    <span t-field="rule.name"/>
+                                </h5>
+                                <p class="text-muted mb-0" t-field="rule.description"/>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </t>
+    </template>
+
+
+    <!-- Discipline Cases List -->
+    <template id="portal_my_discipline_cases" name="Disciplinary Cases">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Disciplinary Cases</t>
+            </t>
+
+            <t t-if="not cases">
+                <p class="alert alert-info">You do not have any discipline cases.</p>
+            </t>
+            <t t-if="cases" t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th>Reference</th>
+                        <th>Date</th>
+                        <th>Violation Type</th>
+                        <th>Severity</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="cases" t-as="case">
+                        <td><span t-field="case.name"/></td>
+                        <td><span t-field="case.date"/></td>
+                        <td><span t-field="case.violation_type_id.name"/></td>
+                        <td>
+                            <t t-if="case.severity == 'minor'"><span class="badge rounded-pill text-bg-info"><t t-esc="dict(case.fields_get(['severity'])['severity']['selection'])[case.severity]"/></span></t>
+                            <t t-if="case.severity == 'moderate'"><span class="badge rounded-pill text-bg-warning"><t t-esc="dict(case.fields_get(['severity'])['severity']['selection'])[case.severity]"/></span></t>
+                            <t t-if="case.severity == 'major'"><span class="badge rounded-pill text-bg-danger"><t t-esc="dict(case.fields_get(['severity'])['severity']['selection'])[case.severity]"/></span></t>
+                            <t t-if="case.severity == 'critical'"><span class="badge rounded-pill text-bg-dark"><t t-esc="dict(case.fields_get(['severity'])['severity']['selection'])[case.severity]"/></span></t>
+                        </td>
+                        <td>
+                            <t t-if="case.state == 'draft'"><span class="badge rounded-pill text-bg-light">Draft</span></t>
+                            <t t-if="case.state == 'reported'"><span class="badge rounded-pill text-bg-warning">Reported</span></t>
+                            <t t-if="case.state == 'under_review'"><span class="badge rounded-pill text-bg-primary">Under Review</span></t>
+                            <t t-if="case.state == 'action_taken'"><span class="badge rounded-pill text-bg-danger">Action Taken</span></t>
+                            <t t-if="case.state == 'resolved'"><span class="badge rounded-pill text-bg-success">Resolved</span></t>
+                        </td>
+                    </tr>
+                </tbody>
+            </t>
+        </t>
+    </template>
+
+    <!-- Report Discipline Case Form -->
+    <template id="portal_discipline_case_report" name="Report Discipline Case">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Report Discipline Case</t>
+            </t>
+
+            <t t-if="not has_enrollment">
+                <div class="alert alert-warning">
+                    You do not have an active enrollment. You cannot report a discipline case at this time.
+                </div>
+            </t>
+            <t t-if="has_enrollment">
+                <form action="/my/discipline_cases/report" method="post" class="card mt-4">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <div class="card-header bg-white border-bottom">
+                        <h4 class="mb-0">New Case Report</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3 row">
+                            <label class="col-sm-3 col-form-label" for="violation_type_id">Violation Type</label>
+                            <div class="col-sm-9">
+                                <select name="violation_type_id" class="form-select" required="1">
+                                    <t t-foreach="violation_types" t-as="v_type">
+                                        <option t-att-value="v_type.id"><t t-esc="v_type.name"/></option>
+                                    </t>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label class="col-sm-3 col-form-label" for="date">Incident Date</label>
+                            <div class="col-sm-9">
+                                <input type="date" name="date" class="form-control" required="1"/>
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label class="col-sm-3 col-form-label" for="description">Description of Incident</label>
+                            <div class="col-sm-9">
+                                <textarea name="description" class="form-control" rows="4" required="1"></textarea>
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label class="col-sm-3 col-form-label" for="remarks">Additional Remarks (Optional)</label>
+                            <div class="col-sm-9">
+                                <textarea name="remarks" class="form-control" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white text-end">
+                        <a href="/my/discipline_cases" class="btn btn-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Submit Report</button>
+                    </div>
+                </form>
+            </t>
+        </t>
+    </template>
+</odoo>

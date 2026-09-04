@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ═══════════════════════════════════════════════════════════════════
+         Admit Card PDF Report — S4-T08
+         ═══════════════════════════════════════════════════════════════════ -->
+
+    <record id="action_report_admit_card" model="ir.actions.report">
+        <field name="name">Admit Card</field>
+        <field name="model">edu.exam.seating</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">education_exam.report_admit_card_template</field>
+        <field name="report_file">education_exam.report_admit_card_template</field>
+        <field name="print_report_name">'Admit Card - %s' % object.student_name</field>
+        <field name="binding_model_id" ref="model_edu_exam_seating"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_admit_card_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="seating">
+                <t t-set="company" t-value="seating.exam_id.company_id or res_company or user.company_id or env.company"/>
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 13px; color: #334155; line-height: 1.5; padding: 10px 0;">
+
+                        <!-- ── Centered Company Header ──────────── -->
+                        <div class="text-center pb-3 mb-4" style="border-bottom: 2px solid #cbd5e1;">
+                            <h2 style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 0 0 5px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+                                <t t-esc="company.name"/>
+                            </h2>
+                            <div style="font-size: 13px; color: #475569; line-height: 1.45; max-width: 90%; margin: 0 auto;">
+                                <t t-if="company.street"><t t-esc="company.street"/>, </t>
+                                <t t-if="company.street2"><t t-esc="company.street2"/>, </t>
+                                <t t-if="company.city"><t t-esc="company.city"/>, </t>
+                                <t t-if="company.state_id"><t t-esc="company.state_id.name"/>, </t>
+                                <t t-if="company.zip"><t t-esc="company.zip"/>, </t>
+                                <t t-if="company.country_id"><t t-esc="company.country_id.name"/></t>
+                                <t t-if="company.phone"><span class="d-inline-block ms-2">&amp;bull; Tel: <t t-esc="company.phone"/></span></t>
+                                <t t-if="company.email"><span class="d-inline-block ms-2">&amp;bull; Email: <t t-esc="company.email"/></span></t>
+                            </div>
+                        </div>
+
+                        <!-- ── Sub-Header ───────────────────────── -->
+                        <div class="row mb-4 border-bottom pb-3 align-items-end">
+                            <div class="col-9">
+                                <div style="font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #0284c7; font-weight: 700; margin-bottom: 2px;">
+                                    Admit Card
+                                </div>
+                                <h3 class="mb-1" style="font-size: 19px; font-weight: 700; color: #1e293b;"><t t-esc="seating.exam_id.name"/></h3>
+                                <p class="text-muted mb-0" style="font-size: 12.5px;">
+                                    <t t-esc="seating.exam_id.exam_type.title()"/> &amp;bull;
+                                    Academic Year: <strong style="color: #334155;"><t t-esc="seating.exam_id.academic_year_id.name"/></strong>
+                                </p>
+                            </div>
+                            <div class="col-3 text-end">
+                                <div class="border p-2 d-inline-block rounded">
+                                    <strong class="small text-muted text-uppercase" style="font-size: 11.5px;">Enrollment No.</strong><br/>
+                                    <span class="fs-4 text-primary fw-bold">
+                                        <t t-esc="seating.enrollment_id.enrollment_no"/>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ── Student Details ─────────────────────── -->
+                        <div class="row mb-4">
+                            <div class="col-9">
+                                <table class="table table-sm table-borderless">
+                                    <tr>
+                                        <td class="fw-bold" style="width:150px">Student Name</td>
+                                        <td>: <t t-esc="seating.student_name"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">Class / Section</td>
+                                        <td>: <t t-esc="seating.class_id.name"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">Exam Hall</td>
+                                        <td>: <t t-esc="seating.classroom_id.display_name or '—'"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">Seat No.</td>
+                                        <td>: <t t-esc="seating.seat_no or '—'"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">Exam Period</td>
+                                        <td>:
+                                            <t t-esc="seating.exam_id.date_from"/> to
+                                            <t t-esc="seating.exam_id.date_to"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-3 text-center">
+                                <div class="border" style="width:100px;height:120px;margin:auto;display:flex;align-items:center;justify-content:center;">
+                                    <small class="text-muted">Photo</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ── Subject Schedule ────────────────────── -->
+                        <h5 class="border-bottom pb-1 mb-2">Examination Schedule</h5>
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Subject / Paper</th>
+                                    <th>Time</th>
+                                    <th>Duration</th>
+                                    <th>Max Marks</th>
+                                    <th>Hall</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="seating.exam_id.subject_line_ids" t-as="subj">
+                                    <tr>
+                                        <td><t t-esc="subj.exam_date or '—'"/></td>
+                                        <td><t t-esc="subj.subject"/></td>
+                                        <td>
+                                            <t t-if="subj.exam_time">
+                                                <t t-esc="'%02d:%02d' % (int(subj.exam_time), int((subj.exam_time % 1) * 60))"/>
+                                            </t>
+                                            <t t-else="">—</t>
+                                        </td>
+                                        <td><t t-esc="subj.duration_hours"/> hr(s)</td>
+                                        <td><t t-esc="subj.max_marks"/></td>
+                                        <td><t t-esc="subj.classroom_id.display_name or '—'"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <!-- ── Exam Rules ──────────────────────────── -->
+                        <div class="mt-3 border-top pt-2">
+                            <h6>Examination Rules</h6>
+                            <ol class="small">
+                                <li>Students must carry this admit card to the examination hall.</li>
+                                <li>Report to the hall at least 15 minutes before the exam starts.</li>
+                                <li>Electronic devices are not permitted inside the hall.</li>
+                                <li>Students found with unauthorised material will be disqualified.</li>
+                                <li>This card is not transferable.</li>
+                            </ol>
+                            <t t-if="seating.exam_id.notes">
+                                <p class="small fst-italic"><t t-esc="seating.exam_id.notes"/></p>
+                            </t>
+                        </div>
+
+                        <!-- ── Signatures ──────────────────────────── -->
+                        <div class="row mt-4">
+                            <div class="col-4 text-center">
+                                <div class="border-top pt-1">Student Signature</div>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div class="border-top pt-1">Invigilator Signature</div>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div class="border-top pt-1">Principal / Controller</div>
+                            </div>
+                        </div>
+
+                    </div><!-- page -->
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         fleet.vehicle — School-transport extension (form, list, search, action)
+    ══════════════════════════════════════════════════════════════════════════ -->
+
+    <record id="view_fleet_vehicle_form_school" model="ir.ui.view">
+        <field name="name">fleet.vehicle.form.school</field>
+        <field name="model">fleet.vehicle</field>
+        <field name="inherit_id" ref="fleet.fleet_vehicle_view_form"/>
+        <field name="arch" type="xml">
+            <field name="vehicle_properties" position="before">
+                <group string="School Transport" name="school_transport">
+                    <field name="is_school_vehicle"/>
+                    <field name="route_id"
+                           options="{'no_create': True}"
+                           invisible="not is_school_vehicle"/>
+                    <field name="condition"
+                           widget="badge"
+                           decoration-success="condition == 'good'"
+                           decoration-warning="condition == 'fair'"
+                           decoration-danger="condition == 'poor'"
+                           invisible="not is_school_vehicle"/>
+                    <field name="last_service_date"
+                           invisible="not is_school_vehicle"/>
+                </group>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_fleet_vehicle_list_school" model="ir.ui.view">
+        <field name="name">fleet.vehicle.list.school</field>
+        <field name="model">fleet.vehicle</field>
+        <field name="arch" type="xml">
+            <list string="Vehicles">
+                <field name="license_plate"/>
+                <field name="model_id"/>
+                <field name="seats"/>
+                <field name="driver_id"/>
+                <field name="route_id"/>
+                <field name="last_service_date"/>
+                <field name="condition"
+                       widget="badge"
+                       decoration-success="condition == 'good'"
+                       decoration-warning="condition == 'fair'"
+                       decoration-danger="condition == 'poor'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fleet_vehicle_search_school" model="ir.ui.view">
+        <field name="name">fleet.vehicle.search.school</field>
+        <field name="model">fleet.vehicle</field>
+        <field name="arch" type="xml">
+            <search string="Search Vehicles">
+                <field name="license_plate"/>
+                <field name="model_id"/>
+                <field name="driver_id"/>
+                <field name="route_id"/>
+                <group>
+                    <filter name="group_by_route" string="Route"
+                            context="{'group_by': 'route_id'}"/>
+                    <filter name="group_by_condition" string="Condition"
+                            context="{'group_by': 'condition'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_edu_transport_vehicle" model="ir.actions.act_window">
+        <field name="name">Vehicles</field>
+        <field name="res_model">fleet.vehicle</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_school_vehicle', '=', True)]</field>
+        <field name="context">{'default_is_school_vehicle': True}</field>
+        <field name="search_view_id" ref="view_fleet_vehicle_search_school"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Register your first school vehicle
+            </p>
+            <p>Add vehicles, assign drivers and routes to manage your fleet.</p>
+        </field>
+    </record>
+
+    <record id="action_edu_transport_vehicle_view_list" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_fleet_vehicle_list_school"/>
+        <field name="act_window_id" ref="action_edu_transport_vehicle"/>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         edu.transport.route — Form (with stops O2M), List, Action
+    ══════════════════════════════════════════════════════════════════════════ -->
+
+    <record id="view_edu_transport_route_form" model="ir.ui.view">
+        <field name="name">edu.transport.route.form</field>
+        <field name="model">edu.transport.route</field>
+        <field name="arch" type="xml">
+            <form string="Transport Route">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button"
+                                type="object"
+                                name="action_view_stops"
+                                icon="fa-map-marker">
+                            <field name="stop_count" widget="statinfo" string="Stops"/>
+                        </button>
+                        <button class="oe_stat_button"
+                                type="object"
+                                name="action_view_vehicles"
+                                icon="fa-bus">
+                            <field name="vehicle_count" widget="statinfo" string="Vehicles"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Route Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group string="Description">
+                        <field name="description" nolabel="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Stops" name="stops">
+                            <field name="stop_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="pickup_time"
+                                           widget="float_time"
+                                           string="Pickup Time"/>
+                                    <field name="drop_time"
+                                           widget="float_time"
+                                           string="Drop Time"/>
+                                    <field name="distance_km"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Vehicles" name="vehicles">
+                            <field name="vehicle_ids" readonly="1">
+                                <list>
+                                    <field name="license_plate"/>
+                                    <field name="model_id"/>
+                                    <field name="seats"/>
+                                    <field name="driver_id"/>
+                                    <field name="condition"
+                                           widget="badge"
+                                           decoration-success="condition == 'good'"
+                                           decoration-warning="condition == 'fair'"
+                                           decoration-danger="condition == 'poor'"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_edu_transport_route_list" model="ir.ui.view">
+        <field name="name">edu.transport.route.list</field>
+        <field name="model">edu.transport.route</field>
+        <field name="arch" type="xml">
+            <list string="Routes">
+                <field name="name"/>
+                <field name="stop_count" string="Stops"/>
+                <field name="active" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_edu_transport_route" model="ir.actions.act_window">
+        <field name="name">Routes</field>
+        <field name="res_model">edu.transport.route</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first transport route
+            </p>
+            <p>Define routes with pickup and drop stops for student transport.</p>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         edu.transport.assignment — Form, List, Search, Action
+    ══════════════════════════════════════════════════════════════════════════ -->
+
+    <record id="view_edu_transport_assignment_form" model="ir.ui.view">
+        <field name="name">edu.transport.assignment.form</field>
+        <field name="model">edu.transport.assignment</field>
+        <field name="arch" type="xml">
+            <form string="Transport Assignment">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="enrollment_id"/>
+                        <h1>
+                            <field name="enrollment_id"
+                                   placeholder="Select Enrollment"
+                                   options="{'no_create': True}"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Student">
+                            <field name="student_name" readonly="1"/>
+                            <field name="class_id" readonly="1"/>
+                        </group>
+                        <group string="Status">
+                            <field name="state"
+                                   widget="badge"
+                                   decoration-success="state == 'active'"
+                                   decoration-muted="state == 'inactive'"/>
+                            <field name="academic_year_id"
+                                   options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Transport">
+                            <field name="route_id"
+                                   options="{'no_create': True}"/>
+                            <field name="stop_id"
+                                   options="{'no_create': True}"/>
+                        </group>
+                        <group string="Fee">
+                            <field name="transport_fee"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_edu_transport_assignment_list" model="ir.ui.view">
+        <field name="name">edu.transport.assignment.list</field>
+        <field name="model">edu.transport.assignment</field>
+        <field name="arch" type="xml">
+            <list string="Student Transport Assignments">
+                <field name="student_name"/>
+                <field name="class_id"/>
+                <field name="academic_year_id"/>
+                <field name="route_id"/>
+                <field name="stop_id"/>
+                <field name="transport_fee"/>
+                <field name="state"
+                       widget="badge"
+                       decoration-success="state == 'active'"
+                       decoration-muted="state == 'inactive'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_edu_transport_assignment_search" model="ir.ui.view">
+        <field name="name">edu.transport.assignment.search</field>
+        <field name="model">edu.transport.assignment</field>
+        <field name="arch" type="xml">
+            <search string="Search Assignments">
+                <field name="student_name" string="Student"/>
+                <field name="route_id"/>
+                <field name="academic_year_id"/>
+                <separator/>
+                <filter name="active" string="Active"
+                        domain="[('state', '=', 'active')]"/>
+                <filter name="inactive" string="Inactive"
+                        domain="[('state', '=', 'inactive')]"/>
+                <group>
+                    <filter name="group_by_route" string="Route"
+                            context="{'group_by': 'route_id'}"/>
+                    <filter name="group_by_year" string="Academic Year"
+                            context="{'group_by': 'academic_year_id'}"/>
+                    <filter name="group_by_state" string="State"
+                            context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_edu_transport_assignment" model="ir.actions.act_window">
+        <field name="name">Student Transport Assignments</field>
+        <field name="res_model">edu.transport.assignment</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id"
+               ref="view_edu_transport_assignment_search"/>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Assign a student to a transport route
+            </p>
+            <p>Link enrollments to routes and stops for each academic year.</p>
+        </field>
+    </record>
+
+</odoo>

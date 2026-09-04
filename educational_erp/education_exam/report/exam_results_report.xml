@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ═══════════════════════════════════════════════════════════════════
+         Consolidated Examination Results Tabulation Report
+         Shows all students and their subject marks for an examination.
+         ═══════════════════════════════════════════════════════════════════ -->
+
+    <record id="action_report_exam_results_tabulation" model="ir.actions.report">
+        <field name="name">Examination Results Tabulation</field>
+        <field name="model">edu.exam</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">education_exam.report_exam_results_tabulation_template</field>
+        <field name="report_file">education_exam.report_exam_results_tabulation_template</field>
+        <field name="print_report_name">'Exam Results - %s' % object.name</field>
+    </record>
+
+    <template id="report_exam_results_tabulation_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="exam">
+                <t t-set="company" t-value="exam.company_id or res_company or user.company_id or env.company"/>
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12.5px; color: #334155; line-height: 1.45; padding: 10px 0;">
+
+                        <!-- ── Centered Company Header ───────────────────────── -->
+                        <div class="text-center pb-3 mb-4" style="border-bottom: 2px solid #cbd5e1;">
+                            <h2 style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 0 0 5px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+                                <t t-esc="company.name"/>
+                            </h2>
+                            <div style="font-size: 13px; color: #475569; line-height: 1.45; max-width: 90%; margin: 0 auto;">
+                                <t t-if="company.street"><t t-esc="company.street"/>, </t>
+                                <t t-if="company.street2"><t t-esc="company.street2"/>, </t>
+                                <t t-if="company.city"><t t-esc="company.city"/>, </t>
+                                <t t-if="company.state_id"><t t-esc="company.state_id.name"/>, </t>
+                                <t t-if="company.zip"><t t-esc="company.zip"/>, </t>
+                                <t t-if="company.country_id"><t t-esc="company.country_id.name"/></t>
+                                <t t-if="company.phone"><span class="d-inline-block ms-2">&amp;bull; Tel: <t t-esc="company.phone"/></span></t>
+                                <t t-if="company.email"><span class="d-inline-block ms-2">&amp;bull; Email: <t t-esc="company.email"/></span></t>
+                            </div>
+                        </div>
+
+                        <!-- ── Master Exam Sub-Header ──────────────────────── -->
+                        <div class="row align-items-end pb-3 mb-3" style="border-bottom: 1.5px solid #e2e8f0;">
+                            <div class="col-8">
+                                <div style="font-size: 12.5px; text-transform: uppercase; letter-spacing: 1px; color: #0284c7; font-weight: 700; margin-bottom: 2px;">
+                                    Master Examination Results Sheet
+                                </div>
+                                <h3 style="font-size: 19px; font-weight: 700; color: #1e293b; margin: 0 0 4px 0;">
+                                    <t t-esc="exam.name"/>
+                                </h3>
+                                <div style="font-size: 12.5px; color: #64748b;">
+                                    <span>Academic Year: <strong style="color: #334155;"><t t-esc="exam.academic_year_id.name or '—'"/></strong></span>
+                                    <span class="mx-2">&amp;bull;</span>
+                                    <span>Exam Type: <t t-esc="exam.exam_type and exam.exam_type.replace('_', ' ').title() or 'General'"/></span>
+                                    <span class="mx-2">&amp;bull;</span>
+                                    <span>Period: <t t-esc="exam.date_from"/> to <t t-esc="exam.date_to"/></span>
+                                </div>
+                            </div>
+                            <div class="col-4 text-end">
+                                <div style="font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase;">Total Candidates</div>
+                                <div style="font-size: 18px; font-weight: 800; color: #0f172a;">
+                                    <t t-esc="len(exam.result_ids.mapped('enrollment_id'))"/> Students
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ── Results by Class ───────────────────────────── -->
+                        <t t-set="classes" t-value="exam.result_ids.mapped('class_id') or exam.class_ids"/>
+                        <t t-if="not classes">
+                            <t t-set="classes" t-value="[False]"/>
+                        </t>
+
+                        <t t-foreach="classes" t-as="cls">
+                            <t t-if="cls">
+                                <t t-set="class_results" t-value="exam.result_ids.filtered(lambda r: r.class_id == cls)"/>
+                            </t>
+                            <t t-else="">
+                                <t t-set="class_results" t-value="exam.result_ids"/>
+                            </t>
+
+                            <t t-set="students" t-value="class_results.mapped('enrollment_id')"/>
+                            <t t-set="subjects" t-value="exam.subject_line_ids.mapped('subject_id') or class_results.mapped('subject_id')"/>
+
+                            <t t-if="class_results">
+                                <div class="mt-3 mb-4">
+                                    <t t-if="cls">
+                                        <div class="d-flex justify-content-between align-items-center py-2 mb-2" style="border-bottom: 1px solid #cbd5e1;">
+                                            <h5 style="font-size: 14.5px; font-weight: 700; color: #1e293b; margin: 0;">
+                                                Class: <t t-esc="cls.name"/>
+                                            </h5>
+                                            <span style="font-size: 12.5px; color: #64748b; font-weight: 600;">
+                                                <t t-esc="len(students)"/> Student(s)
+                                            </span>
+                                        </div>
+                                    </t>
+
+                                    <table class="table table-sm mb-2" style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                                        <thead>
+                                            <tr style="background-color: #f1f5f9; border-bottom: 2px solid #94a3b8; color: #334155; font-size: 11.5px; text-transform: uppercase;">
+                                                <th style="padding: 8px 4px; text-align: center; width: 4%;">#</th>
+                                                <th style="padding: 8px 8px; text-align: left; width: 24%;">Student Name</th>
+                                                <t t-foreach="subjects" t-as="subj">
+                                                    <th style="padding: 8px 4px; text-align: center;">
+                                                        <div style="font-weight: 700;"><t t-esc="subj.name"/></div>
+                                                    </th>
+                                                </t>
+                                                <th style="padding: 8px 4px; text-align: center; width: 9%;">Total</th>
+                                                <th style="padding: 8px 4px; text-align: center; width: 8%;">%</th>
+                                                <th style="padding: 8px 4px; text-align: center; width: 7%;">Grade</th>
+                                                <th style="padding: 8px 4px; text-align: center; width: 8%;">Result</th>
+                                                <th style="padding: 8px 4px; text-align: center; width: 6%;">Rank</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-set="s_idx" t-value="1"/>
+                                            <t t-foreach="students" t-as="st">
+                                                <t t-set="st_results" t-value="class_results.filtered(lambda r: r.enrollment_id == st)"/>
+                                                <t t-set="st_total_obt" t-value="sum(r.marks_obtained for r in st_results if not r.absent)"/>
+                                                <t t-set="st_total_max" t-value="sum(r.max_marks for r in st_results)"/>
+                                                <t t-set="st_pct" t-value="(st_total_obt / st_total_max * 100) if st_total_max else 0.0"/>
+                                                <t t-set="st_failed" t-value="any(r.pass_fail == 'fail' for r in st_results)"/>
+                                                <t t-set="st_absent" t-value="any(r.absent for r in st_results)"/>
+                                                <t t-set="valid_ranks" t-value="[r.rank for r in st_results if r.rank > 0]"/>
+                                                <t t-set="st_rank" t-value="min(valid_ranks) if valid_ranks else '—'"/>
+
+                                                <tr style="border-bottom: 1px solid #e2e8f0;">
+                                                    <td style="padding: 8px 4px; text-align: center; color: #64748b;"><t t-esc="s_idx"/></td>
+                                                    <td style="padding: 8px 8px; color: #0f172a; font-weight: 700;"><t t-esc="st.student_name"/></td>
+
+                                                    <t t-foreach="subjects" t-as="subj">
+                                                        <t t-set="subj_res" t-value="st_results.filtered(lambda r: r.subject_id == subj)[:1]"/>
+                                                        <td style="padding: 8px 4px; text-align: center;">
+                                                            <t t-if="subj_res">
+                                                                <t t-if="subj_res.absent">
+                                                                    <span style="color: #b45309; font-size: 11px; font-weight: bold;">AB</span>
+                                                                </t>
+                                                                <t t-else="">
+                                                                    <span t-attf-style="font-weight: 600; #{'color: #b91c1c;' if subj_res.pass_fail == 'fail' else 'color: #0f172a;'}">
+                                                                        <t t-esc="'%.1f' % subj_res.marks_obtained"/>
+                                                                    </span>
+                                                                </t>
+                                                            </t>
+                                                            <t t-else="">—</t>
+                                                        </td>
+                                                    </t>
+
+                                                    <td style="padding: 8px 4px; text-align: center; font-weight: 700; color: #0f172a;">
+                                                        <t t-esc="'%.1f' % st_total_obt"/> / <t t-esc="'%.1f' % st_total_max"/>
+                                                    </td>
+                                                    <td style="padding: 8px 4px; text-align: center; color: #334155; font-weight: 600;">
+                                                        <t t-esc="'%.1f' % st_pct"/>%
+                                                    </td>
+                                                    <td style="padding: 8px 4px; text-align: center; font-weight: 700;">
+                                                        <t t-if="st_results">
+                                                            <t t-if="st_pct >= 90">A+</t>
+                                                            <t t-elif="st_pct >= 80">A</t>
+                                                            <t t-elif="st_pct >= 70">B</t>
+                                                            <t t-elif="st_pct >= 60">C</t>
+                                                            <t t-elif="st_pct >= 50">D</t>
+                                                            <t t-else="">F</t>
+                                                        </t>
+                                                    </td>
+                                                    <td style="padding: 8px 4px; text-align: center;">
+                                                        <t t-if="st_failed">
+                                                            <span style="color: #b91c1c; font-weight: 700;">Fail</span>
+                                                        </t>
+                                                        <t t-elif="st_absent">
+                                                            <span style="color: #b45309; font-weight: 700;">Absent</span>
+                                                        </t>
+                                                        <t t-else="">
+                                                            <span style="color: #15803d; font-weight: 700;">Pass</span>
+                                                        </t>
+                                                    </td>
+                                                    <td style="padding: 8px 4px; text-align: center; color: #64748b; font-weight: 600;">
+                                                        <t t-esc="st_rank"/>
+                                                    </td>
+                                                </tr>
+                                                <t t-set="s_idx" t-value="s_idx + 1"/>
+                                            </t>
+                                        </tbody>
+                                    </table>
+
+                                    <!-- Class Summary Analytics -->
+                                    <t t-set="failed_enrs" t-value="class_results.filtered(lambda r: r.pass_fail == 'fail').mapped('enrollment_id')"/>
+                                    <t t-set="absent_enrs" t-value="class_results.filtered(lambda r: r.absent).mapped('enrollment_id')"/>
+                                    <t t-set="unpassed_ids" t-value="(failed_enrs | absent_enrs).ids"/>
+                                    <t t-set="passed_count" t-value="len([s for s in students.ids if s not in unpassed_ids])"/>
+                                    <div class="p-3 mb-3" style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12.5px; color: #334155;">
+                                        <div class="row">
+                                            <div class="col-3">
+                                                <strong style="color: #475569;">Total Students:</strong> <t t-esc="len(students)"/>
+                                            </div>
+                                            <div class="col-3">
+                                                <strong style="color: #15803d;">Passed:</strong> <t t-esc="passed_count"/>
+                                            </div>
+                                            <div class="col-3">
+                                                <strong style="color: #b91c1c;">Failed / Incomplete:</strong> <t t-esc="len(unpassed_ids)"/>
+                                            </div>
+                                            <div class="col-3 text-end">
+                                                <strong style="color: #0284c7;">Pass Rate:</strong>
+                                                <strong style="font-size: 13.5px;"><t t-esc="'%.1f' % ((passed_count / len(students) * 100) if len(students) else 0.0)"/>%</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </t>
+
+                        <!-- ── Signatures ──────────────────────────────────── -->
+                        <div style="margin-top: 50px; padding-top: 15px;">
+                            <div class="row text-center" style="font-size: 13px; color: #475569; font-weight: 600;">
+                                <div class="col-4">
+                                    <div style="border-top: 1.5px solid #94a3b8; padding-top: 8px; margin: 0 15px;">
+                                        Examination Committee
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div style="border-top: 1.5px solid #94a3b8; padding-top: 8px; margin: 0 15px;">
+                                        Controller of Examinations
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div style="border-top: 1.5px solid #94a3b8; padding-top: 8px; margin: 0 15px;">
+                                        Principal
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

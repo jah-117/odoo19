@@ -1,0 +1,741 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ── Portal Home — Scheduled Examinations Entry ──────────────────── -->
+    <template id="portal_my_home_examinations"
+              name="Portal My Home: Examinations"
+              inherit_id="portal.portal_my_home"
+              priority="38">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="title">Examinations</t>
+                <t t-set="url">/my/examinations</t>
+                <t t-set="count" t-value="scheduled_exam_count"/>
+                <t t-set="placeholder_count" t-value="'scheduled_exam_count'"/>
+                <t t-set="icon" t-value="'/education_core/static/src/graduation-cap.svg'"/>
+                <t t-set="text">View upcoming and scheduled examinations</t>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- ── Portal Home — Examination Results Entry ───────────────────── -->
+    <template id="portal_my_home_exam_results"
+              name="Portal My Home: Examination Results"
+              inherit_id="portal.portal_my_home"
+              priority="40">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="title">Examination Results</t>
+                <t t-set="url">/my/exam/results</t>
+                <t t-set="count" t-value="exam_result_count"/>
+                <t t-set="placeholder_count" t-value="'exam_result_count'"/>
+                <t t-set="icon" t-value="'/education_core/static/src/square-poll.svg'"/>
+                <t t-set="text">View published examination marks and grades</t>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- ── Scheduled Examinations Page ─────────────────────────────────── -->
+    <template id="portal_my_examinations" name="My Examinations">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Examinations</t>
+            </t>
+            <t t-if="not exams">
+                <div class="alert alert-info text-center mt-4">
+                    <i class="fa fa-info-circle me-2"/>
+                    No scheduled examinations found for your enrolled classes.
+                </div>
+            </t>
+            <t t-if="exams">
+                <div class="mt-4">
+                    <t t-foreach="exams" t-as="exam">
+                        <t t-set="seating" t-value="seating_map.get(exam.id)"/>
+                        <div class="card mb-4 shadow-sm border-0">
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center py-3 flex-wrap gap-2">
+                                <div>
+                                    <h5 class="mb-1 text-primary fw-bold">
+                                        <i class="fa fa-calendar-check-o me-2"/>
+                                        <t t-esc="exam.name"/>
+                                    </h5>
+                                    <small class="text-muted">
+                                        <i class="fa fa-calendar me-1"/>
+                                        <t t-esc="exam.date_from"/> to <t t-esc="exam.date_to"/>
+                                        <t t-if="exam.academic_year_id">
+                                            &amp;nbsp;|&amp;nbsp; <t t-esc="exam.academic_year_id.name"/>
+                                        </t>
+                                    </small>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span t-attf-class="badge #{'bg-warning text-dark' if exam.state == 'ongoing' else 'bg-info'} text-uppercase">
+                                        <t t-esc="dict(exam._fields['state'].selection).get(exam.state, exam.state)"/>
+                                    </span>
+                                    <t t-if="seating">
+                                        <a t-attf-href="/my/exam/admit_card/#{exam.id}"
+                                           class="btn btn-sm btn-outline-primary"
+                                           title="Download Admit Card">
+                                            <i class="fa fa-download me-1"/> Admit Card
+                                        </a>
+                                    </t>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <t t-if="seating">
+                                    <div class="row g-2 mb-3 bg-light p-2 rounded border">
+                                        <div class="col-sm-6">
+                                            <strong>Exam Hall:</strong> <t t-esc="seating.classroom_id.display_name or '—'"/>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <strong>Seat No.:</strong> <t t-esc="seating.seat_no or '—'"/>
+                                        </div>
+                                    </div>
+                                </t>
+                                <t t-if="not exam.subject_line_ids">
+                                    <p class="text-muted mb-0 small">Schedule details to be announced.</p>
+                                </t>
+                                <t t-if="exam.subject_line_ids">
+                                    <h6 class="fw-bold mb-2">Subject Timetable</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th>Subject</th>
+                                                    <th>Time</th>
+                                                    <th>Duration</th>
+                                                    <th class="text-end">Max Marks</th>
+                                                    <th class="text-end">Pass Marks</th>
+                                                    <th>Hall</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <t t-foreach="exam.subject_line_ids" t-as="subj">
+                                                    <tr>
+                                                        <td><t t-esc="subj.exam_date or '—'"/></td>
+                                                        <td class="fw-semibold">
+                                                            <t t-esc="subj.subject_id.name if subj.subject_id else '—'"/>
+                                                        </td>
+                                                        <td>
+                                                            <t t-if="subj.exam_time">
+                                                                <t t-esc="'%02d:%02d' % (int(subj.exam_time), int((subj.exam_time % 1) * 60))"/>
+                                                            </t>
+                                                            <t t-else="">—</t>
+                                                        </td>
+                                                        <td><t t-esc="subj.duration_hours"/> hr(s)</td>
+                                                        <td class="text-end"><t t-esc="'%.1f' % (subj.max_marks or 0.0)"/></td>
+                                                        <td class="text-end"><t t-esc="'%.1f' % (subj.pass_marks or 0.0)"/></td>
+                                                        <td><t t-esc="subj.classroom_id.display_name or '—'"/></td>
+                                                    </tr>
+                                                </t>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </t>
+                                <t t-if="exam.notes">
+                                    <div class="alert alert-light border mt-3 mb-0 small">
+                                        <strong>Instructions:</strong>
+                                        <p class="mb-0"><t t-esc="exam.notes"/></p>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <!-- ── Breadcrumbs ──────────────────────────────────────────────────── -->
+    <template id="portal_my_home_menu_exam" name="Portal layout : examination menu entries" inherit_id="portal.portal_breadcrumbs" priority="38">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li t-if="page_name == 'examinations'" class="breadcrumb-item active">
+                Examinations
+            </li>
+            <li t-if="page_name in ('exam_results', 'exam_result_detail')" t-attf-class="breadcrumb-item #{'active' if page_name == 'exam_results' else ''}">
+                <a t-if="page_name == 'exam_result_detail'" href="/my/exam/results">Examination Results</a>
+                <t t-else="">Examination Results</t>
+            </li>
+            <li t-if="page_name == 'exam_result_detail' and exam" class="breadcrumb-item active">
+                <t t-esc="exam.name"/>
+            </li>
+        </xpath>
+    </template>
+
+    <!-- ── Examination Results List Page (Ordered by Published Date) ─────── -->
+    <template id="portal_my_exam_results" name="My Examination Results">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Examination Results</t>
+            </t>
+
+            <!-- Alerts for Revaluation submission / error if redirected to list -->
+            <t t-if="reval_success">
+                <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                    <i class="fa fa-check-circle me-2"/>
+                    <strong>Success!</strong> Your revaluation request has been submitted successfully and is under review.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </t>
+            <t t-if="reval_error">
+                <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                    <i class="fa fa-exclamation-triangle me-2"/>
+                    <strong>Error:</strong> <t t-esc="reval_error"/>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </t>
+
+            <t t-if="not exam_summaries and not exams">
+                <div class="alert alert-info text-center mt-4">
+                    <i class="fa fa-info-circle me-2"/>
+                    No published examination results found.
+                </div>
+            </t>
+            <t t-if="exam_summaries">
+                <div class="mt-4">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-light py-3">
+                            <h5 class="mb-0 text-primary fw-bold">
+                                <i class="fa fa-graduation-cap me-2"/> Published Examination Results
+                            </h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Examination</th>
+                                            <th>Academic Year</th>
+                                            <th>Exam Type</th>
+                                            <th class="text-center">Results Published Date</th>
+                                            <th class="text-center">Overall Score</th>
+                                            <th class="text-center">Status</th>
+                                            <th class="text-end pe-3">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="exam_summaries" t-as="item">
+                                            <t t-set="exam" t-value="item['exam']"/>
+                                            <tr t-attf-onclick="window.location.href='/my/exam/result/#{exam.id}'"
+                                                style="cursor: pointer;"
+                                                class="align-middle">
+                                                <td>
+                                                    <span class="fw-bold text-dark">
+                                                        <i class="fa fa-file-text-o me-1 text-primary"/>
+                                                        <t t-esc="exam.name"/>
+                                                    </span>
+                                                    <t t-if="item.get('is_new')">
+                                                        <span class="badge bg-danger text-white ms-1" title="Newly published or updated after re-evaluation">New</span>
+                                                    </t>
+                                                    <t t-if="exam.code and exam.code != 'New'">
+                                                        <span class="badge bg-light text-dark border ms-1"><t t-esc="exam.code"/></span>
+                                                    </t>
+                                                </td>
+                                                <td>
+                                                    <t t-if="exam.academic_year_id">
+                                                        <i class="fa fa-calendar me-1 text-muted"/>
+                                                        <t t-esc="exam.academic_year_id.name"/>
+                                                    </t>
+                                                    <t t-else="">—</t>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-secondary text-uppercase">
+                                                        <t t-esc="dict(exam._fields['exam_type'].selection).get(exam.exam_type, exam.exam_type)"/>
+                                                    </span>
+                                                </td>
+                                                <td class="text-center text-muted">
+                                                    <t t-if="item['published_at']">
+                                                        <i class="fa fa-clock-o me-1"/>
+                                                        <span t-esc="item['published_at']" t-options='{"widget": "datetime"}'/>
+                                                    </t>
+                                                    <t t-else="">—</t>
+                                                </td>
+                                                <td class="text-center fw-bold">
+                                                    <span class="text-primary"><t t-esc="'%.1f' % item['percentage']"/>%</span>
+                                                </td>
+                                                <td class="text-center">
+                                                    <t t-if="item.get('has_under_reval')">
+                                                        <span class="badge bg-warning text-dark" title="One or more subjects are undergoing re-evaluation or awaiting publication">
+                                                            <i class="fa fa-refresh me-1"/>Revaluation
+                                                        </span>
+                                                    </t>
+                                                    <t t-else="">
+                                                        <span t-attf-class="badge #{'bg-danger' if item['has_failed'] else 'bg-success'}">
+                                                            <t t-if="item['has_failed']">Fail</t>
+                                                            <t t-else="">Pass</t>
+                                                        </span>
+                                                    </t>
+                                                </td>
+                                                <td class="text-end pe-3 text-nowrap" onclick="event.stopPropagation();">
+                                                    <a t-attf-href="/my/exam/result/pdf/#{exam.id}"
+                                                       class="btn btn-sm btn-outline-secondary"
+                                                       title="Download Mark Sheet (PDF)"
+                                                       target="_blank">
+                                                        <i class="fa fa-download me-1"/> PDF
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <!-- ── Single Examination Results Detail Table Page ─────────────────── -->
+    <template id="portal_my_exam_result_detail" name="My Examination Result Details">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title" t-value="exam.name"/>
+            </t>
+
+            <!-- Alerts for Revaluation submission -->
+            <t t-if="reval_success">
+                <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                    <i class="fa fa-check-circle me-2"/>
+                    <strong>Success!</strong> Your revaluation request has been submitted successfully and is under review.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </t>
+            <t t-if="reval_error">
+                <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                    <i class="fa fa-exclamation-triangle me-2"/>
+                    <strong>Error:</strong> <t t-esc="reval_error"/>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </t>
+            <t t-if="any(r.state == 'draft' for r in results)">
+                <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
+                    <i class="fa fa-info-circle me-2"/>
+                    <strong>Notice:</strong> One or more subject results are currently undergoing re-evaluation or awaiting administrator publication.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </t>
+
+            <div class="mt-4">
+                <div class="card mb-4 shadow-sm border-0">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center py-3 flex-wrap gap-2">
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                                <a href="/my/exam/results" class="btn btn-sm btn-outline-secondary" title="Back to All Results">
+                                    <i class="fa fa-arrow-left me-1"/> Back
+                                </a>
+                                <h5 class="mb-0 text-primary fw-bold">
+                                    <i class="fa fa-graduation-cap me-2"/>
+                                    <t t-esc="exam.name"/>
+                                </h5>
+                                <t t-if="is_new">
+                                    <span class="badge bg-danger text-white ms-1" title="Newly published or updated after re-evaluation">New</span>
+                                </t>
+                            </div>
+                            <small class="text-muted ms-4 ps-3">
+                                <t t-if="exam.academic_year_id">
+                                    <i class="fa fa-calendar me-1"/>
+                                    <t t-esc="exam.academic_year_id.name"/>
+                                </t>
+                                <t t-if="exam.published_at">
+                                    &amp;nbsp;|&amp;nbsp; <i class="fa fa-clock-o me-1"/> Published: <span t-esc="exam.published_at" t-options='{"widget": "datetime"}'/>
+                                </t>
+                            </small>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-secondary text-uppercase">
+                                <t t-esc="dict(exam._fields['exam_type'].selection).get(exam.exam_type, exam.exam_type)"/>
+                            </span>
+                            <a t-attf-href="/my/exam/result/pdf/#{exam.id}"
+                                class="btn btn-sm btn-outline-primary"
+                                title="Download Result (PDF)"
+                                target="_blank"
+                                aria-label="Download Result (PDF)">
+                                <i class="fa fa-download me-1"/> Download PDF
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th class="text-end">Marks Obtained</th>
+                                        <th class="text-center p-0" style="width: 25px;"></th>
+                                        <th class="text-end">Max Marks</th>
+                                        <th class="text-end">Percentage</th>
+                                        <th class="text-center">Grade</th>
+                                        <th class="text-center">Status</th>
+                                        <th class="text-center">Revaluation</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="results" t-as="result">
+                                        <t t-set="reval" t-value="reval_map.get(result.id) if reval_map else False"/>
+                                        <t t-set="disp_marks" t-value="result.history_ids.sorted('id')[0].old_marks if (result.state == 'draft' and result.history_ids) else result.marks_obtained"/>
+                                        <t t-set="disp_pct" t-value="(disp_marks / result.max_marks * 100) if result.max_marks else 0.0"/>
+                                        <t t-set="disp_grade" t-value="reval.grade if (result.state == 'draft' and reval and reval.grade) else result.grade"/>
+                                        <tr>
+                                            <td class="fw-semibold">
+                                                <t t-esc="result.subject_id.name if result.subject_id else '—'"/>
+                                            </td>
+                                            <td class="text-end">
+                                                <t t-if="result.state == 'draft' and (reval or result.history_ids)">
+                                                    <span class="text-muted" title="Original marks (Re-evaluation in progress)">
+                                                        <t t-esc="'%.1f' % (disp_marks or 0.0)"/>
+                                                    </span>
+                                                </t>
+                                                <t t-else="">
+                                                    <t t-esc="'%.1f' % (result.marks_obtained or 0.0)"/>
+                                                </t>
+                                            </td>
+                                            <td class="text-center p-0" style="width: 25px;">
+                                                <t t-if="result.state == 'published' and result.history_ids">
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-link p-0 text-info text-decoration-none"
+                                                            data-bs-toggle="modal"
+                                                            t-attf-data-bs-target="#marksHistoryModal_#{result.id}"
+                                                            title="Marks change history available. Click to view history.">
+                                                        <i class="fa fa-info-circle text-primary fs-6" style="vertical-align: middle;"/>
+                                                    </button>
+                                                </t>
+                                            </td>
+                                            <td class="text-end">
+                                                <t t-esc="'%.1f' % (result.max_marks or 0.0)"/>
+                                            </td>
+                                            <td class="text-end fw-bold">
+                                                <t t-if="result.state == 'draft' and (reval or result.history_ids)">
+                                                    <span class="text-muted">
+                                                        <t t-esc="'%.1f' % (disp_pct or 0.0)"/>%
+                                                    </span>
+                                                </t>
+                                                <t t-else="">
+                                                    <t t-esc="'%.1f' % (result.percentage or 0.0)"/>%
+                                                </t>
+                                            </td>
+                                            <td class="text-center">
+                                                <t t-if="result.state == 'draft' and (reval or result.history_ids)">
+                                                    <span class="badge bg-secondary px-2">
+                                                        <t t-esc="disp_grade or '—'"/>
+                                                    </span>
+                                                </t>
+                                                <t t-else="">
+                                                    <span class="badge bg-primary px-2">
+                                                        <t t-esc="result.grade or '—'"/>
+                                                    </span>
+                                                </t>
+                                            </td>
+                                            <td class="text-center">
+                                                <t t-if="result.state == 'draft'">
+                                                    <span class="badge bg-warning text-dark" title="Under re-evaluation or awaiting publication">
+                                                        <i class="fa fa-refresh me-1"/>Under Revaluation
+                                                    </span>
+                                                </t>
+                                                <t t-else="">
+                                                    <span t-attf-class="badge #{'bg-success' if result.pass_fail == 'pass' else 'bg-danger'}">
+                                                        <t t-esc="(result.pass_fail or '').title()"/>
+                                                    </span>
+                                                </t>
+                                            </td>
+                                            <td class="text-center">
+                                                <!-- Revaluation Status / Button -->
+                                                <t t-if="reval">
+                                                    <t t-if="reval.state == 'pending'">
+                                                        <span class="badge bg-warning text-dark py-2 px-2" title="Revaluation is under review">
+                                                            <i class="fa fa-clock-o me-1"/>Pending Review
+                                                        </span>
+                                                    </t>
+                                                    <t t-elif="reval.state == 'approved'">
+                                                        <span class="badge bg-info text-dark py-2 px-2" title="Revaluation request approved, re-evaluation in progress">
+                                                            <i class="fa fa-refresh me-1"/>In Progress
+                                                        </span>
+                                                    </t>
+                                                    <t t-elif="reval.state == 'revaluated' and result.state != 'published'">
+                                                        <span class="badge bg-info text-dark py-2 px-2" title="Revaluation completed, awaiting publication">
+                                                            <i class="fa fa-clock-o me-1"/>Awaiting Publication
+                                                        </span>
+                                                    </t>
+                                                    <t t-elif="reval.state == 'revaluated'">
+                                                        <span class="badge bg-success py-2 px-2" title="Revaluation completed and published">
+                                                            <i class="fa fa-check-circle me-1"/>Re-evaluated
+                                                        </span>
+                                                    </t>
+                                                    <t t-elif="reval.state == 'rejected'">
+                                                        <span class="badge bg-danger py-2 px-2" title="Revaluation request rejected">
+                                                            <i class="fa fa-times-circle me-1"/>Rejected
+                                                        </span>
+                                                        <button type="button"
+                                                                class="btn btn-sm btn-link p-0 text-danger text-decoration-none ms-1"
+                                                                data-bs-toggle="modal"
+                                                                t-attf-data-bs-target="#revalRejectModal_#{result.id}"
+                                                                title="Click to view rejection reason">
+                                                            <i class="fa fa-info-circle text-danger fs-6" style="vertical-align: middle;"/>
+                                                        </button>
+
+                                                        <!-- Modal for viewing rejection reason -->
+                                                        <div class="modal fade text-start"
+                                                             t-attf-id="revalRejectModal_#{result.id}"
+                                                             tabindex="-1"
+                                                             t-attf-aria-labelledby="revalRejectModalLabel_#{result.id}"
+                                                             aria-hidden="true">
+                                                            <div class="modal-dialog modal-dialog-centered">
+                                                                <div class="modal-content shadow-sm border-0">
+                                                                    <div class="modal-header bg-danger text-white">
+                                                                        <h5 class="modal-title d-flex align-items-center gap-2" t-attf-id="revalRejectModalLabel_#{result.id}">
+                                                                            <i class="fa fa-times-circle"/>
+                                                                            <span>Revaluation Request Rejected</span>
+                                                                        </h5>
+                                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                    </div>
+                                                                    <div class="modal-body p-3">
+                                                                        <div class="card bg-light border-0 mb-3">
+                                                                            <div class="card-body py-2 px-3">
+                                                                                <div class="row g-1 small">
+                                                                                    <div class="col-6"><strong>Exam:</strong> <t t-esc="exam.name"/></div>
+                                                                                    <div class="col-6"><strong>Subject:</strong> <t t-esc="result.subject_id.name if result.subject_id else '—'"/></div>
+                                                                                    <div class="col-6"><strong>Marks:</strong> <t t-esc="'%.1f' % (disp_marks or 0.0)"/> / <t t-esc="'%.1f' % (result.max_marks or 0.0)"/></div>
+                                                                                    <div class="col-6"><strong>Request Date:</strong> <span t-esc="reval.request_date" t-options='{"widget": "datetime"}'/></div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="mb-3">
+                                                                            <label class="fw-bold text-muted small text-uppercase">Your Reason for Request</label>
+                                                                            <div class="p-2 border rounded bg-white small text-muted">
+                                                                                <t t-esc="reval.reason or '—'"/>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="mb-2">
+                                                                            <label class="fw-bold text-danger small text-uppercase">
+                                                                                <i class="fa fa-commenting me-1"/>Reason for Rejection
+                                                                            </label>
+                                                                            <div class="p-3 border border-danger-subtle rounded bg-danger-subtle text-danger-emphasis fw-medium">
+                                                                                <t t-esc="reval.admin_notes or 'Marks verified and found accurate as per grading rubric. Request rejected.'"/>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <t t-if="reval.review_date">
+                                                                            <div class="text-end text-muted small mt-2">
+                                                                                <i class="fa fa-clock-o me-1"/> Reviewed on <span t-esc="reval.review_date" t-options='{"widget": "datetime"}'/>
+                                                                            </div>
+                                                                        </t>
+                                                                    </div>
+                                                                    <div class="modal-footer bg-light py-2">
+                                                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </t>
+                                                </t>
+                                                <t t-elif="exam.state != 'closed'">
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-outline-primary"
+                                                            data-bs-toggle="modal"
+                                                            t-attf-data-bs-target="#revalModal_#{result.id}">
+                                                        <i class="fa fa-refresh me-1"/>Request Revaluation
+                                                    </button>
+
+                                                    <!-- Modal for submitting revaluation request -->
+                                                    <div class="modal fade text-start"
+                                                         t-attf-id="revalModal_#{result.id}"
+                                                         tabindex="-1"
+                                                         aria-labelledby="revalModalLabel"
+                                                         aria-hidden="true">
+                                                        <div class="modal-dialog modal-dialog-centered">
+                                                            <div class="modal-content">
+                                                                <form method="POST" action="/my/exam/revaluation/submit">
+                                                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                                                    <input type="hidden" name="result_id" t-att-value="result.id"/>
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="revalModalLabel">
+                                                                            <i class="fa fa-refresh me-2 text-primary"/>
+                                                                            Request Revaluation
+                                                                        </h5>
+                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <div class="card bg-light border-0 mb-3">
+                                                                            <div class="card-body py-2 px-3">
+                                                                                <div class="row g-1 small">
+                                                                                    <div class="col-6"><strong>Exam:</strong> <t t-esc="exam.name"/></div>
+                                                                                    <div class="col-6"><strong>Subject:</strong> <t t-esc="result.subject_id.name"/></div>
+                                                                                    <div class="col-6"><strong>Marks:</strong> <t t-esc="'%.1f' % (disp_marks or 0.0)"/> / <t t-esc="'%.1f' % (result.max_marks or 0.0)"/></div>
+                                                                                    <div class="col-6"><strong>Grade:</strong> <t t-esc="disp_grade or '—'"/></div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <label t-attf-for="reason_#{result.id}" class="form-label fw-bold">
+                                                                                Reason for Revaluation <span class="text-danger">*</span>
+                                                                            </label>
+                                                                            <textarea class="form-control"
+                                                                                      name="reason"
+                                                                                      t-attf-id="reason_#{result.id}"
+                                                                                      rows="3"
+                                                                                      required="required"
+                                                                                      placeholder="Please explain why you are requesting a revaluation for this subject..."></textarea>
+                                                                        </div>
+                                                                        <div class="alert alert-info py-2 px-3 mb-0 small">
+                                                                            <i class="fa fa-info-circle me-1"/>
+                                                                            Your request will be reviewed by the examination administrator.
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                                                                        <button type="submit" class="btn btn-primary btn-sm">
+                                                                            <i class="fa fa-paper-plane me-1"/>Submit Request
+                                                                        </button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </t>
+                                                <t t-else="">
+                                                    <span class="text-muted small">—</span>
+                                                </t>
+
+                                                <!-- Modal for viewing marks change history (Only when published) -->
+                                                <t t-if="result.state == 'published' and result.history_ids">
+                                                    <div class="modal fade text-start"
+                                                         t-attf-id="marksHistoryModal_#{result.id}"
+                                                         tabindex="-1"
+                                                         t-attf-aria-labelledby="marksHistoryModalLabel_#{result.id}"
+                                                         aria-hidden="true">
+                                                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                            <div class="modal-content shadow-sm border-0">
+                                                                <div class="modal-header bg-light">
+                                                                    <h5 class="modal-title d-flex align-items-center gap-2" t-attf-id="marksHistoryModalLabel_#{result.id}">
+                                                                        <i class="fa fa-history text-primary"/>
+                                                                        <span>Marks Change History</span>
+                                                                    </h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                </div>
+                                                                <div class="modal-body p-3">
+                                                                    <!-- Summary Info Card -->
+                                                                    <div class="card bg-light border-0 mb-3">
+                                                                        <div class="card-body py-2 px-3">
+                                                                            <div class="row g-2 small">
+                                                                                <div class="col-sm-6"><strong>Exam:</strong> <t t-esc="exam.name"/></div>
+                                                                                <div class="col-sm-6"><strong>Subject:</strong> <t t-esc="result.subject_id.name if result.subject_id else '—'"/></div>
+                                                                                <div class="col-sm-6">
+                                                                                    <strong>Current Marks:</strong>
+                                                                                    <span class="badge bg-primary ms-1"><t t-esc="'%.1f' % (result.marks_obtained or 0.0)"/> / <t t-esc="'%.1f' % (result.max_marks or 0.0)"/></span>
+                                                                                </div>
+                                                                                <div class="col-sm-6">
+                                                                                    <strong>Current Grade:</strong>
+                                                                                    <span class="badge bg-secondary ms-1"><t t-esc="result.grade or '—'"/></span>
+                                                                                    <span t-attf-class="badge ms-1 #{'bg-success' if result.pass_fail == 'pass' else 'bg-danger'}">
+                                                                                        <t t-esc="(result.pass_fail or '').title()"/>
+                                                                                    </span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <h6 class="fw-bold mb-2 small text-muted text-uppercase">
+                                                                        <i class="fa fa-list-alt me-1"/> Revision History Log
+                                                                    </h6>
+                                                                    <div class="table-responsive border rounded">
+                                                                        <table class="table table-sm table-striped table-hover mb-0 align-middle small">
+                                                                            <thead class="table-light">
+                                                                                <tr>
+                                                                                    <th>Date &amp; Time</th>
+                                                                                    <th class="text-center">Previous</th>
+                                                                                    <th class="text-center">Revised</th>
+                                                                                    <th class="text-center">Change</th>
+                                                                                    <th>Reason / Remarks</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                <t t-foreach="result.history_ids" t-as="hist">
+                                                                                    <tr>
+                                                                                        <td class="text-nowrap text-muted">
+                                                                                            <i class="fa fa-clock-o me-1"/>
+                                                                                            <t t-if="hist.change_date">
+                                                                                                <span t-field="hist.change_date" t-options='{"widget": "datetime"}'/>
+                                                                                            </t>
+                                                                                            <t t-else="">—</t>
+                                                                                        </td>
+                                                                                        <td class="text-center">
+                                                                                            <t t-esc="'%.1f' % (hist.old_marks or 0.0)"/>
+                                                                                        </td>
+                                                                                        <td class="text-center fw-bold text-primary">
+                                                                                            <t t-esc="'%.1f' % (hist.new_marks or 0.0)"/>
+                                                                                        </td>
+                                                                                        <td class="text-center">
+                                                                                            <t t-if="hist.delta &gt; 0">
+                                                                                                <span class="badge bg-success text-white">
+                                                                                                    <i class="fa fa-arrow-up me-1"/>+<t t-esc="'%.1f' % hist.delta"/>
+                                                                                                </span>
+                                                                                            </t>
+                                                                                            <t t-elif="hist.delta &lt; 0">
+                                                                                                <span class="badge bg-danger text-white">
+                                                                                                    <i class="fa fa-arrow-down me-1"/><t t-esc="'%.1f' % hist.delta"/>
+                                                                                                </span>
+                                                                                            </t>
+                                                                                            <t t-else="">
+                                                                                                <span class="badge bg-secondary text-white">
+                                                                                                    <i class="fa fa-minus me-1"/>0.0
+                                                                                                </span>
+                                                                                            </t>
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            <t t-esc="hist.reason or 'Marks re-evaluated / updated'"/>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </t>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-footer bg-light py-2">
+                                                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                                <t t-set="total_obtained" t-value="sum((r.history_ids.sorted('id')[0].old_marks if (r.state == 'draft' and r.history_ids) else r.marks_obtained) for r in results)"/>
+                                <t t-set="total_max" t-value="sum(results.mapped('max_marks'))"/>
+                                <t t-set="overall_pct" t-value="(total_obtained / total_max * 100) if total_max else 0.0"/>
+                                <t t-set="has_failed" t-value="any((((r.history_ids.sorted('id')[0].old_marks if (r.state == 'draft' and r.history_ids) else r.marks_obtained) &lt; r.pass_marks) if r.pass_marks else False) for r in results)"/>
+                                <tfoot class="table-light fw-bold border-top">
+                                    <tr>
+                                        <td>Total / Overall</td>
+                                        <td class="text-end">
+                                            <t t-esc="'%.1f' % total_obtained"/>
+                                        </td>
+                                        <td class="p-0" style="width: 25px;"></td>
+                                        <td class="text-end">
+                                            <t t-esc="'%.1f' % total_max"/>
+                                        </td>
+                                        <td class="text-end text-primary">
+                                            <t t-esc="'%.1f' % overall_pct"/>%
+                                        </td>
+                                        <td class="text-center">—</td>
+                                        <td class="text-center">
+                                            <span t-attf-class="badge #{'bg-danger' if has_failed else 'bg-success'}">
+                                                <t t-if="has_failed">Fail</t>
+                                                <t t-else="">Pass</t>
+                                            </span>
+                                        </td>
+                                        <td class="text-center">—</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>
