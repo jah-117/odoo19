@@ -146,7 +146,7 @@ class EduDashboard(models.AbstractModel):
         my_classes = Class.search([("class_teacher_id", "=", faculty.id)])
         my_slots = Slot.search([("teacher_id", "=", faculty.id)])
         # Subjects taught (from timetable slots, distinct names)
-        subjects = sorted({s.subject for s in my_slots if s.subject})
+        subjects = sorted({s.subject_id for s in my_slots if s.subject_id})
 
         my_students = Enrollment.search_count([
             ("class_id", "in", my_classes.ids), ("state", "=", "active"),

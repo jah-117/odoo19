@@ -8,7 +8,5 @@
 !odoo.conf
 
 # Allow the custom_addons folder and everything inside it
-custom_addons/
-custom_addons/**
 !educational_erp/
 !educational_erp/**
