@@ -17,10 +17,12 @@ Version: 19.0.1.0.0  |  License: LGPL-3
     "author": "Cybrosys Techno Solutions",
     "website": "https://www.cybrosys.com",
     "license": "LGPL-3",
-    "depends": ["education_core", "education_security", "mail", "account"],
+    "depends": ["education_core", "education_security", "education_notification", "education_financial_management",
+                "mail", "account"],
     "data": [
         "data/hostel_fee_product_data.xml",
         "data/ir_cron_data.xml",
+        "data/hostel_fee_templates.xml",
         "security/ir.model.access.csv",
         "security/record_rules.xml",
         "views/hostel_views.xml",

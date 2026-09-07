@@ -218,7 +218,7 @@ class EduHostelRoom(models.Model):
             'name': 'invoice',
             'view_mode': 'list,form',
             'res_model': 'account.move',
-            'domain':[('id', 'in', self.invoice_ids.ids )],
+            'domain':[('id', 'in', self.invoice_ids.ids ), ('allocation_state', '==',"confirmed")],
             'target': 'current'
         }
 
@@ -291,8 +291,29 @@ class EduHostelAllocation(models.Model):
         tracking=True,
     )
     notes = fields.Text(string="Notes")
-    invoice_ids = fields.One2many(comodel_name='account.move', inverse_name="allocation_id", string="Invoices")
-    previous_invoice_date = fields.Date(string="Previous Invoice Date")
+    current_invoice_id = fields.Many2one(
+        comodel_name="account.move",
+        string="Current Invoice",
+    )
+    overdue_invoice_id = fields.Many2one(
+        comodel_name="account.move",
+        string="Due Invoice",
+    )
+    invoice_ids = fields.One2many(
+        comodel_name='account.move',
+        inverse_name="allocation_id",
+        string="Invoices"
+    )
+    previous_invoice_date = fields.Date(
+        string="Previous Invoice Date"
+    )
+    notification_ids = fields.One2many(
+        string="Notifications",
+        comodel_name='edu.notification.queue',
+        inverse_name="allocation_id",
+        compute="_send_invoice_notification",
+        store=True,
+    )
 
     # ── Constraints ───────────────────────────────────────────────────────
     @api.constrains("date_from", "date_to")
@@ -333,24 +354,91 @@ class EduHostelAllocation(models.Model):
         for rec in self:
             rec.fee_due = sum([invoice.amount_residual for invoice in rec.invoice_ids if rec.invoice_ids])
 
+    @api.depends('invoice_ids.state')
+    def _send_invoice_notification(self):
+        for rec in self:
+            if rec.state != "confirmed":
+                continue
+            invoices = rec.invoice_ids.filtered(lambda invoice: invoice.state == "posted" and  invoice.payment_state == "not_paid")
+            if not invoices:
+                continue
+            rec.current_invoice_id = invoices[0].id
+            self.env.ref("education_hostel.invoice_generated").send_mail(rec.id, force_send=True)
+#             notification = self.env["edu.notification.queue"].create({
+#                 'notif_type': "email",
+#                 'recipient_id': self.enrollment_id.student_partner_id.id,
+#                 'template_id': self.env.ref("education_financial_management.mail_template_fee_overdue").id,
+#                 'subject': "Hostel Fee Payment",
+#                 'body' : """
+# Your hostel fee invoice is generated. Please make the outstanding payment at the earliest to avoid payment due.
+# """,
+#             })
+#             notification.action_send(),
+#             rec.notification_ids = [fields.Command.link(notification.id)]
+
+    def _send_overdue_notifications(self):
+        """Send notifications for overdue hostel invoices."""
+        today = fields.Date.today()
+
+        allocations = self.search([
+            ('state', '=', 'confirmed'),
+        ])
+
+        for rec in allocations:
+            overdue_invoices = rec.invoice_ids.filtered(
+                lambda invoice:
+                invoice.state == 'posted'
+                and invoice.payment_state in ('not_paid', 'partial')
+                and invoice.invoice_date_due
+                and invoice.invoice_date_due <= today
+            )
+
+            if not overdue_invoices:
+                continue
+            print(overdue_invoices)
+            rec.overdue_invoice_id = overdue_invoices[0].id
+            print(rec.overdue_invoice_id)
+
+            self.env.ref(
+                'education_hostel.hostel_fee_overdue'
+            ).send_mail(rec.id, force_send=True)
+    #         notification = self.env['edu.notification.queue'].create({
+    #             'notif_type': "email",
+    #             'recipient_id': rec.enrollment_id.student_partner_id.id,
+    #             'template_id': self.env.ref(
+    #                 'education_financial_management.mail_template_fee_overdue'
+    #             ).id,
+    #             'subject': 'Hostel Fee Payment Overdue',
+    #             'body': """
+    # Your hostel fee invoice is overdue. Please make the outstanding payment at the earliest to avoid any inconvenience or late payment consequences.
+    #
+    # If you have already made the payment, please ignore this notification.
+    # """
+    #         })
+    #         notification.action_send()
+    #         rec.notification_ids = [fields.Command.link(notification.id)]
+
     def _create_invoice(self):
+        """create invoice"""
         product = self.env.ref("education_hostel.hostel_fee_product")
         invoice_id = self.env['account.move'].create({
             'move_type': 'out_invoice',
             'invoice_date': datetime.now(),
             'partner_id': self.enrollment_id.student_partner_id.id,
+            'invoice_date_due': ((self.previous_invoice_date if self.previous_invoice_date else self.date_from) + relativedelta(months=1))
         })
 
         invoice_id.update({'invoice_line_ids': [fields.Command.create({
             'product_id': product.id,
             'name': "Hostel fee",
             'quantity': 1,
-            'price_unit': self.hostel_fee,
-            'price_subtotal': self.hostel_fee})]
+            'price_unit': self.room_id.total_fee,
+            'price_subtotal': self.room_id.total_fee})]
         })
         self.invoice_ids = [fields.Command.link(invoice_id.id)]
         self.previous_invoice_date = invoice_id.invoice_date
         return invoice_id.id
+
 
     def _check_create_invoice(self):
         """scheduled action to create invoices"""

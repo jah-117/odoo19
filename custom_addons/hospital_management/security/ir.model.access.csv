@@ -1,5 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-hospital_management.access_hospital_department,access_hospital_department,hospital_management.model_hospital_department,base.group_user,1,1,1,1
-hospital_management.access_hospital_patient,access_hospital_patient,hospital_management.model_hospital_patient,base.group_user,1,1,1,1
-hospital_management.access_hospital_appointment,access_hospital_appointment,hospital_management.model_hospital_appointment,base.group_user,1,1,1,1
-hospital_management.access_hospital_prescription_line,access_hospital_prescription_line,hospital_management.model_hospital_prescription_line,base.group_user,1,1,1,1

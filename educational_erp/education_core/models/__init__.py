@@ -16,3 +16,6 @@ from . import attendance_cron
 # Sprint 4 — Classroom, Subjects
 from . import classroom
 from . import subject
+
+
+from . import account_move

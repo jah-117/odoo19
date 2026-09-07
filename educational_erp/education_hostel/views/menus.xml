@@ -41,5 +41,11 @@
         parent="menu_education_hostel_root"
         action="action_edu_hostel_allocation"
         sequence="40"/>
+    <menuitem
+        id="menu_hostel_invoices"
+        name="Hostel Fees"
+        parent="menu_education_hostel_root"
+        action="action_edu_hostel_invoices"
+        sequence="50"/>
 
 </odoo>

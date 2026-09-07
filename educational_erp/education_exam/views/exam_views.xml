@@ -117,12 +117,15 @@
                             <field name="academic_year_id"/>
                             <field name="class_ids" widget="many2many_tags"/>
                             <field name="grade_system_id"/>
+                            <field name="is_paid_exam"/>
+                            <field name="exam_fee" invisible="not is_paid_exam"/>
                         </group>
                         <group>
                             <field name="date_from"/>
                             <field name="date_to"/>
                             <field name="published_at" invisible="not published_at"/>
                             <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="hall_ticket"/>
                         </group>
                     </group>
                     <notebook>

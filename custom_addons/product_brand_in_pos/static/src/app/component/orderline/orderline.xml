@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<templates xml:space="preserve">
-   <t t-name="product_brand_in_pos.OrderLine" t-inherit="point_of_sale.Orderline" t-inherit-mode="extension"
-      owl="1">
-       <xpath expr="//t[@t-esc='vals.name']" position="after">
-           <span t-if="vals.brand"> - <span class="product-brand-receipt" t-esc="vals.brand"/></span>
-       </xpath>
-  </t>
-</templates>

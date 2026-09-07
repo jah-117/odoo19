@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         Mail template: Hostel invoice generated
+         Sent when a hostel fee invoice is created
+         ═══════════════════════════════════════════════════════════════════ -->
+
+    <record id="invoice_generated" model="mail.template">
+        <field name="name">Hostel Invoice Generated</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="subject">Hostel Fee Invoice Generated — {{ object.enrollment_id.student_name }}</field>
+
+        <field name="email_to">{{object.enrollment_id.student_partner_id.email }}</field>
+
+        <field name="email_from">{{ (user.email_formatted or user.login) }}</field>
+
+        <field name="body_html"><![CDATA[
+<div style="font-family: Arial, sans-serif; max-width: 640px; margin: auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden;">
+
+    <!-- Header -->
+    <div style="background: #337ab7; padding: 24px 32px;">
+        <h2 style="color: #fff; margin: 0;">Hostel Fee Invoice Generated</h2>
+    </div>
+
+    <!-- Body -->
+    <div style="padding: 24px 32px;">
+
+        <p>
+            Dear
+            <strong>
+                {{object.enrollment_id.student_name}}
+            </strong>,
+        </p>
+
+        <p>
+            Your hostel fee invoice has been generated successfully.
+            Please find the invoice details below.
+        </p>
+
+        <table style="width:100%; border-collapse:collapse; margin:16px 0;">
+
+            <tr style="background:#f5f5f5;">
+                <td style="padding:8px 12px; border:1px solid #ddd; font-weight:bold;">
+                    Invoice No.
+                </td>
+                <td style="padding:8px 12px; border:1px solid #ddd;">
+                    {{ object.current_invoice_id.name }}
+                </td>
+            </tr>
+
+            <tr>
+                <td style="padding:8px 12px; border:1px solid #ddd; font-weight:bold;">
+                    Student
+                </td>
+                <td style="padding:8px 12px; border:1px solid #ddd;">
+                    {{ object.enrollment_id.student_name }}
+                </td>
+            </tr>
+
+            <tr style="background:#f5f5f5;">
+                <td style="padding:8px 12px; border:1px solid #ddd; font-weight:bold;">
+                    Invoice Date
+                </td>
+                <td style="padding:8px 12px; border:1px solid #ddd;">
+                    {{ object.current_invoice_id.invoice_date }}
+                </td>
+            </tr>
+
+            <tr>
+                <td style="padding:8px 12px; border:1px solid #ddd; font-weight:bold;">
+                    Due Date
+                </td>
+                <td style="padding:8px 12px; border:1px solid #ddd;">
+                    <strong>{{ object.current_invoice_id.invoice_date_due }}</strong>
+                </td>
+            </tr>
+
+            <tr style="background:#f5f5f5;">
+                <td style="padding:8px 12px; border:1px solid #ddd; font-weight:bold;">
+                    Total Amount
+                </td>
+                <td style="padding:8px 12px; border:1px solid #ddd;">
+                    {{ object.current_invoice_id.currency_id.symbol }}
+                    {{ "%.2f"|format(object.overdue_invoice_id.amount_total) }}
+                </td>
+            </tr>
+
+        </table>
+
+        <p>
+            Please make the payment on or before the due date to avoid
+            any inconvenience or late payment consequences.
+        </p>
+
+        <p>
+            If you have already made the payment, please ignore this notification.
+        </p>
+
+        <p style="margin-top:24px;">
+            Regards,<br/>
+            <strong>Accounts Department</strong><br/>
+            {{ user.company_id.name }}
+        </p>
+
+    </div>
+
+    <!-- Footer -->
+    <div style="background:#f9f9f9; padding:12px 32px; border-top:1px solid #e0e0e0; font-size:11px; color:#888;">
+        This is an automated notification regarding your hostel fee invoice.
+    </div>
+
+</div>
+        ]]></field>
+
+        <field name="lang">{{ object.partner_id.lang }}</field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         Mail template: Hostel fee due / overdue
+         Sent by scheduled action when invoice due date has passed
+         ═══════════════════════════════════════════════════════════════════ -->
+
+    <record id="hostel_fee_overdue" model="mail.template">
+        <field name="name">Hostel Fee Payment Overdue</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="subject">Hostel Fee Payment Overdue — {{ object.enrollment_id.student_name }}</field>
+
+        <field name="email_to">{{object.enrollment_id.student_partner_id.email}}</field>
+
+        <field name="email_from">{{ (user.email_formatted or user.login) }}</field>
+
+        <field name="body_html"><![CDATA[
+<div style="font-family: Arial, sans-serif; max-width: 640px; margin: auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden;">
+
+    <!-- Header -->
+    <div style="background: #d9534f; padding: 24px 32px;">
+        <h2 style="color: #fff; margin: 0;">Hostel Fee Payment Overdue</h2>
+    </div>
+
+    <!-- Body -->
+    <div style="padding: 24px 32px;">
+
+        <p>
+            Dear
+            <strong>
+                {{object.enrollment_id.student_name}}
+            </strong>,
+        </p>
+
+        <p>
+            This is a reminder that your hostel fee invoice is
+            <strong style="color:#d9534f;">overdue</strong>.
+        </p>
+
+        <table style="width:100%; border-collapse:collapse; margin:16px 0;">
+
+            <tr style="background:#f5f5f5;">
+                <td style="padding:8px 12px; border:1px solid #ddd; font-weight:bold;">
+                    Invoice No.
+                </td>
+                <td style="padding:8px 12px; border:1px solid #ddd;">
+                    {{ object.overdue_invoice_id.name }}
+                </td>
+            </tr>
+
+            <tr>
+                <td style="padding:8px 12px; border:1px solid #ddd; font-weight:bold;">
+                    Student
+                </td>
+                <td style="padding:8px 12px; border:1px solid #ddd;">
+                    {{ object.enrollment_id.student_name }}
+                </td>
+            </tr>
+
+            <tr style="background:#f5f5f5;">
+                <td style="padding:8px 12px; border:1px solid #ddd; font-weight:bold;">
+                    Due Date
+                </td>
+                <td style="padding:8px 12px; border:1px solid #ddd; color:#d9534f;">
+                    <strong>{{ object.invoice_date_due }}</strong>
+                </td>
+            </tr>
+
+            <tr>
+                <td style="padding:8px 12px; border:1px solid #ddd; font-weight:bold;">
+                    Total Amount
+                </td>
+                <td style="padding:8px 12px; border:1px solid #ddd;">
+                    {{ object.overdue_invoice_id.currency_id.symbol }}
+                    {{ "%.2f"|format(object.overdue_invoice_id.amount_total) }}
+                </td>
+            </tr>
+
+            <tr style="background:#f5f5f5;">
+                <td style="padding:8px 12px; border:1px solid #ddd; font-weight:bold;">
+                    Amount Outstanding
+                </td>
+                <td style="padding:8px 12px; border:1px solid #ddd; color:#d9534f;">
+                    <strong>
+                        {{ object.overdue_invoice_id.currency_id.symbol }}
+                        {{ "%.2f"|format(object.overdue_invoice_id.amount_residual) }}
+                    </strong>
+                </td>
+            </tr>
+
+        </table>
+
+        <p>
+            Please make the outstanding payment at the earliest to avoid
+            any inconvenience or late payment consequences.
+        </p>
+
+        <p>
+            If you have already made the payment, kindly disregard this
+            notification and contact the accounts office with proof of payment.
+        </p>
+
+        <p style="margin-top:24px;">
+            Regards,<br/>
+            <strong>Accounts Department</strong><br/>
+            {{ user.company_id.name }}
+        </p>
+
+    </div>
+
+    <!-- Footer -->
+    <div style="background:#f9f9f9; padding:12px 32px; border-top:1px solid #e0e0e0; font-size:11px; color:#888;">
+        This is an automated reminder regarding your outstanding hostel fee.
+        Please do not reply to this email.
+    </div>
+
+</div>
+        ]]></field>
+
+        <field name="lang">{{ object.partner_id.lang }}</field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+</odoo>

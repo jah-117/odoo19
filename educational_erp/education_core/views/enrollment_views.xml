@@ -9,7 +9,7 @@
         <field name="name">education.enrollment.form</field>
         <field name="model">education.enrollment</field>
         <field name="arch" type="xml">
-            <form string="Student Enrollment" create="False">
+            <form string="Student Enrollment" create="False" delete="0" duplicate="0">
                 <header>
                     <button name="action_grant_portal_access" type="object"
                             string="Grant Portal Access"
@@ -151,7 +151,7 @@
         <field name="name">education.enrollment.list</field>
         <field name="model">education.enrollment</field>
         <field name="arch" type="xml">
-            <list string="Enrollments" default_order="enrollment_date desc" create="False">
+            <list string="Enrollments" default_order="enrollment_date desc" delete="0" duplicate="0" create="False">
                 <field name="enrollment_no"/>
                 <field name="student_name"/>
                 <field name="program_id"/>
@@ -196,6 +196,10 @@
                         domain="[('academic_year_id.is_current', '=', True)]"/>
                 <filter string="No Portal Yet" name="no_portal"
                         domain="[('student_partner_id', '=', False)]"/>
+                <separator/>
+                 <filter string="Archived" name="archived"
+                        domain="[('active', '=', 'False')]"/>
+                <separator/>
                 <group>
                     <filter string="Program" name="group_program"
                             context="{'group_by': 'program_id'}"/>

@@ -39,21 +39,24 @@
                             string="Open Scholarship"
                             type="object"
                             class="btn-primary"
+                            groups="education_security.group_education_admin"
                             invisible="state != 'draft'"/>
                     <button name="action_close_scholarship"
                             string="Close Scholarship"
                             type="object"
                             class="btn-danger"
                             invisible="state != 'active'"
+                            groups="education_security.group_education_admin"
                             confirm="Are you sure you want to close this scholarship? This action cannot be undone."/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,active,closed"/>
                 </header>
                 <sheet>
-                    <div class="oe_button_box" name="button_box">
+                    <div class="oe_button_box" name="button_box" >
                         <button name="action_view_applications"
                                 type="object"
                                 class="oe_stat_button"
-                                icon="fa-file-text-o">
+                                icon="fa-file-text-o"
+                                groups="education_security.group_education_admin,education_security.group_education_teacher">
                             <field name="application_count" widget="statinfo" string="Applications"/>
                         </button>
                     </div>

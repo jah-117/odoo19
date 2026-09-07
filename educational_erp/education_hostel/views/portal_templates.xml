@@ -22,6 +22,13 @@
             </t>
 
             <div class="container mt-4">
+                <div class="d-flex justify-content-end mb-2">
+                    <a href="/my/hostel/payment"
+                       class="btn btn-primary">
+                        <i class="fa fa-credit-card me-1"/>
+                        Hostel Invoices
+                    </a>
+                </div>
                 <t t-set="display_allocation" t-value="current_allocation or pending_allocation"/>
                 <t t-if="not display_allocation">
                     <div class="alert alert-info text-center">
@@ -41,7 +48,8 @@
                                 <small>
                                     <t t-esc="display_allocation.property_id.name"/>
                                     <t t-if="display_allocation.property_id.block">
-                                        — <t t-esc="display_allocation.property_id.block"/>
+                                        —
+                                        <t t-esc="display_allocation.property_id.block"/>
                                     </t>
                                 </small>
                             </div>
@@ -60,16 +68,16 @@
                                     <h6 class="text-uppercase text-muted small fw-bold mb-3">Room Details</h6>
                                     <dl class="row mb-0">
                                         <dt class="col-sm-5">Room Number</dt>
-                                        <dd class="col-sm-7 fw-semibold"><t t-esc="room.room_no"/></dd>
+                                        <dd class="col-sm-7 fw-semibold">
+                                            <t t-esc="room.room_no"/>
+                                        </dd>
                                         <dt class="col-sm-5">Room Type</dt>
-                                        <dd class="col-sm-7"><t t-esc="room.room_type_id.name or '—'"/></dd>
-                                        <dt class="col-sm-5">Capacity</dt>
-                                        <dd class="col-sm-7"><t t-esc="room.capacity"/> bed(s)</dd>
-                                        <dt class="col-sm-5">Room Status</dt>
                                         <dd class="col-sm-7">
-                                            <span t-attf-class="badge #{'bg-danger' if room.state == 'maintenance' else 'bg-info'}">
-                                                <t t-esc="dict(room._fields['state'].selection).get(room.state, room.state)"/>
-                                            </span>
+                                            <t t-esc="room.room_type_id.name or '—'"/>
+                                        </dd>
+                                        <dt class="col-sm-5">Available Beds</dt>
+                                        <dd class="col-sm-7">
+                                            <t t-esc="room.available_beds"/>
                                         </dd>
                                     </dl>
                                 </div>
@@ -77,15 +85,31 @@
                                     <h6 class="text-uppercase text-muted small fw-bold mb-3">Allocation Details</h6>
                                     <dl class="row mb-0">
                                         <dt class="col-sm-5">From Date</dt>
-                                        <dd class="col-sm-7"><t t-esc="display_allocation.date_from or '—'"/></dd>
+                                        <dd class="col-sm-7">
+                                            <t t-esc="display_allocation.date_from or '—'"/>
+                                        </dd>
                                         <dt class="col-sm-5">To Date</dt>
-                                        <dd class="col-sm-7"><t t-esc="display_allocation.date_to or '—'"/></dd>
+                                        <dd class="col-sm-7">
+                                            <t t-esc="display_allocation.date_to or '—'"/>
+                                        </dd>
                                         <dt class="col-sm-5">Hostel Fee</dt>
-                                        <dd class="col-sm-7"><t t-esc="'%.2f' % display_allocation.hostel_fee"/></dd>
-                                        <dt class="col-sm-5">Available Beds</dt>
-                                        <dd class="col-sm-7"><t t-esc="room.available_beds"/></dd>
+                                        <dd class="col-sm-7">
+                                            <t t-esc="'%.2f' % display_allocation.hostel_fee"/>
+                                        </dd>
+
                                         <dt class="col-sm-5">Fee Due</dt>
-                                        <dd class="col-sm-7"><t t-esc="display_allocation.fee_due"/></dd>
+                                        <dd class="col-sm-7">
+                                            <t t-esc="display_allocation.fee_due"/>
+                                        </dd>
+                                        <t t-if="display_allocation.overdue_invoice_id">
+                                            <dt class="col-sm-5">Fee Status</dt>
+                                            <dd class="col-sm-7">
+                                                <span class="badge bg-danger">
+                                                    <i class="fa fa-exclamation-circle me-1"/>
+                                                    Fee Overdue
+                                                </span>
+                                            </dd>
+                                        </t>
                                     </dl>
                                 </div>
                             </div>
@@ -106,49 +130,151 @@
                             <t t-if="display_allocation.notes">
                                 <hr/>
                                 <h6 class="text-uppercase text-muted small fw-bold mb-2">Notes</h6>
-                                <p class="mb-0"><t t-esc="display_allocation.notes"/></p>
+                                <p class="mb-0">
+                                    <t t-esc="display_allocation.notes"/>
+                                </p>
                             </t>
-                        </div>
-                    </div>
-                </t>
-
-                <t t-if="previous_allocations">
-                    <div class="card shadow-sm border-0">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0"><i class="fa fa-history me-2"/>Previous Accommodations</h6>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Hostel</th>
-                                        <th>Room</th>
-                                        <th>Type</th>
-                                        <th>From</th>
-                                        <th>To</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <t t-foreach="previous_allocations" t-as="allocation">
-                                        <tr>
-                                            <td>
-                                                <t t-esc="allocation.property_id.name"/>
-                                                <t t-if="allocation.property_id.block">
-                                                    <small class="text-muted">(<t t-esc="allocation.property_id.block"/>)</small>
-                                                </t>
-                                            </td>
-                                            <td><t t-esc="allocation.room_id.room_no"/></td>
-                                            <td><t t-esc="allocation.room_id.room_type_id.name or '—'"/></td>
-                                            <td><t t-esc="allocation.date_from or '—'"/></td>
-                                            <td><t t-esc="allocation.date_to or '—'"/></td>
-                                        </tr>
-                                    </t>
-                                </tbody>
-                            </table>
                         </div>
                     </div>
                 </t>
             </div>
         </t>
     </template>
+
+    <template id="hostel_payment" name="Hostel Payment">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">My Hostel Invoices</t>
+            </t>
+            <div class="container mt-4">
+                <t t-if="not invoices">
+                    <div class="alert alert-info text-center">
+                        <i class="fa fa-info-circle me-2"/>
+                        You currently do not have issued invoices.
+                    </div>
+                </t>
+
+                <t t-else="">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="mb-0">View Invoices</h4>
+                        </div>
+
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Invoice</th>
+                                            <th>Invoice Date</th>
+                                            <th>Due Date</th>
+                                            <th class="text-end">Total</th>
+                                            <th class="text-end">Due</th>
+                                            <th>Status</th>
+                                            <th class="text-end">Action</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <t t-foreach="invoices" t-as="invoice">
+                                            <tr>
+                                                <!-- Invoice Number -->
+                                                <td>
+                                                    <strong>
+                                                        <t t-esc="invoice.name"/>
+                                                    </strong>
+                                                </td>
+
+                                                <!-- Invoice Date -->
+                                                <td>
+                                                    <t t-esc="invoice.invoice_date"/>
+                                                </td>
+
+                                                <!-- Due Date -->
+                                                <td>
+                                                    <t t-esc="invoice.invoice_date_due"/>
+                                                </td>
+
+                                                <!-- Total -->
+                                                <td class="text-end">
+                                                    <span t-field="invoice.amount_total"
+                                                          t-options='{"widget": "monetary", "display_currency": invoice.currency_id}'/>
+                                                </td>
+
+                                                <!-- Amount Due -->
+                                                <td class="text-end">
+                                                    <span t-field="invoice.amount_residual"
+                                                          t-options='{"widget": "monetary", "display_currency": invoice.currency_id}'/>
+                                                </td>
+
+                                                <!-- Payment Status -->
+                                                <td>
+                                                    <t t-if="invoice.state == 'posted'" name="invoice_status_posted">
+                                                        <span t-if="invoice.currency_id.is_zero(invoice.amount_residual)"
+                                                              class="badge rounded-pill text-bg-success">
+                                                            <i class="fa fa-fw fa-check" aria-label="Paid" title="Paid"
+                                                               role="img"/>
+                                                            <span class="d-none d-md-inline">Paid</span>
+                                                        </span>
+                                                        <span t-elif="invoice.payment_state == 'in_payment' and not invoice.currency_id.is_zero(invoice.amount_residual)"
+                                                              class="badge rounded-pill text-bg-info">
+                                                            <i class="fa fa-fw fa-check" aria-label="processing_payment"
+                                                               title="Processing Payment" role="img"/>
+                                                            <span class="d-none d-md-inline">Processing Payment</span>
+                                                        </span>
+                                                        <span t-elif="invoice.payment_state == 'reversed'"
+                                                              class="badge rounded-pill text-bg-success">
+                                                            <i class="fa fa-fw fa-check" aria-label="Reversed"
+                                                               title="Reversed" role="img"/>
+                                                            <span class="d-none d-md-inline">Reversed</span>
+                                                        </span>
+                                                        <span t-else="" class="badge rounded-pill text-bg-info"
+                                                              name="invoice_status_waiting_for_payment">
+                                                            <i class="fa fa-fw fa-clock-o" aria-label="Opened"
+                                                               title="Opened" role="img"/>
+                                                            <span class="d-none d-md-inline">Waiting for Payment</span>
+                                                        </span>
+                                                    </t>
+                                                    <t t-elif="invoice.state == 'cancel'">
+                                                        <span class="badge rounded-pill text-bg-warning">
+                                                            <i class="fa fa-fw fa-remove" aria-label="Cancelled"
+                                                               title="Cancelled" role="img"/>
+                                                            <span class="d-none d-md-inline">Cancelled</span>
+                                                        </span>
+                                                    </t>
+                                                </td>
+
+                                                <!-- Action -->
+                                                <td class="text-end">
+                                                    <a t-if="invoice._has_to_be_paid()"
+                                                       t-att-href="invoice.get_portal_url(anchor='portal_pay', query_string='&amp;payment=True')"
+                                                       title="Pay Now"
+                                                       aria-label="Pay now"
+                                                       class="btn btn-sm btn-primary"
+                                                       role="button"
+                                                    >
+                                                        <i class="fa fa-arrow-circle-right"/>
+                                                        <span class='d-none d-md-inline'>Pay Now</span>
+                                                    </a>
+
+                                                    <t t-else="">
+                                                        <span class="text-muted">
+                                                            <i class="fa fa-check me-1"/>
+                                                            Paid
+                                                        </span>
+                                                    </t>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </t>
+    </template>
+
 </odoo>

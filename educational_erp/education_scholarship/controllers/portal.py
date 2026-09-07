@@ -29,12 +29,14 @@ class ScholarshipPortal(EducationPortal):
                 ('student_partner_id', '=', partner.id),
                 ('state', '=', 'active'),
             ])
+
             active_enrollment = enrollments[:1]
             if active_enrollment:
                 count = request.env['education.scholarship'].sudo().search_count([
                     ('state', '=', 'active'),
                     ('academic_year_id', '=', active_enrollment.academic_year_id.id),
                 ])
+
                 values["scholarship_count"] = count
             else:
                 values["scholarship_count"] = 0
@@ -47,7 +49,6 @@ class ScholarshipPortal(EducationPortal):
             else:
                 values["admin_scholarship_count"] = 0
                 values["admin_scholarship_app_count"] = 0
-
         return values
 
     @http.route(['/student/scholarships', '/student/scholarships/page/<int:page>'], type='http',
@@ -83,6 +84,7 @@ class ScholarshipPortal(EducationPortal):
             {
                 'page_name': 'scholarship_dashboard',
                 'scholarships': scholarships,
+                'applications':existing_applications,
                 'applied_scholarship_ids': applied_scholarship_ids,
                 'enrollment': active_enrollment,
             },
@@ -190,7 +192,8 @@ class ScholarshipPortal(EducationPortal):
                 'student_id': enrollment.id,
                 'scholarship_id': scholarship_id,
                 'document_ids': [(6, 0, attachment_ids)] if attachment_ids else False,
-                'submitted_criteria_ids': criteria_data
+                'submitted_criteria_ids': criteria_data,
+                'state': 'submitted',
             })
 
             # Update attachments with res_model and res_id so they appear in the record

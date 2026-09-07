@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+<!--    Remove Connection and Security Portal Card-->
+    <template id="remove_connection_security"
+          inherit_id="portal.portal_my_home">
+
+    <xpath expr="//div[@id='portal_common_category']/t[@t-call='portal.portal_docs_entry'][2]"
+           position="replace"/>
+
+</template>
+
     <!-- ═══════════════════════════════════════════════════════════════════
          Student Portal Templates (S2-T12)
          ═══════════════════════════════════════════════════════════════════ -->

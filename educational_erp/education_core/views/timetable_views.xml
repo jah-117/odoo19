@@ -28,7 +28,8 @@
                     <button name="action_print_timetable" type="object"
                             string="Print Timetable"
                             class="btn-secondary"
-                            icon="fa-print"/>
+                            icon="fa-print"
+                            data-hotkey="P"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,published"/>
                 </header>

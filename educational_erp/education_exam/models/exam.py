@@ -44,6 +44,21 @@ class EduExam(models.Model):
         default="mid_term",
         tracking=True,
     )
+    is_paid_exam = fields.Boolean(
+        string="Paid Examination",
+        help="Check this, if the exam is a paid examination",
+        default=False,
+    )
+    exam_fee = fields.Float(
+        string="Exam Fee",
+        help="Cost of attending the examination",
+    )
+    hall_ticket = fields.Boolean(
+        string="Hall Ticket",
+        help="Check this, if the candidates need a hall ticket to attend the examination",
+        default=False,
+    )
+
     state = fields.Selection(
         selection=[
             ("draft", "Draft"),
@@ -90,6 +105,7 @@ class EduExam(models.Model):
     grade_system_id = fields.Many2one(
         "edu.exam.grade.system",
         string="Grading System",
+        required=True,
         help="Grading system scale to evaluate results for this examination. If blank, the default scale is used.",
     )
 
@@ -148,7 +164,9 @@ class EduExam(models.Model):
         return super().create(vals_list)
 
     # ── Computed ──────────────────────────────────────────────────────────
-
+    @api.onchange("is_paid_exam")
+    def _onchange_is_paid_exam(self):
+        self.hall_ticket = self.is_paid_exam
     @api.depends("subject_line_ids", "seating_ids", "result_ids")
     def _compute_counts(self):
         for rec in self:
@@ -292,7 +310,7 @@ class EduExamSubject(models.Model):
     pass_marks = fields.Float(
         string="Pass Marks",
         required=True,
-        default=40.0,
+        compute="_compute_pass_mark"
     )
     classroom_id = fields.Many2one(
         "edu.classroom",
@@ -309,3 +327,11 @@ class EduExamSubject(models.Model):
                 )
             if rec.max_marks <= 0:
                 raise ValidationError(_("Max marks must be greater than zero."))
+
+    def _compute_pass_mark(self):
+        for rec in self:
+            if rec.exam_id:
+                least_mark_line =  rec.exam_id.grade_system_id.line_ids.filtered(lambda line: line.pass_fail != 'fail').sorted('grade_point')[0]
+                rec.pass_marks = (least_mark_line.min_percentage * rec.max_marks)/100
+            else:
+                rec.pass_marks = False

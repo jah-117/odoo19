@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="action_education_scholarship_bills" model="ir.actions.act_window">
+        <field name="name">Scholarship Bills</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('invoice_type','=','scholarship')]</field>
+        <field name="context">{'default_invoice_type': "scholarship"}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No revaluation requests found</p>
+            <p>Student requests submitted from the portal will appear here for review and approval.</p>
+        </field>
+    </record>
+</odoo>

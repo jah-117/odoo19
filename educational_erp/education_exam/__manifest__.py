@@ -41,6 +41,7 @@ Version: 19.0.4.0.0  |  License: LGPL-3
         # ── Views ─────────────────────────────────────────────────────
         "views/grade_system_views.xml",
         "views/exam_views.xml",
+        "views/exam_invoices_views.xml",
         "views/portal_templates.xml",
         # ── Reports ───────────────────────────────────────────────────
         "report/admit_card_report.xml",

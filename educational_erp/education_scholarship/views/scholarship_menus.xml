@@ -5,7 +5,7 @@
               name="Scholarships"
               parent="education_config.menu_education_root"
               sequence="30"
-              groups="education_security.group_education_admin,education_security.group_education_admission_officer"/>
+              groups="education_security.group_education_admin,education_security.group_education_admin,education_security.group_education_teacher"/>
 
     <!-- Scholarship Applications Menu -->
     <menuitem id="menu_education_scholarship"
@@ -20,7 +20,14 @@
               parent="parent_menu_education_scholarship"
               action="action_education_scholarship_application"
               sequence="31"
-              groups="base.group_user"/>
+              groups="education_security.group_education_admin,education_security.group_education_teacher"/>
+
+    <menuitem id="menu_education_scholarship_bills"
+              name="Scholarship Bills"
+              parent="parent_menu_education_scholarship"
+              action="action_education_scholarship_bills"
+              sequence="31"
+              groups="education_security.group_education_admin,education_security.group_education_teacher"/>
 
     <!-- Scholarship Criteria Menu -->
     <menuitem id="menu_education_scholarship_criteria"
@@ -28,7 +35,7 @@
               parent="parent_menu_education_scholarship"
               action="action_education_scholarship_criteria"
               sequence="32"
-              groups="education_security.group_education_admin"/>
+              groups="education_security.group_education_admin,education_security.group_education_teacher"/>
 
     <!-- Scholarship Eligibility Criteria Menu -->
     <menuitem id="menu_education_scholarship_eligibilty_criteria"
@@ -36,5 +43,5 @@
               parent="parent_menu_education_scholarship"
               action="action_scholarship_eligibility_criteria"
               sequence="32"
-              groups="education_security.group_education_admin"/>
+              groups="education_security.group_education_admin,education_security.group_education_teacher"/>
 </odoo>

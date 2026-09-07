@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<odoo>
-    <menuitem id="assignment_2_root" name="Assignment2"/>
-        <menuitem id="production_menu_root" name="Production" parent="assignment_2_root" sequence="1"/>
-            <menuitem id="production_ext_menu" name="Production" parent="production_menu_root" action="production_action" sequence="1"/>
-</odoo>

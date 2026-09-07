@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<odoo>
-    <menuitem id="emlpoyee_loan_root" name="Loans"/>
-        <menuitem id="employee_loan" name="Loans" action="employee_loan_action" parent="emlpoyee_loan_root"/>
-<!--        <menuitem id="employee_loan_line" name="Loans Lines" action="employee_loan_line_action" parent="emlpoyee_loan_root"/>-->
-</odoo>

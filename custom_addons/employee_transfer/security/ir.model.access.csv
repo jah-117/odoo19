@@ -1,4 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-employee_transfer.access_transfer_hr_employee,access_transfer_hr_employee,employee_transfer.model_transfer_hr_employee,base.group_user,1,1,1,1
-
-employee_transfer.access_employee_transfers,access_employee_transfers,employee_transfer.model_employee_transfers,base.group_user,1,1,1,1

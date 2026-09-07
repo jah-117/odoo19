@@ -25,6 +25,122 @@
                 <t t-set="title">Scholarships</t>
             </t>
 
+            <t t-if="applications">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0">Your Applications</h4>
+                    </div>
+
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Application No.</th>
+                                        <th>Application Date</th>
+                                        <th>Scholarship</th>
+                                        <th class="text-end">Amount</th>
+                                        <th>Status</th>
+                                        <th> </th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    <t t-foreach="applications" t-as="app">
+                                        <tr>
+                                            <td>
+                                                <strong>
+                                                    <t t-esc="app.name"/>
+                                                </strong>
+                                            </td>
+
+                                            <td>
+                                                <t t-esc="app.application_date"/>
+                                            </td>
+
+                                            <td>
+                                                <t t-esc="app.scholarship_id.name"/>
+                                            </td>
+
+                                            <td class="text-end">
+                                                <span t-field="app.scholarship_id.amount"/>
+                                            </td>
+
+                                            <td>
+                                                <span t-if="app.state == 'draft'"
+                                                      class="badge rounded-pill text-bg-secondary">
+                                                    <i class="fa fa-fw fa-file-o"
+                                                       aria-label="Draft"
+                                                       title="Draft"
+                                                       role="img"/>
+                                                    <span class="d-none d-md-inline">Draft</span>
+                                                </span>
+
+                                                <span t-elif="app.state == 'submitted'"
+                                                      class="badge rounded-pill text-bg-info">
+                                                    <i class="fa fa-fw fa-check"
+                                                       aria-label="Submitted"
+                                                       title="Submitted"
+                                                       role="img"/>
+                                                    <span class="d-none d-md-inline">Submitted</span>
+                                                </span>
+
+                                                <span t-elif="app.state == 'review'"
+                                                      class="badge rounded-pill text-bg-warning">
+                                                    <i class="fa fa-fw fa-search"
+                                                       aria-label="Under Review"
+                                                       title="Under Review"
+                                                       role="img"/>
+                                                    <span class="d-none d-md-inline">Under Review</span>
+                                                </span>
+
+                                                <span t-elif="app.state == 'approved'"
+                                                      class="badge rounded-pill text-bg-success">
+                                                    <i class="fa fa-fw fa-check"
+                                                       aria-label="Approved"
+                                                       title="Approved"
+                                                       role="img"/>
+                                                    <span class="d-none d-md-inline">Approved</span>
+                                                </span>
+
+                                                <span t-elif="app.state == 'rejected'"
+                                                      class="badge rounded-pill text-bg-danger">
+                                                    <i class="fa fa-fw fa-remove"
+                                                       aria-label="Rejected"
+                                                       title="Rejected"
+                                                       role="img"/>
+                                                    <span class="d-none d-md-inline">Rejected</span>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <td class="text-end">
+                                                    <a t-if="app.invoice_id"
+                                                       t-att-href="app.invoice_id.get_portal_url(report_type='pdf', download=True)"
+                                                       title="Download Bill"
+                                                       aria-label="Download Bill"
+                                                       class="btn btn-sm btn-primary"
+                                                       role="button"
+                                                    >
+                                                        <i class="fa fa-arrow-circle-right"/>
+                                                        <span class='d-none d-md-inline'>Download Bill</span>
+                                                    </a>
+
+<!--                                                    <t t-else="">-->
+<!--                                                        <span class="text-muted">-->
+<!--                                                            <i class="fa fa-check me-1"/>-->
+<!--                                                            Not Approved-->
+<!--                                                        </span>-->
+<!--                                                    </t>-->
+                                                </td>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </t>
             <!-- Success / Error Alerts -->
             <t t-set="url_params" t-value="request.params"/>
             <t t-if="url_params.get('success') == 'applied'">
@@ -87,22 +203,27 @@
                                         </t>
                                         <p class="card-text fw-bold text-success fs-5 mb-3">
                                             <i class="fa fa-money me-1"/>
-                                            <t t-esc="sch.amount"/> <t t-esc="request.env.company.currency_id.symbol"/>
+                                            <t t-esc="sch.amount"/>
+                                            <t t-esc="request.env.company.currency_id.symbol"/>
                                         </p>
                                         <t t-if="sch.end_date">
                                             <p class="card-text small text-muted mb-2">
                                                 <i class="fa fa-clock-o me-1"/>
-                                                Apply by: <t t-esc="sch.end_date"/>
+                                                Apply by:
+                                                <t t-esc="sch.end_date"/>
                                             </p>
                                         </t>
                                         <t t-if="sch.id in applied_scholarship_ids">
                                             <button class="btn btn-success w-100" disabled="disabled">
-                                                <i class="fa fa-check me-1"/> Applied
+                                                <i class="fa fa-check me-1"/>
+                                                Applied
                                             </button>
                                         </t>
                                         <t t-else="">
-                                            <a t-attf-href="/student/scholarship/#{sch.id}" class="btn btn-primary w-100">
-                                                <i class="fa fa-eye me-1"/> View Details
+                                            <a t-attf-href="/student/scholarship/#{sch.id}"
+                                               class="btn btn-primary w-100">
+                                                <i class="fa fa-eye me-1"/>
+                                                View Details
                                             </a>
                                         </t>
                                     </div>
@@ -138,7 +259,9 @@
                         <div class="card shadow-sm border-0" style="border-top: 4px solid #6c5ce7 !important;">
                             <div class="card-body p-4">
                                 <div class="d-flex justify-content-between align-items-center mb-4">
-                                    <h2 class="card-title fw-bold text-dark mb-0"><t t-esc="scholarship.name"/></h2>
+                                    <h2 class="card-title fw-bold text-dark mb-0">
+                                        <t t-esc="scholarship.name"/>
+                                    </h2>
                                     <span class="badge bg-primary fs-6 py-2 px-3">
                                         <t t-esc="dict(scholarship._fields['scholarship_type'].selection).get(scholarship.scholarship_type, scholarship.scholarship_type)"/>
                                     </span>
@@ -146,21 +269,28 @@
 
                                 <div class="mb-4">
                                     <h5 class="text-secondary fw-bold border-bottom pb-2 mb-3">Description</h5>
-                                    <p class="text-muted" style="white-space: pre-line;"><t t-esc="scholarship.description or 'No description provided.'"/></p>
+                                    <p class="text-muted" style="white-space: pre-line;">
+                                        <t t-esc="scholarship.description or 'No description provided.'"/>
+                                    </p>
                                 </div>
 
                                 <div class="row mb-4">
                                     <div class="col-md-6 mb-3">
                                         <div class="p-3 bg-light rounded">
-                                            <div class="text-muted small fw-bold text-uppercase mb-1">Scholarship Amount</div>
+                                            <div class="text-muted small fw-bold text-uppercase mb-1">Scholarship
+                                                Amount
+                                            </div>
                                             <div class="fs-4 fw-bold text-success">
-                                                <t t-esc="scholarship.amount"/> <t t-esc="request.env.company.currency_id.symbol"/>
+                                                <t t-esc="scholarship.amount"/>
+                                                <t t-esc="request.env.company.currency_id.symbol"/>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <div class="p-3 bg-light rounded">
-                                            <div class="text-muted small fw-bold text-uppercase mb-1">Available Scholarships</div>
+                                            <div class="text-muted small fw-bold text-uppercase mb-1">Available
+                                                Scholarships
+                                            </div>
                                             <div class="fs-4 fw-bold text-dark">
                                                 <t t-esc="scholarship.available_scholarships or 'N/A'"/>
                                             </div>
@@ -168,7 +298,9 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <div class="p-3 bg-light rounded">
-                                            <div class="text-muted small fw-bold text-uppercase mb-1">Application Start Date</div>
+                                            <div class="text-muted small fw-bold text-uppercase mb-1">Application Start
+                                                Date
+                                            </div>
                                             <div class="fs-5 fw-bold text-dark">
                                                 <t t-esc="scholarship.start_date or 'Immediate'"/>
                                             </div>
@@ -176,7 +308,9 @@
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <div class="p-3 bg-light rounded">
-                                            <div class="text-muted small fw-bold text-uppercase mb-1">Application End Date</div>
+                                            <div class="text-muted small fw-bold text-uppercase mb-1">Application End
+                                                Date
+                                            </div>
                                             <div class="fs-5 fw-bold text-danger">
                                                 <t t-esc="scholarship.end_date or 'No Deadline'"/>
                                             </div>
@@ -186,7 +320,9 @@
 
                                 <t t-if="scholarship.eligibility_ids">
                                     <div class="mb-4">
-                                        <h5 class="text-secondary fw-bold border-bottom pb-2 mb-3">Eligibility Criteria</h5>
+                                        <h5 class="text-secondary fw-bold border-bottom pb-2 mb-3">Eligibility
+                                            Criteria
+                                        </h5>
                                         <ul class="list-group list-group-flush">
                                             <t t-foreach="scholarship.eligibility_ids" t-as="criterion">
                                                 <li class="list-group-item bg-transparent px-0 text-muted">
@@ -223,28 +359,41 @@
                                     </button>
                                 </t>
                                 <t t-else="">
-                                    <form t-attf-action="/student/scholarship/apply/#{scholarship.id}" method="post" enctype="multipart/form-data">
+                                    <form t-attf-action="/student/scholarship/apply/#{scholarship.id}" method="post"
+                                          enctype="multipart/form-data">
                                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                        
+
                                         <t t-foreach="scholarship.eligibility_ids" t-as="criterion">
                                             <div class="mb-3 p-3 bg-white rounded border">
-                                                <label t-attf-for="criteria_val_#{criterion.id}" class="form-label fw-bold text-dark">
-                                                    <t t-esc="criterion.criteria_id.name"/> <span class="text-danger">*</span>
+                                                <label t-attf-for="criteria_val_#{criterion.id}"
+                                                       class="form-label fw-bold text-dark">
+                                                    <t t-esc="criterion.criteria_id.name"/>
+                                                    <span class="text-danger">*</span>
                                                 </label>
-                                                <input type="text" class="form-control mb-2" t-attf-id="criteria_val_#{criterion.id}" t-attf-name="criteria_val_#{criterion.id}" required="required" placeholder="Enter value..."/>
-                                                
+                                                <input type="text" class="form-control mb-2"
+                                                       t-attf-id="criteria_val_#{criterion.id}"
+                                                       t-attf-name="criteria_val_#{criterion.id}" required="required"
+                                                       placeholder="Enter value..."/>
+
                                                 <t t-if="criterion.is_require_document">
                                                     <div class="mt-2">
-                                                        <label t-attf-for="criteria_doc_#{criterion.id}" class="form-label small fw-bold text-muted">
-                                                            <i class="fa fa-file-text-o me-1"></i> Upload Supporting Document <span class="text-danger">*</span>
+                                                        <label t-attf-for="criteria_doc_#{criterion.id}"
+                                                               class="form-label small fw-bold text-muted">
+                                                            <i class="fa fa-file-text-o me-1"></i>
+                                                            Upload Supporting Document
+                                                            <span class="text-danger">*</span>
                                                         </label>
-                                                        <input type="file" class="form-control form-control-sm" t-attf-id="criteria_doc_#{criterion.id}" t-attf-name="criteria_doc_#{criterion.id}" required="required"/>
+                                                        <input type="file" class="form-control form-control-sm"
+                                                               t-attf-id="criteria_doc_#{criterion.id}"
+                                                               t-attf-name="criteria_doc_#{criterion.id}"
+                                                               required="required"/>
                                                     </div>
                                                 </t>
                                             </div>
                                         </t>
                                         <button type="submit" class="btn btn-primary w-100 py-2 fs-5 fw-bold shadow-sm">
-                                            <i class="fa fa-paper-plane me-2"/> Submit Application
+                                            <i class="fa fa-paper-plane me-2"/>
+                                            Submit Application
                                         </button>
                                     </form>
                                 </t>
@@ -257,7 +406,8 @@
     </template>
 
     <!-- Portal Home — Admin Scholarship counts -->
-    <template id="portal_my_home_admin_scholarship" name="Portal My Home: Admin Scholarships" inherit_id="portal.portal_my_home" priority="45">
+    <template id="portal_my_home_admin_scholarship" name="Portal My Home: Admin Scholarships"
+              inherit_id="portal.portal_my_home" priority="45">
         <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
             <t t-if="request.env.user.has_group('education_security.group_education_admin') or request.env.user._is_admin()">
                 <t t-call="portal.portal_docs_entry">
@@ -289,7 +439,8 @@
             </t>
             <div class="mt-5">
                 <h4 class="mb-3">
-                    <i class="fa fa-graduation-cap me-2 text-primary"/> All Scholarships
+                    <i class="fa fa-graduation-cap me-2 text-primary"/>
+                    All Scholarships
                 </h4>
                 <div class="table-responsive">
                     <table class="table table-hover table-striped">
@@ -306,17 +457,27 @@
                         <tbody>
                             <t t-foreach="scholarships" t-as="sch">
                                 <tr>
-                                    <td><t t-esc="sch.name"/></td>
-                                    <td><t t-esc="sch.academic_year_id.name"/></td>
-                                    <td><t t-esc="dict(sch._fields['scholarship_type'].selection).get(sch.scholarship_type, sch.scholarship_type)"/></td>
-                                    <td><t t-esc="sch.amount"/></td>
+                                    <td>
+                                        <t t-esc="sch.name"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="sch.academic_year_id.name"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="dict(sch._fields['scholarship_type'].selection).get(sch.scholarship_type, sch.scholarship_type)"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="sch.amount"/>
+                                    </td>
                                     <td>
                                         <span t-attf-class="badge #{'bg-success' if sch.state == 'active' else 'bg-secondary' if sch.state == 'draft' else 'bg-danger'}">
                                             <t t-esc="dict(sch._fields['state'].selection).get(sch.state, sch.state)"/>
                                         </span>
                                     </td>
                                     <td>
-                                        <a t-attf-href="/my/admin/scholarship/#{sch.id}" class="btn btn-sm btn-primary">View</a>
+                                        <a t-attf-href="/my/admin/scholarship/#{sch.id}" class="btn btn-sm btn-primary">
+                                            View
+                                        </a>
                                     </td>
                                 </tr>
                             </t>
@@ -337,21 +498,45 @@
             <div class="container mt-4 mb-4">
                 <div class="card shadow-sm border-0">
                     <div class="card-header bg-primary text-white d-flex justify-content-between">
-                        <h4 class="mb-0"><t t-esc="scholarship.name"/></h4>
-                        <span class="badge bg-light text-dark"><t t-esc="dict(scholarship._fields['state'].selection).get(scholarship.state, scholarship.state)"/></span>
+                        <h4 class="mb-0">
+                            <t t-esc="scholarship.name"/>
+                        </h4>
+                        <span class="badge bg-light text-dark">
+                            <t t-esc="dict(scholarship._fields['state'].selection).get(scholarship.state, scholarship.state)"/>
+                        </span>
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-6 mb-2"><strong>Type:</strong> <t t-esc="dict(scholarship._fields['scholarship_type'].selection).get(scholarship.scholarship_type, scholarship.scholarship_type)"/></div>
-                            <div class="col-md-6 mb-2"><strong>Academic Year:</strong> <t t-esc="scholarship.academic_year_id.name"/></div>
-                            <div class="col-md-6 mb-2"><strong>Amount:</strong> <t t-esc="scholarship.amount"/></div>
-                            <div class="col-md-6 mb-2"><strong>Available:</strong> <t t-esc="scholarship.available_scholarships"/></div>
-                            <div class="col-md-6 mb-2"><strong>Start Date:</strong> <t t-esc="scholarship.start_date"/></div>
-                            <div class="col-md-6 mb-2"><strong>End Date:</strong> <t t-esc="scholarship.end_date"/></div>
+                            <div class="col-md-6 mb-2">
+                                <strong>Type:</strong>
+                                <t t-esc="dict(scholarship._fields['scholarship_type'].selection).get(scholarship.scholarship_type, scholarship.scholarship_type)"/>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <strong>Academic Year:</strong>
+                                <t t-esc="scholarship.academic_year_id.name"/>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <strong>Amount:</strong>
+                                <t t-esc="scholarship.amount"/>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <strong>Available:</strong>
+                                <t t-esc="scholarship.available_scholarships"/>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <strong>Start Date:</strong>
+                                <t t-esc="scholarship.start_date"/>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <strong>End Date:</strong>
+                                <t t-esc="scholarship.end_date"/>
+                            </div>
                         </div>
                         <hr/>
                         <h5>Description</h5>
-                        <p><t t-esc="scholarship.description"/></p>
+                        <p>
+                            <t t-esc="scholarship.description"/>
+                        </p>
                         <hr/>
                         <h5>Eligibility Criteria</h5>
                         <ul>
@@ -360,7 +545,9 @@
                                     <t t-esc="criterion.criteria_id.name"/>
                                     <t t-esc="dict(criterion._fields['operator'].selection).get(criterion.operator, criterion.operator)"/>
                                     <t t-esc="criterion.value"/>
-                                    <t t-if="criterion.is_require_document"><span class="badge bg-warning ms-2">Requires Document</span></t>
+                                    <t t-if="criterion.is_require_document">
+                                        <span class="badge bg-warning ms-2">Requires Document</span>
+                                    </t>
                                 </li>
                             </t>
                         </ul>
@@ -379,7 +566,8 @@
             </t>
             <div class="mt-5">
                 <h4 class="mb-3">
-                    <i class="fa fa-folder-open me-2 text-primary"/> All Scholarship Applications
+                    <i class="fa fa-folder-open me-2 text-primary"/>
+                    All Scholarship Applications
                 </h4>
                 <div class="table-responsive">
                     <table class="table table-hover table-striped">
@@ -396,17 +584,27 @@
                         <tbody>
                             <t t-foreach="applications" t-as="app">
                                 <tr>
-                                    <td><t t-esc="app.name"/></td>
-                                    <td><t t-esc="app.student_id.student_name"/></td>
-                                    <td><t t-esc="app.scholarship_id.name"/></td>
-                                    <td><t t-esc="app.application_date"/></td>
+                                    <td>
+                                        <t t-esc="app.name"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="app.student_id.student_name"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="app.scholarship_id.name"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="app.application_date"/>
+                                    </td>
                                     <td>
                                         <span t-attf-class="badge #{'bg-success' if app.state == 'approved' else 'bg-warning text-dark' if app.state == 'review' else 'bg-danger' if app.state == 'rejected' else 'bg-secondary'}">
                                             <t t-esc="dict(app._fields['state'].selection).get(app.state, app.state)"/>
                                         </span>
                                     </td>
                                     <td>
-                                        <a t-attf-href="/my/admin/scholarship/application/#{app.id}" class="btn btn-sm btn-primary">View</a>
+                                        <a t-attf-href="/my/admin/scholarship/application/#{app.id}"
+                                           class="btn btn-sm btn-primary">View
+                                        </a>
                                     </td>
                                 </tr>
                             </t>
@@ -427,27 +625,45 @@
             <div class="container mt-4 mb-4">
                 <div class="card shadow-sm border-0">
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                        <h4 class="mb-0">Application: <t t-esc="application.name"/></h4>
+                        <h4 class="mb-0">Application:
+                            <t t-esc="application.name"/>
+                        </h4>
                         <span t-attf-class="badge fs-6 #{'bg-success' if application.state == 'approved' else 'bg-warning text-dark' if application.state == 'review' else 'bg-danger' if application.state == 'rejected' else 'bg-secondary'}">
                             <t t-esc="dict(application._fields['state'].selection).get(application.state, application.state)"/>
                         </span>
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-6 mb-2"><strong>Student:</strong> <t t-esc="application.student_id.student_name"/></div>
-                            <div class="col-md-6 mb-2"><strong>Scholarship:</strong> <t t-esc="application.scholarship_id.name"/></div>
-                            <div class="col-md-6 mb-2"><strong>Date:</strong> <t t-esc="application.application_date"/></div>
-                            <div class="col-md-6 mb-2"><strong>Family Income:</strong> <t t-esc="application.family_income"/></div>
+                            <div class="col-md-6 mb-2">
+                                <strong>Student:</strong>
+                                <t t-esc="application.student_id.student_name"/>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <strong>Scholarship:</strong>
+                                <t t-esc="application.scholarship_id.name"/>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <strong>Date:</strong>
+                                <t t-esc="application.application_date"/>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <strong>Family Income:</strong>
+                                <t t-esc="application.family_income"/>
+                            </div>
                         </div>
                         <t t-if="application.remarks">
                             <hr/>
                             <h5>Remarks</h5>
-                            <p><t t-esc="application.remarks"/></p>
+                            <p>
+                                <t t-esc="application.remarks"/>
+                            </p>
                         </t>
                         <t t-if="application.state == 'rejected' and application.rejection_reason">
                             <hr/>
                             <h5 class="text-danger">Rejection Reason</h5>
-                            <p><t t-esc="application.rejection_reason"/></p>
+                            <p>
+                                <t t-esc="application.rejection_reason"/>
+                            </p>
                         </t>
                         <hr/>
                         <h5>Submitted Eligibility Criteria</h5>
@@ -464,16 +680,24 @@
                                 <tbody>
                                     <t t-foreach="application.submitted_criteria_ids" t-as="sub_crit">
                                         <tr>
-                                            <td><t t-esc="sub_crit.eligibility_criteria_id.criteria_id.name"/></td>
+                                            <td>
+                                                <t t-esc="sub_crit.eligibility_criteria_id.criteria_id.name"/>
+                                            </td>
                                             <td>
                                                 <t t-esc="dict(sub_crit.eligibility_criteria_id._fields['operator'].selection).get(sub_crit.eligibility_criteria_id.operator, sub_crit.eligibility_criteria_id.operator)"/>
                                                 <t t-esc="sub_crit.eligibility_criteria_id.value"/>
                                             </td>
-                                            <td><strong><t t-esc="sub_crit.student_value"/></strong></td>
+                                            <td>
+                                                <strong>
+                                                    <t t-esc="sub_crit.student_value"/>
+                                                </strong>
+                                            </td>
                                             <td>
                                                 <t t-foreach="sub_crit.document_ids" t-as="doc">
-                                                    <a t-attf-href="/web/content/#{doc.id}?download=true" class="badge bg-info text-decoration-none me-1" target="_blank">
-                                                        <i class="fa fa-download"/> <t t-esc="doc.name"/>
+                                                    <a t-attf-href="/web/content/#{doc.id}?download=true"
+                                                       class="badge bg-info text-decoration-none me-1" target="_blank">
+                                                        <i class="fa fa-download"/>
+                                                        <t t-esc="doc.name"/>
                                                     </a>
                                                 </t>
                                                 <t t-if="not sub_crit.document_ids">
@@ -489,8 +713,10 @@
                         <h5>All Uploaded Documents</h5>
                         <div>
                             <t t-foreach="application.document_ids" t-as="doc">
-                                <a t-attf-href="/web/content/#{doc.id}?download=true" class="btn btn-outline-secondary btn-sm m-1" target="_blank">
-                                    <i class="fa fa-file-o me-1"/> <t t-esc="doc.name"/>
+                                <a t-attf-href="/web/content/#{doc.id}?download=true"
+                                   class="btn btn-outline-secondary btn-sm m-1" target="_blank">
+                                    <i class="fa fa-file-o me-1"/>
+                                    <t t-esc="doc.name"/>
                                 </a>
                             </t>
                             <t t-if="not application.document_ids">

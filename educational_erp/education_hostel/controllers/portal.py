@@ -27,34 +27,35 @@ class HostelPortal(CustomerPortal):
 
     @http.route(["/my/hostel"], type="http", auth="user", website=True)
     def portal_my_hostel(self, **_kwargs):
-        print('fakldfjalkdsfa')
-        print(**_kwargs)
         """Render the current/pending accommodation and vacated history."""
         allocations = self._get_own_allocations()
-        print('fakldfjalkdsfa')
-        print(**_kwargs)
         current_allocation = allocations.filtered(
             lambda allocation: allocation.state == "confirmed"
         )[:1]
         pending_allocation = allocations.filtered(
             lambda allocation: allocation.state == "draft"
         )[:1]
-        previous_allocations = allocations.filtered(
-            lambda allocation: allocation.state == "vacated"
-        ).sorted(
-            key=lambda allocation: (
-                allocation.date_to or allocation.date_from,
-                allocation.id,
-            ),
-            reverse=True,
-        )
 
         return request.render(
             "education_hostel.portal_my_hostel",
             {
                 "current_allocation": current_allocation,
                 "pending_allocation": pending_allocation,
-                "previous_allocations": previous_allocations,
-                "page_name": "hostel",
+                'page_name': 'My Hostel'
             },
         )
+    @http.route(["/my/hostel/payment"], type="http", auth="user", website=True)
+    def hostel_fee_payment(self, **_kwargs):
+        partner = request.env.user.partner_id
+        invoices = request.env['account.move'].sudo().search([
+            ('partner_id', '=', partner.id),
+            ('move_type', '=', 'out_invoice'),
+            ('state', '=', 'posted'),
+            ('allocation_id', '!=', False),
+        ], order='invoice_date desc, id desc')
+
+
+        return request.render('education_hostel.hostel_payment', {
+            'invoices': invoices,
+            'page_name': 'Hostel Invoices'
+        })

@@ -16,11 +16,12 @@
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_students" type="object" class="oe_stat_button" icon="fa-user"
-                            invisible="occupied_beds == 0">
+                                invisible="occupied_beds == 0">
                             <field name="occupied_beds" widget="statinfo" string="Students"/>
                         </button>
-                        <button name="action_view_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o"
-                            invisible="invoice_count == 0">
+                        <button name="action_view_invoice" type="object" class="oe_stat_button"
+                                icon="fa-pencil-square-o"
+                                invisible="invoice_count == 0">
                             <field name="invoice_count" widget="statinfo" string="Invoices"/>
                         </button>
                     </div>
@@ -53,7 +54,8 @@
                         </group>
                     </group>
                     <group string="Amenities">
-                        <field name="amenity_ids" widget="many2many_tags" placeholder="e.g. AC, Wi-Fi, Attached Bathroom..."/>
+                        <field name="amenity_ids" widget="many2many_tags"
+                               placeholder="e.g. AC, Wi-Fi, Attached Bathroom..."/>
                     </group>
                 </sheet>
             </form>
@@ -92,7 +94,8 @@
                 <field name="room_no"/>
                 <field name="property_id"/>
                 <filter name="available" string="Available" domain="[('state', '=', 'available')]"/>
-                <filter name="partially_occupied" string="Partially Occupied" domain="[('state', '=', 'partially_occupied')]"/>
+                <filter name="partially_occupied" string="Partially Occupied"
+                        domain="[('state', '=', 'partially_occupied')]"/>
                 <filter name="occupied" string="Occupied" domain="[('state', '=', 'occupied')]"/>
                 <filter name="maintenance" string="Maintenance" domain="[('state', '=', 'maintenance')]"/>
                 <separator/>
@@ -395,6 +398,7 @@
                     <group string="Billing">
                         <field name="hostel_fee"/>
                         <field name="fee_due"/>
+                        <field name="notification_ids" invisible="1"/>
                     </group>
                     <group string="Notes">
                         <field name="notes" nolabel="1"
@@ -460,6 +464,74 @@
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Allocate students to hostel rooms
+            </p>
+        </field>
+    </record>
+
+
+    <record id="view_edu_hostel_invoices_search" model="ir.ui.view">
+        <field name="name">account.move.hostel.invoices.search</field>
+        <field name="model">account.move</field>
+        <field name="arch" type="xml">
+            <search string="Hostel Invoices">
+                <field name="name" string="Invoice"/>
+                <field name="partner_id" string="Student"/>
+                <field name="allocation_id" string="Allocation"/>
+                <field name="allocation_state" string="Allocation Status"/>
+                <separator/>
+                <filter
+                        name="allocation_confirmed"
+                        string="Confirmed"
+                        domain="[('allocation_state', '=', 'confirmed')]"
+                />
+                <filter
+                        name="allocation_draft"
+                        string="Draft"
+                        domain="[('allocation_state', '=', 'draft')]"
+                />
+                <filter
+                        name="allocation_vacated"
+                        string="Vacated"
+                        domain="[('allocation_state', '=', 'vacated')]"
+                />
+                <separator/>
+                <group>
+                    <filter
+                            name="group_allocation_state"
+                            string="Allocation Status"
+                            context="{'group_by': 'allocation_state'}"
+                    />
+                    <filter
+                            name="group_allocation"
+                            string="Allocation"
+                            context="{'group_by': 'allocation_id'}"
+                    />
+                    <filter
+                            name="group_student"
+                            string="Student"
+                            context="{'group_by': 'partner_id'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+
+    <record id="action_edu_hostel_invoices" model="ir.actions.act_window">
+        <field name="name">Hostel Invoices</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_edu_hostel_invoices_search"/>
+        <field name="domain">
+            [('move_type', 'in', ['out_invoice', 'out_refund']),
+            ('allocation_id', '!=', False)]
+        </field>
+        <field name="context">
+            {'search_default_allocation_confirmed': 1 }
+        </field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Invoices of allocated students to hostel rooms
             </p>
         </field>
     </record>

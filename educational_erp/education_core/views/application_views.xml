@@ -19,7 +19,7 @@
         <field name="name">education.application.form</field>
         <field name="model">education.application</field>
         <field name="arch" type="xml">
-            <form string="Student Application">
+            <form string="Student Application" duplicate="0">
                 <header>
                     <button name="action_submit" type="object"
                             string="Submit Application"
@@ -197,7 +197,7 @@
         <field name="name">education.application.list</field>
         <field name="model">education.application</field>
         <field name="arch" type="xml">
-            <list string="Student Applications"
+            <list string="Student Applications" duplicate="0"
                   default_order="date_application desc">
                 <field name="admission_no"/>
                 <field name="name" string="Applicant"/>

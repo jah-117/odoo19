@@ -336,10 +336,10 @@ class EducationEnrollment(models.Model):
         self.write({"state": "active"})
 
     def action_graduate(self):
-        self.write({"state": "graduated"})
+        self.write({"state": "graduated","active":False})
 
     def action_withdraw(self):
-        self.write({"state": "withdrawn"})
+        self.write({"state": "withdrawn","active":False})
 
     def action_view_application(self):
         self.ensure_one()

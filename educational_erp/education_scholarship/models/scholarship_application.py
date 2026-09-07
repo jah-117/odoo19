@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
+from datetime import  datetime
+
 
 class EducationScholarshipApplication(models.Model):
     _name = "education.scholarship.application"
@@ -15,6 +17,7 @@ class EducationScholarshipApplication(models.Model):
     family_income = fields.Float(string="Family Income", tracking=True)
     document_ids = fields.Many2many("ir.attachment", string="Supporting Documents")
     remarks = fields.Text(string="Remarks")
+    invoice_id = fields.Many2one(comodel_name="account.move", string="Bill")
     state = fields.Selection(
         [
             ("draft", "Draft"),
@@ -57,6 +60,22 @@ class EducationScholarshipApplication(models.Model):
 
     def action_approve(self):
         self.write({'state': 'approved'})
+        product = self.env.ref("education_scholarship.scholarship_product")
+        invoice_id = self.env['account.move'].create({
+            'move_type': 'in_invoice',
+            'invoice_date': datetime.now(),
+            'partner_id': self.student_id.student_partner_id.id,
+            'invoice_type':"scholarship",
+        })
+
+        invoice_id.update({'invoice_line_ids': [fields.Command.create({
+            'product_id': product.id,
+            'name': "Scholarship",
+            'quantity': 1,
+            'price_unit': self.scholarship_id.amount,
+            'price_subtotal': self.scholarship_id.amount})],
+        })
+        self.invoice_id = invoice_id.id
         for rec in self:
             if rec.scholarship_id.available_scholarships > 0:
                 approved_count = self.search_count([
