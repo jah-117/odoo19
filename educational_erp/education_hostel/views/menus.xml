@@ -7,7 +7,7 @@
         name="Hostel"
         parent="education_config.menu_education_root"
         sequence="70"
-        groups="education_security.group_education_admin"/>
+        groups="education_security.group_education_admin,education_security.group_education_hostel_warden"/>
 
     <menuitem
         id="menu_hostel_properties"
@@ -47,5 +47,4 @@
         parent="menu_education_hostel_root"
         action="action_edu_hostel_invoices"
         sequence="50"/>
-
 </odoo>

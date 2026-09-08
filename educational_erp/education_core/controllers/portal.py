@@ -18,7 +18,6 @@ class EducationPortal(CustomerPortal):
 
     def _prepare_home_portal_values(self, counters):
         """Add enrollment count to portal home page."""
-        print(222,counters)
         # counters.append("enrollment_count")
         values = super()._prepare_home_portal_values(counters)
         if "enrollment_count" in counters:
@@ -27,7 +26,6 @@ class EducationPortal(CustomerPortal):
                 ("student_partner_id", "=", partner.id),
                 ("state", "=", "active"),
             ])
-        print(111111,values)
         return values
 
     # ── Student Dashboard ─────────────────────────────────────────────────

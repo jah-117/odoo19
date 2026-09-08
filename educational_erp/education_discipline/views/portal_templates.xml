@@ -93,13 +93,53 @@
                     <t t-foreach="rules" t-as="rule">
                         <div class="card border-0 shadow-sm">
                             <div class="card-body p-4">
-                                <h5 class="fw-semibold mb-2">
-                                    <i class="fa fa-gavel text-primary me-2"/>
-                                    <span t-field="rule.name"/>
-                                </h5>
-                                <p class="text-muted mb-0" t-field="rule.description"/>
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="fw-semibold mb-2">
+                                            <i class="fa fa-gavel text-primary me-2"/>
+                                            <span t-field="rule.name"/>
+                                        </h5>
+                                        <p class="text-muted mb-0" t-field="rule.description"/>
+                                    </div>
+                                    <t t-if="is_admin">
+                                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" t-attf-data-bs-target="#editRuleModal{{ rule.id }}">
+                                            <i class="fa fa-pencil"/> Edit
+                                        </button>
+                                    </t>
+                                </div>
                             </div>
                         </div>
+
+                        <!-- Edit Rule Modal -->
+                        <t t-if="is_admin">
+                            <div class="modal fade" t-attf-id="editRuleModal{{ rule.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form t-attf-action="/my/school_rules/edit/{{ rule.id }}" method="post">
+                                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Edit Rule</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Rule Title</label>
+                                                    <input type="text" name="name" class="form-control" t-att-value="rule.name" required="1"/>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Description</label>
+                                                    <textarea name="description" class="form-control" rows="4" required="1"><t t-esc="rule.description"/></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
                     </t>
                 </div>
             </t>
@@ -123,6 +163,7 @@
                     <tr class="active">
                         <th>Reference</th>
                         <th>Date</th>
+                        <th>Reported Against</th>
                         <th>Violation Type</th>
                         <th>Severity</th>
                         <th>Status</th>
@@ -130,8 +171,9 @@
                 </thead>
                 <tbody>
                     <tr t-foreach="cases" t-as="case">
-                        <td><span t-field="case.name"/></td>
+                        <td><a t-attf-href="/my/discipline_cases/{{ case.id }}"><span t-field="case.name"/></a></td>
                         <td><span t-field="case.date"/></td>
+                        <td><span t-esc="case.student_id.display_name"/></td>
                         <td><span t-field="case.violation_type_id.name"/></td>
                         <td>
                             <t t-if="case.severity == 'minor'"><span class="badge rounded-pill text-bg-info"><t t-esc="dict(case.fields_get(['severity'])['severity']['selection'])[case.severity]"/></span></t>
@@ -173,9 +215,21 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3 row">
+                            <label class="col-sm-3 col-form-label" for="student_id">Reported Against</label>
+                            <div class="col-sm-9">
+                                <select name="student_id" class="form-select" required="1">
+                                    <option value="" disabled="1" selected="1">Select a student...</option>
+                                    <t t-foreach="students" t-as="student">
+                                        <option t-att-value="student.id"><t t-esc="student.display_name"/></option>
+                                    </t>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
                             <label class="col-sm-3 col-form-label" for="violation_type_id">Violation Type</label>
                             <div class="col-sm-9">
                                 <select name="violation_type_id" class="form-select" required="1">
+                                    <option value="" disabled="1" selected="1">Select a violation type...</option>
                                     <t t-foreach="violation_types" t-as="v_type">
                                         <option t-att-value="v_type.id"><t t-esc="v_type.name"/></option>
                                     </t>
@@ -207,6 +261,98 @@
                     </div>
                 </form>
             </t>
+        </t>
+    </template>
+
+    <!-- Discipline Case Detail View -->
+    <template id="portal_discipline_case_detail" name="Discipline Case Details">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title" t-value="case.name"/>
+            </t>
+
+            <div class="card mt-4">
+                <div class="card-header bg-white border-bottom">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <span t-field="case.name"/>
+                            <span class="fs-6 text-muted ms-2" t-field="case.date"/>
+                        </h4>
+                        <div>
+                            <t t-if="case.state == 'draft'"><span class="badge rounded-pill text-bg-light fs-6">Draft</span></t>
+                            <t t-if="case.state == 'reported'"><span class="badge rounded-pill text-bg-warning fs-6">Reported</span></t>
+                            <t t-if="case.state == 'under_review'"><span class="badge rounded-pill text-bg-primary fs-6">Under Review</span></t>
+                            <t t-if="case.state == 'action_taken'"><span class="badge rounded-pill text-bg-danger fs-6">Action Taken</span></t>
+                            <t t-if="case.state == 'resolved'"><span class="badge rounded-pill text-bg-success fs-6">Resolved</span></t>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <strong>Reported Against:</strong> <span t-esc="case.student_id.display_name"/><br/>
+                            <t t-if="request.env.user.id != case.reported_by_id.id">
+                                <strong>Reported By:</strong> <span t-esc="case.reported_by_id.name if case.reported_by_id else 'Unknown'"/><br/>
+                            </t>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <strong>Violation Type:</strong> <span t-field="case.violation_type_id.name"/><br/>
+                            <strong>Severity:</strong> <t t-esc="dict(case.fields_get(['severity'])['severity']['selection'])[case.severity]"/><br/>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5>Description</h5>
+                        <p class="text-muted"><span t-field="case.description"/></p>
+                    </div>
+
+                    <t t-if="case.remarks">
+                        <div class="mb-4">
+                            <h5>Remarks</h5>
+                            <p class="text-muted"><span t-field="case.remarks"/></p>
+                        </div>
+                    </t>
+
+                    <div class="border-top pt-4">
+                        <h5>Disciplinary Action</h5>
+                        <t t-if="not is_admin">
+                            <t t-if="case.action_id">
+                                <p><strong>Action:</strong> <span t-field="case.action_id.name"/></p>
+                                <p><strong>Date:</strong> <span t-field="case.action_date"/></p>
+                            </t>
+                            <t t-else="">
+                                <p class="text-muted">No action has been recorded yet.</p>
+                            </t>
+                        </t>
+                        <t t-if="is_admin">
+                            <form t-attf-action="/my/discipline_cases/{{ case.id }}" method="post">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="action_id" class="form-label">Action Taken</label>
+                                        <select name="action_id" class="form-select">
+                                            <option value="">-- Select Action --</option>
+                                            <t t-foreach="actions" t-as="action">
+                                                <option t-att-value="action.id" t-att-selected="action.id == case.action_id.id"><t t-esc="action.name"/></option>
+                                            </t>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="action_date" class="form-label">Action Date</label>
+                                        <input type="date" name="action_date" class="form-control" t-att-value="case.action_date"/>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save Action</button>
+                            </form>
+                        </t>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <a href="/my/discipline_cases" class="btn btn-outline-secondary">Back to List</a>
+            </div>
         </t>
     </template>
 </odoo>

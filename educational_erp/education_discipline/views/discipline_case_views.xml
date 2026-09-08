@@ -101,11 +101,11 @@
                 <form string="Discipline Case">
                     <header>
                         <button name="action_report" string="Report" type="object" class="oe_highlight" invisible="state != 'draft'"/>
-                        <button name="action_under_review" string="Review" type="object" class="oe_highlight" invisible="state != 'reported'"/>
-                        <button name="action_take_action" string="Take Action" type="object" class="oe_highlight" invisible="state != 'under_review'"/>
-                        <button name="action_resolve" string="Resolve" type="object" class="oe_highlight" invisible="state != 'action_taken'"/>
-                        <button name="action_draft" string="Set to Draft" type="object" invisible="state == 'draft'"/>
-                        <field name="state" widget="statusbar" statusbar_visible="draft,reported,under_review,action_taken,resolved"/>
+                        <button name="action_under_review" string="Review" type="object" class="oe_highlight" invisible="state != 'reported'" groups="education_security.group_education_admin"/>
+                        <button name="action_take_action" string="Take Action" type="object" class="oe_highlight" invisible="state != 'under_review'" groups="education_security.group_education_admin"/>
+                        <button name="action_resolve" string="Resolve" type="object" class="oe_highlight" invisible="state != 'action_taken'" groups="education_security.group_education_admin"/>
+                        <button name="action_draft" string="Set to Draft" type="object" invisible="state == 'draft'" groups="education_security.group_education_admin"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,reported,under_review,action_taken,resolved" groups="education_security.group_education_admin"/>
                     </header>
                     <sheet>
                         <div class="oe_title">
@@ -121,7 +121,7 @@
                             </group>
                             <group>
                                 <field name="date" readonly="state != 'draft'"/>
-                                <field name="reported_by" readonly="state != 'draft'"/>
+                                <field name="reported_by_id" readonly="state != 'draft'"/>
                             </group>
                         </group>
                         <notebook>
@@ -133,12 +133,12 @@
                             <page string="Action Details">
                                 <group>
                                     <group>
-                                        <field name="action_id" readonly="state in ['draft', 'resolved']"/>
-                                        <field name="action_date" readonly="state in ['draft', 'resolved']"/>
+                                        <field name="action_id" readonly="state not in  ['under_review','action_taken']"/>
+                                        <field name="action_date" readonly="state not in  ['under_review','action_taken']"/>
                                     </group>
                                 </group>
                                 <group>
-                                    <field name="remarks" placeholder="Additional remarks on the action taken..." readonly="state in ['draft', 'resolved']"/>
+                                    <field name="remarks" placeholder="Additional remarks on the action taken..." readonly="state not in  ['under_review','action_taken']"/>
                                 </group>
                             </page>
                         </notebook>

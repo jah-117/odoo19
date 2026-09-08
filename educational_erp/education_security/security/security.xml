@@ -49,6 +49,13 @@
         <field name="category_id" ref="module_category_education"/>
     </record>
 
+    <record id="res_groups_privilege_education_hostel_warden" model="res.groups.privilege">
+        <field name="name">Hostel Warden</field>
+        <field name="sequence">70</field>
+        <field name="category_id" ref="module_category_education"/>
+    </record>
+
+
     <!-- ── Group 1: Administrator ────────────────────────────────────────
          XML ID : group_education_admin
          Access : Full system access — all modules read/write/create/delete
@@ -134,6 +141,20 @@
         <field name="comment">
             Finance operations: fee invoices, payment recording,
             outstanding fee reports, hostel and transport billing.
+        </field>
+    </record>
+
+    <!-- ── Group 7: Hostel Warden ─────────────────────────────────────────
+         XML ID : group_education_hostel_warden
+         Access : Hostel management and operations
+    ─────────────────────────────────────────────────────────────────────── -->
+    <record id="group_education_hostel_warden" model="res.groups">
+        <field name="name">Hostel Warden</field>
+        <field name="privilege_id" ref="res_groups_privilege_education_hostel_warden"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">
+            Hostel operations: student accommodation, room allocation,
+            hostel fee monitoring and daily hostel management.
         </field>
     </record>
 

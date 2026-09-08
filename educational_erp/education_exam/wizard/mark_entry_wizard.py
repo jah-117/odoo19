@@ -7,6 +7,7 @@ for that exam loads automatically. Teacher / Admin enters marks and saves in bul
 """
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
+from odoo.orm.decorators import readonly
 
 
 class EduExamMarkEntryWizard(models.TransientModel):
@@ -95,6 +96,7 @@ class EduExamMarkEntryWizard(models.TransientModel):
                     "marks_obtained": existing.marks_obtained if existing else 0.0,
                     "absent": existing.absent if existing else False,
                 }))
+                print("loaded max mark",subj_line.max_marks)
         self.line_ids = lines
 
     def action_save_marks(self):
@@ -117,6 +119,7 @@ class EduExamMarkEntryWizard(models.TransientModel):
                 "max_marks": line.max_marks,
                 "pass_marks": line.pass_marks,
             }
+            print(vals)
             # If the exam is already published or closed, keep/set results as published
             if self.exam_id.state in ("result_published", "closed"):
                 vals["state"] = "published"
@@ -147,7 +150,6 @@ class EduExamMarkEntryWizard(models.TransientModel):
             ],
         }
 
-
 class EduExamMarkEntryLine(models.TransientModel):
     _name = "edu.exam.mark.entry.line"
     _description = "Mark Entry Line"
@@ -158,24 +160,88 @@ class EduExamMarkEntryLine(models.TransientModel):
         ondelete="cascade",
         required=True,
     )
+
     enrollment_id = fields.Many2one(
         "education.enrollment",
         string="Student",
         required=True,
         readonly=True,
     )
+
     student_name = fields.Char(
         related="enrollment_id.student_name",
         store=True,
         readonly=True,
     )
+
     subject_id = fields.Many2one(
         "education.subject",
         string="Subject",
         required=True,
         readonly=True,
     )
-    max_marks = fields.Float(string="Max", default=100.0, readonly=True)
-    pass_marks = fields.Float(string="Pass", default=40.0, readonly=True)
-    marks_obtained = fields.Float(string="Marks", default=0.0)
-    absent = fields.Boolean(string="Absent", default=False)
+
+    max_marks = fields.Float(
+        string="Max",
+        compute="_compute_exam_marks",
+        readonly=True,
+    )
+
+    pass_marks = fields.Float(
+        string="Pass",
+        compute="_compute_exam_marks",
+        readonly=True,
+    )
+
+    marks_obtained = fields.Float(
+        string="Marks",
+        default=0.0,
+    )
+
+    absent = fields.Boolean(
+        string="Absent",
+        default=False,
+    )
+
+    @api.depends("wizard_id.exam_id", "subject_id")
+    def _compute_exam_marks(self):
+        ExamSubject = self.env["edu.exam.subject"]
+
+        for line in self:
+            line.max_marks = 0.0
+            line.pass_marks = 0.0
+
+            exam = line.wizard_id.exam_id
+
+            if not exam or not line.subject_id:
+                continue
+
+            exam_subject = ExamSubject.search([
+                ("exam_id", "=", exam.id),
+                ("subject_id", "=", line.subject_id.id),
+            ], limit=1)
+
+            if exam_subject:
+                line.max_marks = exam_subject.max_marks
+                line.pass_marks = exam_subject.pass_marks
+
+    @api.constrains("marks_obtained", "absent")
+    def _check_marks_obtained(self):
+        for line in self:
+            if line.marks_obtained < 0:
+                raise UserError(
+                    _("Marks obtained cannot be less than 0.")
+                )
+
+            if line.marks_obtained > line.max_marks:
+                raise UserError(
+                    _(
+                        "Marks obtained (%s) cannot be greater than "
+                        "the maximum mark (%s) for %s."
+                    )
+                    % (
+                        line.marks_obtained,
+                        line.max_marks,
+                        line.subject_id.name,
+                    )
+                )

@@ -10,3 +10,9 @@ access_hostel_room_user,edu.hostel.room user,model_edu_hostel_room,base.group_us
 access_hostel_allocation_admin,edu.hostel.allocation admin,model_edu_hostel_allocation,education_security.group_education_admin,1,1,1,1
 access_hostel_allocation_user,edu.hostel.allocation user,model_edu_hostel_allocation,base.group_user,1,0,0,0
 access_hostel_allocation_portal,edu.hostel.allocation portal,model_edu_hostel_allocation,base.group_portal,1,0,0,0
+access_hostel_property_warden,edu.hostel.property warden,model_edu_hostel_property,education_security.group_education_hostel_warden,1,1,1,1
+access_hostel_room_amenities_warden,edu.hostel.room.amenities warden,model_edu_hostel_room_amenities,education_security.group_education_hostel_warden,1,1,1,1
+access_hostel_room_type_warden,edu.hostel.room.type warden,model_edu_hostel_room_type,education_security.group_education_hostel_warden,1,1,1,1
+access_hostel_room_warden,edu.hostel.room warden,model_edu_hostel_room,education_security.group_education_hostel_warden,1,1,1,1
+access_hostel_allocation_warden,edu.hostel.allocation warden,model_edu_hostel_allocation,education_security.group_education_hostel_warden,1,1,1,1
+access_enrollment_warden,education.enrollment warden,model_education_enrollment,education_security.group_education_hostel_warden,1,0,0,0

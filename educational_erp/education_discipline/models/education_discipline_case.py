@@ -1,4 +1,6 @@
+# -*- coding: utf-8 -*-
 from odoo import api, fields, models
+from odoo.exceptions import AccessError
 
 
 class DisciplineCase(models.Model):
@@ -10,7 +12,7 @@ class DisciplineCase(models.Model):
         string="Reference", required=True, copy=False, readonly=True, default="New"
     )
     student_id = fields.Many2one(
-        "education.enrollment", string="Student", required=True, tracking=True
+        "education.enrollment", string="Reported Against", required=True, tracking=True
     )
     date = fields.Date(
         string="Date", required=True, default=fields.Date.context_today, tracking=True
@@ -19,7 +21,7 @@ class DisciplineCase(models.Model):
         "education.violation.type", string="Violation Type", required=True, tracking=True
     )
     description = fields.Text(string="Description/Reason")
-    reported_by = fields.Many2one(
+    reported_by_id = fields.Many2one(
         "res.users",
         string="Reported By",
         default=lambda self: self.env.user,
@@ -66,7 +68,14 @@ class DisciplineCase(models.Model):
 
     def action_report(self):
         for record in self:
-            record.state = "reported"
+            if record.reported_by_id != self.env.user:
+                raise AccessError(
+                    "You can only report discipline cases created by you."
+                )
+
+            record.sudo().write({
+                "state": "reported",
+            })
 
     def action_under_review(self):
         for record in self:

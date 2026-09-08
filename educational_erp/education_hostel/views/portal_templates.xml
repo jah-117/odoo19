@@ -3,10 +3,10 @@
     <!-- Portal home entry deliberately has no allocation count. -->
     <template id="portal_my_home_hostel" name="Portal My Home: Hostel"
               inherit_id="portal.portal_my_home" priority="42">
-        <xpath expr="//div[@id='portal_common_category']" position="inside">
+            <xpath expr="//div[@id='portal_common_category']" position="inside">
             <t t-call="portal.portal_docs_entry">
                 <t t-set="title">My Hostel</t>
-                <t t-set="url" t-value="'/my/hostel'"/>
+                <t t-set="url">/my/hostel</t>
                 <t t-set="text">View your hostel accommodation and room details</t>
                 <t t-set="icon" t-value="'/portal/static/src/img/portal-addresses.svg'"/>
                 <t t-set="config_card" t-value="True"/>

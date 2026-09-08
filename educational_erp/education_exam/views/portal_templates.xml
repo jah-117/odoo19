@@ -51,6 +51,7 @@
                 <div class="mt-4">
                     <t t-foreach="exams" t-as="exam">
                         <t t-set="seating" t-value="seating_map.get(exam.id)"/>
+                        <t t-set="is_registered" t-value="registration_map.get(exam.id, False)"/>
                         <div class="card mb-4 shadow-sm border-0">
                             <div class="card-header bg-light d-flex justify-content-between align-items-center py-3 flex-wrap gap-2">
                                 <div>
@@ -60,21 +61,38 @@
                                     </h5>
                                     <small class="text-muted">
                                         <i class="fa fa-calendar me-1"/>
-                                        <t t-esc="exam.date_from"/> to <t t-esc="exam.date_to"/>
+                                        <t t-esc="exam.date_from"/>
+                                        to
+                                        <t t-esc="exam.date_to"/>
                                         <t t-if="exam.academic_year_id">
-                                            &amp;nbsp;|&amp;nbsp; <t t-esc="exam.academic_year_id.name"/>
+                                            &amp;nbsp;|&amp;nbsp;
+                                            <t t-esc="exam.academic_year_id.name"/>
                                         </t>
                                     </small>
                                 </div>
                                 <div class="d-flex align-items-center gap-2">
-                                    <span t-attf-class="badge #{'bg-warning text-dark' if exam.state == 'ongoing' else 'bg-info'} text-uppercase">
+                                    <span t-attf-class="badge #{'bg-warning text-dark' if exam.state == 'open_registration' else 'bg-info'} text-uppercase">
                                         <t t-esc="dict(exam._fields['state'].selection).get(exam.state, exam.state)"/>
                                     </span>
-                                    <t t-if="seating">
-                                        <a t-attf-href="/my/exam/admit_card/#{exam.id}"
-                                           class="btn btn-sm btn-outline-primary"
-                                           title="Download Admit Card">
-                                            <i class="fa fa-download me-1"/> Admit Card
+                                    <t t-if="is_registered">
+                                        <span class="badge bg-info text-uppercase">
+                                            Paid
+                                        </span>
+                                    </t>
+                                    <t t-elif="exam.state == 'open_registration'">
+                                        <a t-attf-href="/my/exam/register/#{exam.id}"
+                                           class="btn btn-sm btn-primary"
+                                           title="Register">
+                                            Go to Payment
+                                        </a>
+                                    </t>
+                                    <t t-if="exam.state == 'result_published'">
+                                        <a t-attf-href="/my/exam/result/pdf/#{exam.id}"
+                                           class="btn btn-sm btn-outline-secondary"
+                                           title="Download Mark Sheet (PDF)"
+                                           target="_blank">
+                                            <i class="fa fa-download me-1"/>
+                                            Download Result
                                         </a>
                                     </t>
                                 </div>
@@ -83,10 +101,12 @@
                                 <t t-if="seating">
                                     <div class="row g-2 mb-3 bg-light p-2 rounded border">
                                         <div class="col-sm-6">
-                                            <strong>Exam Hall:</strong> <t t-esc="seating.classroom_id.display_name or '—'"/>
+                                            <strong>Exam Hall:</strong>
+                                            <t t-esc="seating.classroom_id.display_name or '—'"/>
                                         </div>
                                         <div class="col-sm-6">
-                                            <strong>Seat No.:</strong> <t t-esc="seating.seat_no or '—'"/>
+                                            <strong>Seat No.:</strong>
+                                            <t t-esc="seating.seat_no or '—'"/>
                                         </div>
                                     </div>
                                 </t>
@@ -111,7 +131,9 @@
                                             <tbody>
                                                 <t t-foreach="exam.subject_line_ids" t-as="subj">
                                                     <tr>
-                                                        <td><t t-esc="subj.exam_date or '—'"/></td>
+                                                        <td>
+                                                            <t t-esc="subj.exam_date or '—'"/>
+                                                        </td>
                                                         <td class="fw-semibold">
                                                             <t t-esc="subj.subject_id.name if subj.subject_id else '—'"/>
                                                         </td>
@@ -121,10 +143,19 @@
                                                             </t>
                                                             <t t-else="">—</t>
                                                         </td>
-                                                        <td><t t-esc="subj.duration_hours"/> hr(s)</td>
-                                                        <td class="text-end"><t t-esc="'%.1f' % (subj.max_marks or 0.0)"/></td>
-                                                        <td class="text-end"><t t-esc="'%.1f' % (subj.pass_marks or 0.0)"/></td>
-                                                        <td><t t-esc="subj.classroom_id.display_name or '—'"/></td>
+                                                        <td>
+                                                            <t t-esc="subj.duration_hours"/>
+                                                            hr(s)
+                                                        </td>
+                                                        <td class="text-end">
+                                                            <t t-esc="'%.1f' % (subj.max_marks or 0.0)"/>
+                                                        </td>
+                                                        <td class="text-end">
+                                                            <t t-esc="'%.1f' % (subj.pass_marks or 0.0)"/>
+                                                        </td>
+                                                        <td>
+                                                            <t t-esc="subj.classroom_id.display_name or '—'"/>
+                                                        </td>
                                                     </tr>
                                                 </t>
                                             </tbody>
@@ -134,7 +165,9 @@
                                 <t t-if="exam.notes">
                                     <div class="alert alert-light border mt-3 mb-0 small">
                                         <strong>Instructions:</strong>
-                                        <p class="mb-0"><t t-esc="exam.notes"/></p>
+                                        <p class="mb-0">
+                                            <t t-esc="exam.notes"/>
+                                        </p>
                                     </div>
                                 </t>
                             </div>
@@ -145,13 +178,351 @@
         </t>
     </template>
 
+    <!-- ── Exam Registration Page ─────────────────────────────────────── -->
+    <template id="portal_exam_register" name="Register for Examination">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="False"/>
+
+            <div class="container py-4">
+
+                <!-- Back -->
+                <div class="mb-3">
+                    <a href="/my/examinations"
+                       class="text-decoration-none text-muted">
+                        <i class="fa fa-arrow-left me-1"/>
+                        Back to Examinations
+                    </a>
+                </div>
+
+                <!-- Exam Header -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-light py-3">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div>
+                                <h4 class="mb-1 text-primary fw-bold">
+                                    <i class="fa fa-calendar-check-o me-2"/>
+                                    <t t-esc="exam.name"/>
+                                </h4>
+
+                                <div class="text-muted small">
+                                    <span>
+                                        <i class="fa fa-tag me-1"/>
+                                        <t t-esc="dict(exam._fields['exam_type'].selection).get(exam.exam_type, exam.exam_type)"/>
+                                    </span>
+
+                                    <t t-if="exam.academic_year_id">
+                                        <span class="mx-2">|</span>
+                                        <span>
+                                            <i class="fa fa-graduation-cap me-1"/>
+                                            <t t-esc="exam.academic_year_id.name"/>
+                                        </span>
+                                    </t>
+
+                                    <span class="mx-2">|</span>
+
+                                    <span>
+                                        <i class="fa fa-calendar me-1"/>
+                                        <t t-esc="exam.date_from"/>
+                                        to
+                                        <t t-esc="exam.date_to"/>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <span class="badge bg-success text-uppercase px-3 py-2">
+                                Registration Open
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+
+                        <!-- Registration Period -->
+                        <div class="row g-3 mb-4">
+
+                            <div class="col-md-6">
+                                <div class="border rounded p-3 h-100 bg-light">
+                                    <div class="text-muted small mb-1">
+                                        <i class="fa fa-clock-o me-1"/>
+                                        Registration Opens
+                                    </div>
+                                    <div class="fw-semibold">
+                                        <t t-esc="exam.registration_date_from or '—'"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="border rounded p-3 h-100 bg-light">
+                                    <div class="text-muted small mb-1">
+                                        <i class="fa fa-clock-o me-1"/>
+                                        Registration Closes
+                                    </div>
+                                    <div class="fw-semibold">
+                                        <t t-esc="exam.registration_date_to or '—'"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Exam Details -->
+                        <h6 class="fw-bold mb-3">
+                            <i class="fa fa-info-circle text-primary me-1"/>
+                            Examination Details
+                        </h6>
+
+                        <div class="row g-3 mb-4">
+
+                            <div class="col-md-4">
+                                <div class="border rounded p-3 h-100">
+                                    <div class="text-muted small">
+                                        Exam Type
+                                    </div>
+                                    <div class="fw-semibold mt-1">
+                                        <t t-esc="dict(exam._fields['exam_type'].selection).get(exam.exam_type, exam.exam_type)"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="border rounded p-3 h-100">
+                                    <div class="text-muted small">
+                                        Examination Dates
+                                    </div>
+                                    <div class="fw-semibold mt-1">
+                                        <t t-esc="exam.date_from"/>
+                                        -
+                                        <t t-esc="exam.date_to"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="border rounded p-3 h-100">
+                                    <div class="text-muted small">
+                                        Hall Ticket
+                                    </div>
+                                    <div class="mt-1">
+                                        <t t-if="exam.hall_ticket">
+                                            <span class="badge bg-info">
+                                                Required
+                                            </span>
+                                        </t>
+                                        <t t-else="">
+                                            <span class="badge bg-secondary">
+                                                Not Required
+                                            </span>
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Subject Timetable -->
+                        <t t-if="exam.subject_line_ids">
+                            <h6 class="fw-bold mb-2">
+                                <i class="fa fa-calendar text-primary me-1"/>
+                                Subject Timetable
+                            </h6>
+
+                            <div class="table-responsive mb-4">
+                                <table class="table table-sm table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Subject</th>
+                                            <th>Time</th>
+                                            <th>Duration</th>
+                                            <th class="text-end">Max Marks</th>
+                                            <th>Hall</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <t t-foreach="exam.subject_line_ids" t-as="subj">
+                                            <tr>
+                                                <td>
+                                                    <t t-esc="subj.exam_date or '—'"/>
+                                                </td>
+
+                                                <td class="fw-semibold">
+                                                    <t t-esc="subj.subject_id.name if subj.subject_id else '—'"/>
+                                                </td>
+
+                                                <td>
+                                                    <t t-if="subj.exam_time">
+                                                        <t t-esc="'%02d:%02d' % (
+                                                        int(subj.exam_time),
+                                                        int((subj.exam_time % 1) * 60)
+                                                    )"/>
+                                                    </t>
+                                                    <t t-else="">—</t>
+                                                </td>
+
+                                                <td>
+                                                    <t t-esc="subj.duration_hours"/>
+                                                    hr(s)
+                                                </td>
+
+                                                <td class="text-end">
+                                                    <t t-esc="'%.1f' % (subj.max_marks or 0.0)"/>
+                                                </td>
+
+                                                <td>
+                                                    <t t-esc="subj.classroom_id.display_name or '—'"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+
+                        <!-- Fee Section -->
+                        <div class="card border-0 bg-light mb-4">
+                            <div class="card-body">
+
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+                                    <div>
+                                        <h6 class="fw-bold mb-1">
+                                            <i class="fa fa-credit-card text-primary me-2"/>
+                                            Examination Fee
+                                        </h6>
+
+                                        <small class="text-muted">
+                                            <t t-if="exam.is_paid_exam">
+                                                Payment is required to complete your examination registration.
+                                            </t>
+                                            <t t-else="">
+                                                This is a free examination. No payment is required.
+                                            </t>
+                                        </small>
+                                    </div>
+
+                                    <div class="text-end">
+                                        <t t-if="exam.is_paid_exam">
+                                            <div class="text-muted small">
+                                                Registration Fee
+                                            </div>
+
+                                            <div class="fs-3 fw-bold text-primary">
+                                                <t t-esc="'%.2f' % (exam.exam_fee or 0.0)"/>
+                                            </div>
+                                        </t>
+
+                                        <t t-else="">
+                                            <span class="badge bg-success fs-6 px-3 py-2">
+                                                FREE
+                                            </span>
+                                        </t>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Instructions -->
+                        <t t-if="exam.notes">
+                            <div class="alert alert-light border mb-4">
+                                <h6 class="fw-bold mb-2">
+                                    <i class="fa fa-info-circle text-primary me-1"/>
+                                    Instructions
+                                </h6>
+
+                                <div class="small">
+                                    <t t-esc="exam.notes"/>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- Registration Form -->
+                        <form action="/my/exam/register/submit"
+                              method="post"
+                              class="mt-4">
+
+                            <input type="hidden"
+                                   name="exam_id"
+                                   t-att-value="exam.id"/>
+
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   t-att-value="request.csrf_token()"/>
+
+                            <!-- Confirmation -->
+                            <div class="border rounded p-3 mb-4 bg-white">
+                                <div class="form-check">
+                                    <input type="checkbox"
+                                           class="form-check-input"
+                                           id="confirm_registration"
+                                           name="confirm_registration"
+                                           value="1"
+                                           required="required"/>
+
+                                    <label class="form-check-label small"
+                                           for="confirm_registration">
+                                        I have reviewed the examination schedule and
+                                        instructions and confirm that I want to register
+                                        for this examination.
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex justify-content-end gap-2 flex-wrap">
+
+                                <a href="/my/examinations"
+                                   class="btn btn-outline-secondary">
+                                    <i class="fa fa-times me-1"/>
+                                    Cancel
+                                </a>
+
+                                <t t-if="exam.is_paid_exam">
+
+                                    <a t-attf-href="/my/exam/register/#{exam.id}/generate_payment_url"
+                                            class="btn btn-primary px-4">
+                                        <i class="fa fa-credit-card me-1"/>
+                                        Pay &amp; Register
+                                        <span class="ms-1">
+                                            (<t t-esc="'%.2f' % (exam.exam_fee or 0.0)"/>)
+                                        </span>
+                                    </a>
+
+                                </t>
+
+                                <t t-else="">
+
+                                    <button type="submit"
+                                            class="btn btn-primary px-4">
+                                        <i class="fa fa-check me-1"/>
+                                        Confirm Registration
+                                    </button>
+
+                                </t>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+                </div>
+
+            </div>
+        </t>
+    </template>
+
     <!-- ── Breadcrumbs ──────────────────────────────────────────────────── -->
-    <template id="portal_my_home_menu_exam" name="Portal layout : examination menu entries" inherit_id="portal.portal_breadcrumbs" priority="38">
+    <template id="portal_my_home_menu_exam" name="Portal layout : examination menu entries"
+              inherit_id="portal.portal_breadcrumbs" priority="38">
         <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
             <li t-if="page_name == 'examinations'" class="breadcrumb-item active">
                 Examinations
             </li>
-            <li t-if="page_name in ('exam_results', 'exam_result_detail')" t-attf-class="breadcrumb-item #{'active' if page_name == 'exam_results' else ''}">
+            <li t-if="page_name in ('exam_results', 'exam_result_detail')"
+                t-attf-class="breadcrumb-item #{'active' if page_name == 'exam_results' else ''}">
                 <a t-if="page_name == 'exam_result_detail'" href="/my/exam/results">Examination Results</a>
                 <t t-else="">Examination Results</t>
             </li>
@@ -173,14 +544,16 @@
             <t t-if="reval_success">
                 <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
                     <i class="fa fa-check-circle me-2"/>
-                    <strong>Success!</strong> Your revaluation request has been submitted successfully and is under review.
+                    <strong>Success!</strong>
+                    Your revaluation request has been submitted successfully and is under review.
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             </t>
             <t t-if="reval_error">
                 <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
                     <i class="fa fa-exclamation-triangle me-2"/>
-                    <strong>Error:</strong> <t t-esc="reval_error"/>
+                    <strong>Error:</strong>
+                    <t t-esc="reval_error"/>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             </t>
@@ -196,7 +569,8 @@
                     <div class="card shadow-sm border-0">
                         <div class="card-header bg-light py-3">
                             <h5 class="mb-0 text-primary fw-bold">
-                                <i class="fa fa-graduation-cap me-2"/> Published Examination Results
+                                <i class="fa fa-graduation-cap me-2"/>
+                                Published Examination Results
                             </h5>
                         </div>
                         <div class="card-body p-0">
@@ -225,10 +599,14 @@
                                                         <t t-esc="exam.name"/>
                                                     </span>
                                                     <t t-if="item.get('is_new')">
-                                                        <span class="badge bg-danger text-white ms-1" title="Newly published or updated after re-evaluation">New</span>
+                                                        <span class="badge bg-danger text-white ms-1"
+                                                              title="Newly published or updated after re-evaluation">New
+                                                        </span>
                                                     </t>
                                                     <t t-if="exam.code and exam.code != 'New'">
-                                                        <span class="badge bg-light text-dark border ms-1"><t t-esc="exam.code"/></span>
+                                                        <span class="badge bg-light text-dark border ms-1">
+                                                            <t t-esc="exam.code"/>
+                                                        </span>
                                                     </t>
                                                 </td>
                                                 <td>
@@ -246,16 +624,19 @@
                                                 <td class="text-center text-muted">
                                                     <t t-if="item['published_at']">
                                                         <i class="fa fa-clock-o me-1"/>
-                                                        <span t-esc="item['published_at']" t-options='{"widget": "datetime"}'/>
+                                                        <span t-esc="item['published_at']"
+                                                              t-options='{"widget": "datetime"}'/>
                                                     </t>
                                                     <t t-else="">—</t>
                                                 </td>
                                                 <td class="text-center fw-bold">
-                                                    <span class="text-primary"><t t-esc="'%.1f' % item['percentage']"/>%</span>
+                                                    <span class="text-primary"><t t-esc="'%.1f' % item['percentage']"/>%
+                                                    </span>
                                                 </td>
                                                 <td class="text-center">
                                                     <t t-if="item.get('has_under_reval')">
-                                                        <span class="badge bg-warning text-dark" title="One or more subjects are undergoing re-evaluation or awaiting publication">
+                                                        <span class="badge bg-warning text-dark"
+                                                              title="One or more subjects are undergoing re-evaluation or awaiting publication">
                                                             <i class="fa fa-refresh me-1"/>Revaluation
                                                         </span>
                                                     </t>
@@ -266,12 +647,14 @@
                                                         </span>
                                                     </t>
                                                 </td>
-                                                <td class="text-end pe-3 text-nowrap" onclick="event.stopPropagation();">
+                                                <td class="text-end pe-3 text-nowrap"
+                                                    onclick="event.stopPropagation();">
                                                     <a t-attf-href="/my/exam/result/pdf/#{exam.id}"
                                                        class="btn btn-sm btn-outline-secondary"
                                                        title="Download Mark Sheet (PDF)"
                                                        target="_blank">
-                                                        <i class="fa fa-download me-1"/> PDF
+                                                        <i class="fa fa-download me-1"/>
+                                                        PDF
                                                     </a>
                                                 </td>
                                             </tr>
@@ -298,21 +681,25 @@
             <t t-if="reval_success">
                 <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
                     <i class="fa fa-check-circle me-2"/>
-                    <strong>Success!</strong> Your revaluation request has been submitted successfully and is under review.
+                    <strong>Success!</strong>
+                    Your revaluation request has been submitted successfully and is under review.
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             </t>
             <t t-if="reval_error">
                 <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
                     <i class="fa fa-exclamation-triangle me-2"/>
-                    <strong>Error:</strong> <t t-esc="reval_error"/>
+                    <strong>Error:</strong>
+                    <t t-esc="reval_error"/>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             </t>
             <t t-if="any(r.state == 'draft' for r in results)">
                 <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
                     <i class="fa fa-info-circle me-2"/>
-                    <strong>Notice:</strong> One or more subject results are currently undergoing re-evaluation or awaiting administrator publication.
+                    <strong>Notice:</strong>
+                    One or more subject results are currently undergoing re-evaluation or awaiting administrator
+                    publication.
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             </t>
@@ -322,15 +709,19 @@
                     <div class="card-header bg-light d-flex justify-content-between align-items-center py-3 flex-wrap gap-2">
                         <div>
                             <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
-                                <a href="/my/exam/results" class="btn btn-sm btn-outline-secondary" title="Back to All Results">
-                                    <i class="fa fa-arrow-left me-1"/> Back
+                                <a href="/my/exam/results" class="btn btn-sm btn-outline-secondary"
+                                   title="Back to All Results">
+                                    <i class="fa fa-arrow-left me-1"/>
+                                    Back
                                 </a>
                                 <h5 class="mb-0 text-primary fw-bold">
                                     <i class="fa fa-graduation-cap me-2"/>
                                     <t t-esc="exam.name"/>
                                 </h5>
                                 <t t-if="is_new">
-                                    <span class="badge bg-danger text-white ms-1" title="Newly published or updated after re-evaluation">New</span>
+                                    <span class="badge bg-danger text-white ms-1"
+                                          title="Newly published or updated after re-evaluation">New
+                                    </span>
                                 </t>
                             </div>
                             <small class="text-muted ms-4 ps-3">
@@ -339,7 +730,10 @@
                                     <t t-esc="exam.academic_year_id.name"/>
                                 </t>
                                 <t t-if="exam.published_at">
-                                    &amp;nbsp;|&amp;nbsp; <i class="fa fa-clock-o me-1"/> Published: <span t-esc="exam.published_at" t-options='{"widget": "datetime"}'/>
+                                    &amp;nbsp;|&amp;nbsp;
+                                    <i class="fa fa-clock-o me-1"/>
+                                    Published:
+                                    <span t-esc="exam.published_at" t-options='{"widget": "datetime"}'/>
                                 </t>
                             </small>
                         </div>
@@ -348,11 +742,12 @@
                                 <t t-esc="dict(exam._fields['exam_type'].selection).get(exam.exam_type, exam.exam_type)"/>
                             </span>
                             <a t-attf-href="/my/exam/result/pdf/#{exam.id}"
-                                class="btn btn-sm btn-outline-primary"
-                                title="Download Result (PDF)"
-                                target="_blank"
-                                aria-label="Download Result (PDF)">
-                                <i class="fa fa-download me-1"/> Download PDF
+                               class="btn btn-sm btn-outline-primary"
+                               title="Download Result (PDF)"
+                               target="_blank"
+                               aria-label="Download Result (PDF)">
+                                <i class="fa fa-download me-1"/>
+                                Download PDF
                             </a>
                         </div>
                     </div>
@@ -374,16 +769,20 @@
                                 <tbody>
                                     <t t-foreach="results" t-as="result">
                                         <t t-set="reval" t-value="reval_map.get(result.id) if reval_map else False"/>
-                                        <t t-set="disp_marks" t-value="result.history_ids.sorted('id')[0].old_marks if (result.state == 'draft' and result.history_ids) else result.marks_obtained"/>
-                                        <t t-set="disp_pct" t-value="(disp_marks / result.max_marks * 100) if result.max_marks else 0.0"/>
-                                        <t t-set="disp_grade" t-value="reval.grade if (result.state == 'draft' and reval and reval.grade) else result.grade"/>
+                                        <t t-set="disp_marks"
+                                           t-value="result.history_ids.sorted('id')[0].old_marks if (result.state == 'draft' and result.history_ids) else result.marks_obtained"/>
+                                        <t t-set="disp_pct"
+                                           t-value="(disp_marks / result.max_marks * 100) if result.max_marks else 0.0"/>
+                                        <t t-set="disp_grade"
+                                           t-value="reval.grade if (result.state == 'draft' and reval and reval.grade) else result.grade"/>
                                         <tr>
                                             <td class="fw-semibold">
                                                 <t t-esc="result.subject_id.name if result.subject_id else '—'"/>
                                             </td>
                                             <td class="text-end">
                                                 <t t-if="result.state == 'draft' and (reval or result.history_ids)">
-                                                    <span class="text-muted" title="Original marks (Re-evaluation in progress)">
+                                                    <span class="text-muted"
+                                                          title="Original marks (Re-evaluation in progress)">
                                                         <t t-esc="'%.1f' % (disp_marks or 0.0)"/>
                                                     </span>
                                                 </t>
@@ -398,7 +797,8 @@
                                                             data-bs-toggle="modal"
                                                             t-attf-data-bs-target="#marksHistoryModal_#{result.id}"
                                                             title="Marks change history available. Click to view history.">
-                                                        <i class="fa fa-info-circle text-primary fs-6" style="vertical-align: middle;"/>
+                                                        <i class="fa fa-info-circle text-primary fs-6"
+                                                           style="vertical-align: middle;"/>
                                                     </button>
                                                 </t>
                                             </td>
@@ -429,7 +829,8 @@
                                             </td>
                                             <td class="text-center">
                                                 <t t-if="result.state == 'draft'">
-                                                    <span class="badge bg-warning text-dark" title="Under re-evaluation or awaiting publication">
+                                                    <span class="badge bg-warning text-dark"
+                                                          title="Under re-evaluation or awaiting publication">
                                                         <i class="fa fa-refresh me-1"/>Under Revaluation
                                                     </span>
                                                 </t>
@@ -443,27 +844,32 @@
                                                 <!-- Revaluation Status / Button -->
                                                 <t t-if="reval">
                                                     <t t-if="reval.state == 'pending'">
-                                                        <span class="badge bg-warning text-dark py-2 px-2" title="Revaluation is under review">
+                                                        <span class="badge bg-warning text-dark py-2 px-2"
+                                                              title="Revaluation is under review">
                                                             <i class="fa fa-clock-o me-1"/>Pending Review
                                                         </span>
                                                     </t>
                                                     <t t-elif="reval.state == 'approved'">
-                                                        <span class="badge bg-info text-dark py-2 px-2" title="Revaluation request approved, re-evaluation in progress">
+                                                        <span class="badge bg-info text-dark py-2 px-2"
+                                                              title="Revaluation request approved, re-evaluation in progress">
                                                             <i class="fa fa-refresh me-1"/>In Progress
                                                         </span>
                                                     </t>
                                                     <t t-elif="reval.state == 'revaluated' and result.state != 'published'">
-                                                        <span class="badge bg-info text-dark py-2 px-2" title="Revaluation completed, awaiting publication">
+                                                        <span class="badge bg-info text-dark py-2 px-2"
+                                                              title="Revaluation completed, awaiting publication">
                                                             <i class="fa fa-clock-o me-1"/>Awaiting Publication
                                                         </span>
                                                     </t>
                                                     <t t-elif="reval.state == 'revaluated'">
-                                                        <span class="badge bg-success py-2 px-2" title="Revaluation completed and published">
+                                                        <span class="badge bg-success py-2 px-2"
+                                                              title="Revaluation completed and published">
                                                             <i class="fa fa-check-circle me-1"/>Re-evaluated
                                                         </span>
                                                     </t>
                                                     <t t-elif="reval.state == 'rejected'">
-                                                        <span class="badge bg-danger py-2 px-2" title="Revaluation request rejected">
+                                                        <span class="badge bg-danger py-2 px-2"
+                                                              title="Revaluation request rejected">
                                                             <i class="fa fa-times-circle me-1"/>Rejected
                                                         </span>
                                                         <button type="button"
@@ -471,7 +877,8 @@
                                                                 data-bs-toggle="modal"
                                                                 t-attf-data-bs-target="#revalRejectModal_#{result.id}"
                                                                 title="Click to view rejection reason">
-                                                            <i class="fa fa-info-circle text-danger fs-6" style="vertical-align: middle;"/>
+                                                            <i class="fa fa-info-circle text-danger fs-6"
+                                                               style="vertical-align: middle;"/>
                                                         </button>
 
                                                         <!-- Modal for viewing rejection reason -->
@@ -483,26 +890,47 @@
                                                             <div class="modal-dialog modal-dialog-centered">
                                                                 <div class="modal-content shadow-sm border-0">
                                                                     <div class="modal-header bg-danger text-white">
-                                                                        <h5 class="modal-title d-flex align-items-center gap-2" t-attf-id="revalRejectModalLabel_#{result.id}">
+                                                                        <h5 class="modal-title d-flex align-items-center gap-2"
+                                                                            t-attf-id="revalRejectModalLabel_#{result.id}">
                                                                             <i class="fa fa-times-circle"/>
                                                                             <span>Revaluation Request Rejected</span>
                                                                         </h5>
-                                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                        <button type="button"
+                                                                                class="btn-close btn-close-white"
+                                                                                data-bs-dismiss="modal"
+                                                                                aria-label="Close"></button>
                                                                     </div>
                                                                     <div class="modal-body p-3">
                                                                         <div class="card bg-light border-0 mb-3">
                                                                             <div class="card-body py-2 px-3">
                                                                                 <div class="row g-1 small">
-                                                                                    <div class="col-6"><strong>Exam:</strong> <t t-esc="exam.name"/></div>
-                                                                                    <div class="col-6"><strong>Subject:</strong> <t t-esc="result.subject_id.name if result.subject_id else '—'"/></div>
-                                                                                    <div class="col-6"><strong>Marks:</strong> <t t-esc="'%.1f' % (disp_marks or 0.0)"/> / <t t-esc="'%.1f' % (result.max_marks or 0.0)"/></div>
-                                                                                    <div class="col-6"><strong>Request Date:</strong> <span t-esc="reval.request_date" t-options='{"widget": "datetime"}'/></div>
+                                                                                    <div class="col-6">
+                                                                                        <strong>Exam:</strong>
+                                                                                        <t t-esc="exam.name"/>
+                                                                                    </div>
+                                                                                    <div class="col-6">
+                                                                                        <strong>Subject:</strong>
+                                                                                        <t t-esc="result.subject_id.name if result.subject_id else '—'"/>
+                                                                                    </div>
+                                                                                    <div class="col-6">
+                                                                                        <strong>Marks:</strong>
+                                                                                        <t t-esc="'%.1f' % (disp_marks or 0.0)"/>
+                                                                                        /
+                                                                                        <t t-esc="'%.1f' % (result.max_marks or 0.0)"/>
+                                                                                    </div>
+                                                                                    <div class="col-6">
+                                                                                        <strong>Request Date:</strong>
+                                                                                        <span t-esc="reval.request_date"
+                                                                                              t-options='{"widget": "datetime"}'/>
+                                                                                    </div>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
 
                                                                         <div class="mb-3">
-                                                                            <label class="fw-bold text-muted small text-uppercase">Your Reason for Request</label>
+                                                                            <label class="fw-bold text-muted small text-uppercase">
+                                                                                Your Reason for Request
+                                                                            </label>
                                                                             <div class="p-2 border rounded bg-white small text-muted">
                                                                                 <t t-esc="reval.reason or '—'"/>
                                                                             </div>
@@ -510,7 +938,8 @@
 
                                                                         <div class="mb-2">
                                                                             <label class="fw-bold text-danger small text-uppercase">
-                                                                                <i class="fa fa-commenting me-1"/>Reason for Rejection
+                                                                                <i class="fa fa-commenting me-1"/>Reason
+                                                                                for Rejection
                                                                             </label>
                                                                             <div class="p-3 border border-danger-subtle rounded bg-danger-subtle text-danger-emphasis fw-medium">
                                                                                 <t t-esc="reval.admin_notes or 'Marks verified and found accurate as per grading rubric. Request rejected.'"/>
@@ -519,12 +948,18 @@
 
                                                                         <t t-if="reval.review_date">
                                                                             <div class="text-end text-muted small mt-2">
-                                                                                <i class="fa fa-clock-o me-1"/> Reviewed on <span t-esc="reval.review_date" t-options='{"widget": "datetime"}'/>
+                                                                                <i class="fa fa-clock-o me-1"/>
+                                                                                Reviewed on
+                                                                                <span t-esc="reval.review_date"
+                                                                                      t-options='{"widget": "datetime"}'/>
                                                                             </div>
                                                                         </t>
                                                                     </div>
                                                                     <div class="modal-footer bg-light py-2">
-                                                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                                                                        <button type="button"
+                                                                                class="btn btn-secondary btn-sm"
+                                                                                data-bs-dismiss="modal">Close
+                                                                        </button>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -547,30 +982,51 @@
                                                          aria-hidden="true">
                                                         <div class="modal-dialog modal-dialog-centered">
                                                             <div class="modal-content">
-                                                                <form method="POST" action="/my/exam/revaluation/submit">
-                                                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                                                    <input type="hidden" name="result_id" t-att-value="result.id"/>
+                                                                <form method="POST"
+                                                                      action="/my/exam/revaluation/submit">
+                                                                    <input type="hidden" name="csrf_token"
+                                                                           t-att-value="request.csrf_token()"/>
+                                                                    <input type="hidden" name="result_id"
+                                                                           t-att-value="result.id"/>
                                                                     <div class="modal-header">
                                                                         <h5 class="modal-title" id="revalModalLabel">
                                                                             <i class="fa fa-refresh me-2 text-primary"/>
                                                                             Request Revaluation
                                                                         </h5>
-                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                        <button type="button" class="btn-close"
+                                                                                data-bs-dismiss="modal"
+                                                                                aria-label="Close"></button>
                                                                     </div>
                                                                     <div class="modal-body">
                                                                         <div class="card bg-light border-0 mb-3">
                                                                             <div class="card-body py-2 px-3">
                                                                                 <div class="row g-1 small">
-                                                                                    <div class="col-6"><strong>Exam:</strong> <t t-esc="exam.name"/></div>
-                                                                                    <div class="col-6"><strong>Subject:</strong> <t t-esc="result.subject_id.name"/></div>
-                                                                                    <div class="col-6"><strong>Marks:</strong> <t t-esc="'%.1f' % (disp_marks or 0.0)"/> / <t t-esc="'%.1f' % (result.max_marks or 0.0)"/></div>
-                                                                                    <div class="col-6"><strong>Grade:</strong> <t t-esc="disp_grade or '—'"/></div>
+                                                                                    <div class="col-6">
+                                                                                        <strong>Exam:</strong>
+                                                                                        <t t-esc="exam.name"/>
+                                                                                    </div>
+                                                                                    <div class="col-6">
+                                                                                        <strong>Subject:</strong>
+                                                                                        <t t-esc="result.subject_id.name"/>
+                                                                                    </div>
+                                                                                    <div class="col-6">
+                                                                                        <strong>Marks:</strong>
+                                                                                        <t t-esc="'%.1f' % (disp_marks or 0.0)"/>
+                                                                                        /
+                                                                                        <t t-esc="'%.1f' % (result.max_marks or 0.0)"/>
+                                                                                    </div>
+                                                                                    <div class="col-6">
+                                                                                        <strong>Grade:</strong>
+                                                                                        <t t-esc="disp_grade or '—'"/>
+                                                                                    </div>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
                                                                         <div class="mb-3">
-                                                                            <label t-attf-for="reason_#{result.id}" class="form-label fw-bold">
-                                                                                Reason for Revaluation <span class="text-danger">*</span>
+                                                                            <label t-attf-for="reason_#{result.id}"
+                                                                                   class="form-label fw-bold">
+                                                                                Reason for Revaluation
+                                                                                <span class="text-danger">*</span>
                                                                             </label>
                                                                             <textarea class="form-control"
                                                                                       name="reason"
@@ -581,13 +1037,19 @@
                                                                         </div>
                                                                         <div class="alert alert-info py-2 px-3 mb-0 small">
                                                                             <i class="fa fa-info-circle me-1"/>
-                                                                            Your request will be reviewed by the examination administrator.
+                                                                            Your request will be reviewed by the
+                                                                            examination administrator.
                                                                         </div>
                                                                     </div>
                                                                     <div class="modal-footer">
-                                                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-                                                                        <button type="submit" class="btn btn-primary btn-sm">
-                                                                            <i class="fa fa-paper-plane me-1"/>Submit Request
+                                                                        <button type="button"
+                                                                                class="btn btn-secondary btn-sm"
+                                                                                data-bs-dismiss="modal">Cancel
+                                                                        </button>
+                                                                        <button type="submit"
+                                                                                class="btn btn-primary btn-sm">
+                                                                            <i class="fa fa-paper-plane me-1"/>Submit
+                                                                            Request
                                                                         </button>
                                                                     </div>
                                                                 </form>
@@ -609,26 +1071,41 @@
                                                         <div class="modal-dialog modal-dialog-centered modal-lg">
                                                             <div class="modal-content shadow-sm border-0">
                                                                 <div class="modal-header bg-light">
-                                                                    <h5 class="modal-title d-flex align-items-center gap-2" t-attf-id="marksHistoryModalLabel_#{result.id}">
+                                                                    <h5 class="modal-title d-flex align-items-center gap-2"
+                                                                        t-attf-id="marksHistoryModalLabel_#{result.id}">
                                                                         <i class="fa fa-history text-primary"/>
                                                                         <span>Marks Change History</span>
                                                                     </h5>
-                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                    <button type="button" class="btn-close"
+                                                                            data-bs-dismiss="modal"
+                                                                            aria-label="Close"></button>
                                                                 </div>
                                                                 <div class="modal-body p-3">
                                                                     <!-- Summary Info Card -->
                                                                     <div class="card bg-light border-0 mb-3">
                                                                         <div class="card-body py-2 px-3">
                                                                             <div class="row g-2 small">
-                                                                                <div class="col-sm-6"><strong>Exam:</strong> <t t-esc="exam.name"/></div>
-                                                                                <div class="col-sm-6"><strong>Subject:</strong> <t t-esc="result.subject_id.name if result.subject_id else '—'"/></div>
+                                                                                <div class="col-sm-6">
+                                                                                    <strong>Exam:</strong>
+                                                                                    <t t-esc="exam.name"/>
+                                                                                </div>
+                                                                                <div class="col-sm-6">
+                                                                                    <strong>Subject:</strong>
+                                                                                    <t t-esc="result.subject_id.name if result.subject_id else '—'"/>
+                                                                                </div>
                                                                                 <div class="col-sm-6">
                                                                                     <strong>Current Marks:</strong>
-                                                                                    <span class="badge bg-primary ms-1"><t t-esc="'%.1f' % (result.marks_obtained or 0.0)"/> / <t t-esc="'%.1f' % (result.max_marks or 0.0)"/></span>
+                                                                                    <span class="badge bg-primary ms-1">
+                                                                                        <t t-esc="'%.1f' % (result.marks_obtained or 0.0)"/>
+                                                                                        /
+                                                                                        <t t-esc="'%.1f' % (result.max_marks or 0.0)"/>
+                                                                                    </span>
                                                                                 </div>
                                                                                 <div class="col-sm-6">
                                                                                     <strong>Current Grade:</strong>
-                                                                                    <span class="badge bg-secondary ms-1"><t t-esc="result.grade or '—'"/></span>
+                                                                                    <span class="badge bg-secondary ms-1">
+                                                                                        <t t-esc="result.grade or '—'"/>
+                                                                                    </span>
                                                                                     <span t-attf-class="badge ms-1 #{'bg-success' if result.pass_fail == 'pass' else 'bg-danger'}">
                                                                                         <t t-esc="(result.pass_fail or '').title()"/>
                                                                                     </span>
@@ -638,26 +1115,30 @@
                                                                     </div>
 
                                                                     <h6 class="fw-bold mb-2 small text-muted text-uppercase">
-                                                                        <i class="fa fa-list-alt me-1"/> Revision History Log
+                                                                        <i class="fa fa-list-alt me-1"/>
+                                                                        Revision History Log
                                                                     </h6>
                                                                     <div class="table-responsive border rounded">
                                                                         <table class="table table-sm table-striped table-hover mb-0 align-middle small">
                                                                             <thead class="table-light">
                                                                                 <tr>
                                                                                     <th>Date &amp; Time</th>
-                                                                                    <th class="text-center">Previous</th>
+                                                                                    <th class="text-center">Previous
+                                                                                    </th>
                                                                                     <th class="text-center">Revised</th>
                                                                                     <th class="text-center">Change</th>
                                                                                     <th>Reason / Remarks</th>
                                                                                 </tr>
                                                                             </thead>
                                                                             <tbody>
-                                                                                <t t-foreach="result.history_ids" t-as="hist">
+                                                                                <t t-foreach="result.history_ids"
+                                                                                   t-as="hist">
                                                                                     <tr>
                                                                                         <td class="text-nowrap text-muted">
                                                                                             <i class="fa fa-clock-o me-1"/>
                                                                                             <t t-if="hist.change_date">
-                                                                                                <span t-field="hist.change_date" t-options='{"widget": "datetime"}'/>
+                                                                                                <span t-field="hist.change_date"
+                                                                                                      t-options='{"widget": "datetime"}'/>
                                                                                             </t>
                                                                                             <t t-else="">—</t>
                                                                                         </td>
@@ -670,17 +1151,21 @@
                                                                                         <td class="text-center">
                                                                                             <t t-if="hist.delta &gt; 0">
                                                                                                 <span class="badge bg-success text-white">
-                                                                                                    <i class="fa fa-arrow-up me-1"/>+<t t-esc="'%.1f' % hist.delta"/>
+                                                                                                    <i class="fa fa-arrow-up me-1"/>
+                                                                                                    +
+                                                                                                    <t t-esc="'%.1f' % hist.delta"/>
                                                                                                 </span>
                                                                                             </t>
                                                                                             <t t-elif="hist.delta &lt; 0">
                                                                                                 <span class="badge bg-danger text-white">
-                                                                                                    <i class="fa fa-arrow-down me-1"/><t t-esc="'%.1f' % hist.delta"/>
+                                                                                                    <i class="fa fa-arrow-down me-1"/>
+                                                                                                    <t t-esc="'%.1f' % hist.delta"/>
                                                                                                 </span>
                                                                                             </t>
                                                                                             <t t-else="">
                                                                                                 <span class="badge bg-secondary text-white">
-                                                                                                    <i class="fa fa-minus me-1"/>0.0
+                                                                                                    <i class="fa fa-minus me-1"/>
+                                                                                                    0.0
                                                                                                 </span>
                                                                                             </t>
                                                                                         </td>
@@ -694,7 +1179,10 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="modal-footer bg-light py-2">
-                                                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                                                                    <button type="button"
+                                                                            class="btn btn-secondary btn-sm"
+                                                                            data-bs-dismiss="modal">Close
+                                                                    </button>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -704,10 +1192,13 @@
                                         </tr>
                                     </t>
                                 </tbody>
-                                <t t-set="total_obtained" t-value="sum((r.history_ids.sorted('id')[0].old_marks if (r.state == 'draft' and r.history_ids) else r.marks_obtained) for r in results)"/>
+                                <t t-set="total_obtained"
+                                   t-value="sum((r.history_ids.sorted('id')[0].old_marks if (r.state == 'draft' and r.history_ids) else r.marks_obtained) for r in results)"/>
                                 <t t-set="total_max" t-value="sum(results.mapped('max_marks'))"/>
-                                <t t-set="overall_pct" t-value="(total_obtained / total_max * 100) if total_max else 0.0"/>
-                                <t t-set="has_failed" t-value="any((((r.history_ids.sorted('id')[0].old_marks if (r.state == 'draft' and r.history_ids) else r.marks_obtained) &lt; r.pass_marks) if r.pass_marks else False) for r in results)"/>
+                                <t t-set="overall_pct"
+                                   t-value="(total_obtained / total_max * 100) if total_max else 0.0"/>
+                                <t t-set="has_failed"
+                                   t-value="any((((r.history_ids.sorted('id')[0].old_marks if (r.state == 'draft' and r.history_ids) else r.marks_obtained) &lt; r.pass_marks) if r.pass_marks else False) for r in results)"/>
                                 <tfoot class="table-light fw-bold border-top">
                                     <tr>
                                         <td>Total / Overall</td>

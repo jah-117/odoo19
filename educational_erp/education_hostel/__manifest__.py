@@ -26,6 +26,7 @@ Version: 19.0.1.0.0  |  License: LGPL-3
         "security/ir.model.access.csv",
         "security/record_rules.xml",
         "views/hostel_views.xml",
+        "views/hostel_invoice_views.xml",
         "views/portal_templates.xml",
         "views/menus.xml",
     ],

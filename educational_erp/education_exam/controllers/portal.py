@@ -11,24 +11,13 @@ class ExamPortal(CustomerPortal):
         values = super()._prepare_home_portal_values(counters)
         partner = request.env.user.partner_id
 
-        if "exam_result_count" in counters:
-            results = request.env["edu.exam.result"].sudo().search([
-                ("enrollment_id.student_partner_id", "=", partner.id),
-                ("exam_id.state", "in", ["result_published", "closed"]),
-            ])
-            values["exam_result_count"] = len(results.mapped("exam_id"))
-
-        if "scheduled_exam_count" in counters:
-            enrollments = request.env["education.enrollment"].sudo().search([
+        enrollment = request.env["education.enrollment"].sudo().search([
                 ("student_partner_id", "=", partner.id),
-                ("state", "=", "active"),
             ])
-            classes = enrollments.mapped("class_id")
-            values["scheduled_exam_count"] = request.env["edu.exam"].sudo().search_count([
-                ("class_ids", "in", classes.ids),
-                ("state", "in", ["scheduled", "ongoing"]),
-            ])
-
+        if "exam_result_count" in counters:
+            values["exam_result_count"] = len(enrollment)
+        if "scheduled_exam_count" in counters:
+            values["scheduled_exam_count"] = len(enrollment)
         return values
 
     # ── Scheduled Examinations ──────────────────────────────────────────
@@ -36,30 +25,63 @@ class ExamPortal(CustomerPortal):
     @http.route(["/my/examinations"], type="http", auth="user", website=True)
     def portal_my_examinations(self, **kw):
         partner = request.env.user.partner_id
-        enrollments = request.env["education.enrollment"].sudo().search([
-            ("student_partner_id", "=", partner.id),
-            ("state", "=", "active"),
+        enrollment = request.env["education.enrollment"].sudo().search([
+            ("student_partner_id", "=", partner.id)
         ])
-        classes = enrollments.mapped("class_id")
         exams = request.env["edu.exam"].sudo().search([
-            ("class_ids", "in", classes.ids),
-            ("state", "in", ["scheduled", "ongoing"]),
+            ("class_ids", "in", [enrollment.class_id.id]),
+            ('state', 'in', ["scheduled","open_registration","result_published"]),
         ], order="date_from asc, id asc")
-
-        seatings = request.env["edu.exam.seating"].sudo().search([
-            ("enrollment_id", "in", enrollments.ids),
+        seating = request.env["edu.exam.seating"].sudo().search([
+            ("enrollment_id", "in", enrollment.ids),
             ("exam_id", "in", exams.ids),
         ])
-        seating_map = {s.exam_id.id: s for s in seatings}
-
+        seating_map = {s.exam_id.id: s for s in seating}
+        registration_map = {
+            exam.id: enrollment.id in exam.registered_enrollment_ids.ids
+            for exam in exams
+        }
         return request.render(
             "education_exam.portal_my_examinations",
             {
                 "exams": exams,
                 "seating_map": seating_map,
                 "page_name": "examinations",
+                "registration_map": registration_map
             },
         )
+
+    @http.route(["/my/exam/register/<int:exam_id>",], type="http", auth="user", website=True)
+    def portal_exam_registration(self, exam_id):
+        exam = request.env['edu.exam'].sudo().browse(exam_id)
+        return request.render(
+            "education_exam.portal_exam_register",{'exam':exam}
+        )
+    @http.route(["/my/exam/register/<int:exam_id>/generate_payment_url"])
+    def portal_exam_register_generate_payment_url(self, exam_id):
+        exam = request.env['edu.exam'].sudo().browse(exam_id)
+        partner = request.env.user.partner_id
+        invoice = request.env["account.move"].sudo().create({
+            'move_type': 'out_invoice',
+            'invoice_date': datetime.now(),
+            'partner_id': partner.id,
+            'invoice_type': "exam_fee",
+        })
+        invoice.update({'invoice_line_ids': [fields.Command.create({
+            'product_id': request.env.ref('education_exam.exam_fee_product').id,
+            'name': "Exam fee",
+            'quantity': 1,
+            'price_unit': exam.exam_fee,
+            'price_subtotal': exam.exam_fee})]
+        })
+        invoice.action_post()
+        exam.invoice_ids = [fields.Command.link(invoice.id)]
+        exam.registered_enrollment_ids = [fields.Command.link(request.env["education.enrollment"].sudo().search([
+            ("student_partner_id", "=", partner.id)
+        ]).id)]
+        return request.redirect(invoice.get_portal_url(anchor='portal_pay', query_string='&amp;payment=True'))
+
+
 
     @http.route(["/my/exam/admit_card/<int:exam_id>"], type="http", auth="user", website=True)
     def portal_exam_admit_card(self, exam_id, **kw):

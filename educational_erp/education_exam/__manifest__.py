@@ -38,6 +38,7 @@ Version: 19.0.4.0.0  |  License: LGPL-3
         # ── Sequences & Data ──────────────────────────────────────────
         "data/ir_sequence.xml",
         "data/grade_system_data.xml",
+        "data/exam_fee_product_data.xml",
         # ── Views ─────────────────────────────────────────────────────
         "views/grade_system_views.xml",
         "views/exam_views.xml",

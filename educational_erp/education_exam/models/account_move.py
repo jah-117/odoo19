@@ -6,3 +6,4 @@ class AccountMove(models.Model):
     invoice_type = fields.Selection(
         selection_add=[("exam_fee", "Exam Fee")],
     )
+    exam_id = fields.Many2one(comodel_name="edu.exam", string="Exam")

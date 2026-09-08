@@ -208,6 +208,7 @@ class EduHostelRoom(models.Model):
             "view_mode": "list,form",
             "domain": [("id", "in", self.allocated_student_ids.ids)],
         }
+
     def _compute_invoice_count(self):
         for rec in self:
             rec.invoice_count = len(rec.invoice_ids)
@@ -216,9 +217,13 @@ class EduHostelRoom(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'name': 'invoice',
-            'view_mode': 'list,form',
+            'view_mode':'list,form',
+            'views': [
+                (self.env.ref("education_hostel.hostel_fee_invoice_status").id, 'list'),
+                (False, 'form'),
+            ],
             'res_model': 'account.move',
-            'domain':[('id', 'in', self.invoice_ids.ids ), ('allocation_state', '==',"confirmed")],
+            'domain': [('invoice_type', '=', 'hostel_fee')],
             'target': 'current'
         }
 
@@ -348,6 +353,7 @@ class EduHostelAllocation(models.Model):
         """ compute fee for the room"""
         for rec in self:
             rec.hostel_fee = rec.room_id.total_fee
+
     @api.depends('invoice_ids')
     def _compute_fee_due(self):
         """compute due for allocation"""
@@ -359,22 +365,24 @@ class EduHostelAllocation(models.Model):
         for rec in self:
             if rec.state != "confirmed":
                 continue
-            invoices = rec.invoice_ids.filtered(lambda invoice: invoice.state == "posted" and  invoice.payment_state == "not_paid")
+            invoices = rec.invoice_ids.filtered(
+                lambda invoice: invoice.state == "posted" and invoice.payment_state == "not_paid")
             if not invoices:
                 continue
             rec.current_invoice_id = invoices[0].id
             self.env.ref("education_hostel.invoice_generated").send_mail(rec.id, force_send=True)
-#             notification = self.env["edu.notification.queue"].create({
-#                 'notif_type': "email",
-#                 'recipient_id': self.enrollment_id.student_partner_id.id,
-#                 'template_id': self.env.ref("education_financial_management.mail_template_fee_overdue").id,
-#                 'subject': "Hostel Fee Payment",
-#                 'body' : """
-# Your hostel fee invoice is generated. Please make the outstanding payment at the earliest to avoid payment due.
-# """,
-#             })
-#             notification.action_send(),
-#             rec.notification_ids = [fields.Command.link(notification.id)]
+
+    #             notification = self.env["edu.notification.queue"].create({
+    #                 'notif_type': "email",
+    #                 'recipient_id': self.enrollment_id.student_partner_id.id,
+    #                 'template_id': self.env.ref("education_financial_management.mail_template_fee_overdue").id,
+    #                 'subject': "Hostel Fee Payment",
+    #                 'body' : """
+    # Your hostel fee invoice is generated. Please make the outstanding payment at the earliest to avoid payment due.
+    # """,
+    #             })
+    #             notification.action_send(),
+    #             rec.notification_ids = [fields.Command.link(notification.id)]
 
     def _send_overdue_notifications(self):
         """Send notifications for overdue hostel invoices."""
@@ -402,6 +410,7 @@ class EduHostelAllocation(models.Model):
             self.env.ref(
                 'education_hostel.hostel_fee_overdue'
             ).send_mail(rec.id, force_send=True)
+
     #         notification = self.env['edu.notification.queue'].create({
     #             'notif_type': "email",
     #             'recipient_id': rec.enrollment_id.student_partner_id.id,
@@ -425,7 +434,10 @@ class EduHostelAllocation(models.Model):
             'move_type': 'out_invoice',
             'invoice_date': datetime.now(),
             'partner_id': self.enrollment_id.student_partner_id.id,
-            'invoice_date_due': ((self.previous_invoice_date if self.previous_invoice_date else self.date_from) + relativedelta(months=1))
+            'invoice_date_due': (
+                        (self.previous_invoice_date if self.previous_invoice_date else self.date_from) + relativedelta(
+                    months=1)),
+            'invoice_type': "hostel_fee",
         })
 
         invoice_id.update({'invoice_line_ids': [fields.Command.create({
@@ -439,11 +451,10 @@ class EduHostelAllocation(models.Model):
         self.previous_invoice_date = invoice_id.invoice_date
         return invoice_id.id
 
-
     def _check_create_invoice(self):
         """scheduled action to create invoices"""
         today = fields.Date.today()
-        for rec in self.search([('state','=','confirmed')]):
+        for rec in self.search([('state', '=', 'confirmed')]):
             if rec.date_to and rec.date_to > today:
                 continue
             if rec.date_from and today < rec.date_from:
@@ -459,6 +470,7 @@ class EduHostelAllocation(models.Model):
             if rec.date_to and next_invoice_date > rec.date_to:
                 continue
             rec._create_invoice()
+
     # ── Workflow actions ──────────────────────────────────────────────────
 
     def action_confirm(self):
@@ -524,7 +536,7 @@ class EduHostelAllocation(models.Model):
     def action_create_invoice(self):
         """Create an invoice."""
         for rec in self:
-            invoice_id  = rec._create_invoice()
+            invoice_id = rec._create_invoice()
             return {
                 'type': 'ir.actions.act_window',
                 'name': 'invoice',

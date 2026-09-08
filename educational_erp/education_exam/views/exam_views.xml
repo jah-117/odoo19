@@ -52,9 +52,29 @@
         <field name="arch" type="xml">
             <form string="Examination">
                 <header>
-                    <button name="action_schedule" type="object"
-                            string="Schedule" class="btn-primary"
-                            invisible="state != 'draft'"
+                    <button name="action_schedule"
+                            type="object"
+                            string="Schedule"
+                            class="btn-primary"
+                            invisible="state != 'draft' or is_paid_exam"
+                            groups="education_security.group_education_admin"/>
+                    <button name="action_schedule"
+                            type="object"
+                            string="Schedule"
+                            class="btn-primary"
+                            invisible="state != 'closed_registration' or not is_paid_exam"
+                            groups="education_security.group_education_admin"/>
+                    <button name="action_open_registration"
+                            type="object"
+                            string="Open Registration"
+                            class="btn-primary"
+                            invisible="state != 'draft' or not is_paid_exam"
+                            groups="education_security.group_education_admin"/>
+                    <button name="action_close_registration"
+                            type="object"
+                            string="Close Registration"
+                            class="btn-primary"
+                            invisible="state != 'open_registration' or not is_paid_exam"
                             groups="education_security.group_education_admin"/>
                     <button name="action_start" type="object"
                             string="Exam Ongoing" class="btn-warning"
@@ -83,7 +103,11 @@
                             string="Print Results" class="btn-secondary"
                             invisible="result_count == 0"/>
                     <field name="state" widget="statusbar"
-                           statusbar_visible="draft,scheduled,ongoing,valuation,result_published,closed"/>
+                           statusbar_visible="draft,scheduled,ongoing,valuation,result_published,closed"
+                           invisible="is_paid_exam"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,open_registration,closed_registration,scheduled,ongoing,valuation,result_published,closed"
+                           invisible=" not is_paid_exam"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -103,6 +127,25 @@
                             <field name="seating_count" widget="statinfo"
                                    string="Seats"/>
                         </button>
+                        <button name="action_view_invoices"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-file-text-o"
+                                invisible="invoice_count == 0">
+                            <field name="invoice_count"
+                                   widget="statinfo"
+                                   string="Invoices"/>
+                        </button>
+
+                        <button name="action_view_enrollments"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-graduation-cap"
+                                invisible="enrollment_count == 0">
+                            <field name="enrollment_count"
+                                   widget="statinfo"
+                                   string="Enrollments"/>
+                        </button>
                     </div>
                     <div class="oe_title">
                         <label for="code" class="text-muted small"/>
@@ -117,7 +160,7 @@
                             <field name="academic_year_id"/>
                             <field name="class_ids" widget="many2many_tags"/>
                             <field name="grade_system_id"/>
-                            <field name="is_paid_exam"/>
+                            <field name="is_paid_exam" readonly="state != 'draft'"/>
                             <field name="exam_fee" invisible="not is_paid_exam"/>
                         </group>
                         <group>
@@ -125,7 +168,11 @@
                             <field name="date_to"/>
                             <field name="published_at" invisible="not published_at"/>
                             <field name="company_id" groups="base.group_multi_company"/>
-                            <field name="hall_ticket"/>
+                            <!--                            <field name="hall_ticket"/>-->
+                            <field name="registration_date_from" string="Registration Date" widget="daterange"
+                                   options="{&quot;end_date_field&quot;: &quot;registration_date_to&quot;, &quot;always_range&quot;: &quot;1&quot;}"
+                                   invisible="not is_paid_exam" required="is_paid_exam"/>
+                            <field name="registration_date_to" invisible="1" required="is_paid_exam"/>
                         </group>
                     </group>
                     <notebook>
@@ -318,7 +365,8 @@
                         </group>
                         <group>
                             <field name="subject_id" readonly="state == 'published'"/>
-                            <field name="marks_obtained" readonly="state == 'published' and not has_approved_reevaluation"/>
+                            <field name="marks_obtained"
+                                   readonly="state == 'published' and not has_approved_reevaluation"/>
                             <field name="max_marks" readonly="state == 'published'"/>
                             <field name="pass_marks" readonly="state == 'published'"/>
                             <field name="absent" readonly="state == 'published'"/>
@@ -348,10 +396,10 @@
                                     <field name="reviewed_by_id"/>
                                     <field name="review_date"/>
                                     <field name="state" widget="badge"
-                                            decoration-warning="state == 'pending'"
-                                            decoration-info="state == 'approved'"
-                                            decoration-success="state == 'revaluated'"
-                                            decoration-danger="state == 'rejected'"/>
+                                           decoration-warning="state == 'pending'"
+                                           decoration-info="state == 'approved'"
+                                           decoration-success="state == 'revaluated'"
+                                           decoration-danger="state == 'rejected'"/>
                                 </list>
                             </field>
                         </page>
@@ -504,16 +552,21 @@
                     <field name="result_id" invisible="1"/>
 
                     <!-- Subject Highlight Banner -->
-                    <div class="alert alert-primary d-flex align-items-center justify-content-between mb-3 py-2 px-3" role="status">
+                    <div class="alert alert-primary d-flex align-items-center justify-content-between mb-3 py-2 px-3"
+                         role="status">
                         <div>
-                            <span class="text-uppercase small fw-bold text-muted d-block">Subject under Revaluation</span>
+                            <span class="text-uppercase small fw-bold text-muted d-block">Subject under Revaluation
+                            </span>
                             <h4 class="mb-0 text-primary fw-bold">
                                 <field name="subject_id" options="{'no_open': True}" readonly="1"/>
                             </h4>
                         </div>
                         <div class="text-end">
                             <span class="badge bg-light text-dark fs-6 border">
-                                Max: <field name="max_marks" readonly="1"/> | Pass: <field name="pass_marks" readonly="1"/>
+                                Max:
+                                <field name="max_marks" readonly="1"/>
+                                | Pass:
+                                <field name="pass_marks" readonly="1"/>
                             </span>
                         </div>
                     </div>
@@ -545,7 +598,8 @@
                     </group>
 
                     <group string="Evaluator Remarks / Audit Reason">
-                        <field name="change_reason" nolabel="1" placeholder="Provide reason for score update (e.g. Question 3 recalculation verified)..."/>
+                        <field name="change_reason" nolabel="1"
+                               placeholder="Provide reason for score update (e.g. Question 3 recalculation verified)..."/>
                     </group>
                 </sheet>
                 <footer>
@@ -572,7 +626,9 @@
                         <i class="fa fa-times-circle fs-4 me-2"/>
                         <div>
                             <strong>Rejecting Revaluation Request</strong>
-                            <div class="small">The reason provided below will be displayed to the student on the portal.</div>
+                            <div class="small">The reason provided below will be displayed to the student on the
+                                portal.
+                            </div>
                         </div>
                     </div>
                     <group>
@@ -634,7 +690,9 @@
                             invisible="state != 'revaluated' or result_state != 'published'"/>
                     <div class="oe_title">
                         <label for="name" class="text-muted small"/>
-                        <h1><field name="name" readonly="1"/></h1>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
                     </div>
                     <group>
                         <group string="Exam &amp; Subject Details">

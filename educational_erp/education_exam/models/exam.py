@@ -62,6 +62,8 @@ class EduExam(models.Model):
     state = fields.Selection(
         selection=[
             ("draft", "Draft"),
+            ("open_registration", "Registration Open"),
+            ("closed_registration", "Registration Closed"),
             ("scheduled", "Scheduled"),
             ("ongoing", "Ongoing"),
             ("valuation", "Valuation"),
@@ -86,6 +88,12 @@ class EduExam(models.Model):
         string="Academic Year",
         required=True,
         index=True,
+    )
+    registration_date_from = fields.Date(
+        string="Registration Date Start",
+    )
+    registration_date_to = fields.Date(
+        string="Registration Date End",
     )
     date_from = fields.Date(
         string="Start Date",
@@ -144,6 +152,10 @@ class EduExam(models.Model):
         compute="_compute_counts",
         string="Results",
     )
+    registered_enrollment_ids = fields.Many2many(comodel_name="education.enrollment", string="Students")
+    invoice_ids = fields.One2many(comodel_name="account.move", inverse_name="exam_id", string="Invoices")
+    invoice_count = fields.Integer(string="Invoices", compute='_compute_invoice_count')
+    enrollment_count = fields.Integer(string="Enrollments", compute='_compute_invoice_count')
 
     notes = fields.Text(string="Instructions / Notes")
     company_id = fields.Many2one(
@@ -164,6 +176,10 @@ class EduExam(models.Model):
         return super().create(vals_list)
 
     # ── Computed ──────────────────────────────────────────────────────────
+    def _compute_invoice_count(self):
+        for rec in self:
+            rec.invoice_count = len(rec.invoice_ids)
+            rec.enrollment_count = len(rec.registered_enrollment_ids)
     @api.onchange("is_paid_exam")
     def _onchange_is_paid_exam(self):
         self.hall_ticket = self.is_paid_exam
@@ -173,6 +189,36 @@ class EduExam(models.Model):
             rec.subject_count = len(rec.subject_line_ids)
             rec.seating_count = len(rec.seating_ids)
             rec.result_count = len(rec.result_ids)
+
+    def action_view_invoices(self):
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Invoices",
+            "res_model": "account.move",
+            "view_mode": "list,form",
+            "domain": [
+                ("id", "in", self.invoice_ids.ids),
+                ("invoice_type", "=", "exam_fee"),
+            ],
+            "context": {
+                "default_move_type": "out_invoice",
+                "default_exam_id": self.id,
+            },
+        }
+
+    def action_view_enrollments(self):
+        self.ensure_one()
+
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Enrollments",
+            "res_model": "education.enrollment",
+            "view_mode": "list,form",
+            "domain": [
+                ("id", "in", self.registered_enrollment_ids.ids),
+            ],
+        }
 
     def action_view_seats(self):
         self.ensure_one()
@@ -197,15 +243,47 @@ class EduExam(models.Model):
                     _("End Date must be on or after Start Date.")
                 )
 
+    @api.constrains(
+        "registration_date_from",
+        "registration_date_to",
+        "date_from",
+    )
+    def _check_registration_dates(self):
+        for record in self:
+            if not record.registration_date_from or not record.registration_date_to:
+                continue
+
+            # Registration start must be before registration end,
+            # with at least one full day in between.
+            if (record.registration_date_to - record.registration_date_from).days < 2:
+                raise ValidationError(
+                    "Registration period must have at least one full day gap "
+                    "between the start and end dates."
+                )
+
+            # Registration must end before the exam starts,
+            # with at least one full day in between.
+            if (record.date_from - record.registration_date_to).days < 2:
+                raise ValidationError(
+                    "There must be at least one full day gap between the "
+                    "registration end date and the examination start date."
+                )
+
     # ── State machine ─────────────────────────────────────────────────────
 
     def action_schedule(self):
-        for rec in self.filtered(lambda r: r.state == "draft"):
-            if not rec.subject_line_ids:
-                raise UserError(
-                    _("Add at least one subject before scheduling exam '%s'.") % rec.name
-                )
-            rec.write({"state": "scheduled"})
+        self.ensure_one()
+        if not self.subject_line_ids or self.state not in ['draft', 'closed_registration']:
+            raise UserError(_("Add at least one subject before scheduling exam '%s'.") % self.name)
+        self.write({"state": "scheduled"})
+    def action_open_registration(self):
+        self.ensure_one()
+        if self.is_paid_exam:
+            self.state = "open_registration"
+    def action_close_registration(self):
+        self.ensure_one()
+        if self.is_paid_exam:
+            self.state = "closed_registration"
 
     def action_start(self):
         self.filtered(lambda r: r.state == "scheduled").write({"state": "ongoing"})
@@ -328,6 +406,7 @@ class EduExamSubject(models.Model):
             if rec.max_marks <= 0:
                 raise ValidationError(_("Max marks must be greater than zero."))
 
+    @api.depends("exam_id.grade_system_id")
     def _compute_pass_mark(self):
         for rec in self:
             if rec.exam_id:
@@ -335,3 +414,7 @@ class EduExamSubject(models.Model):
                 rec.pass_marks = (least_mark_line.min_percentage * rec.max_marks)/100
             else:
                 rec.pass_marks = False
+
+    @api.onchange("max_marks")
+    def _onchange_max_marks(self):
+        self._compute_pass_mark()

@@ -8,47 +8,40 @@
                 <div class="mt-2">Loading dashboard…</div>
             </div>
 
-            <t t-elif="!state.data.faculty">
+            <t t-elif="!state.data.faculties or !state.data.faculties.length">
                 <div class="text-center text-muted py-5">
                     <i class="fa fa-user-times fa-3x mb-3"/>
-                    <h4>No faculty profile linked to your account.</h4>
-                    <p>Ask an administrator to link your user to a faculty record.</p>
+                    <h4>No faculty records found.</h4>
                 </div>
             </t>
 
             <t t-else="">
                 <!-- Header -->
                 <div class="d-flex align-items-center justify-content-between mb-3">
-                    <div>
-                        <h2 class="mb-0"><i class="fa fa-graduation-cap me-2 text-primary"/><t t-esc="state.data.faculty.name"/></h2>
-                        <small class="text-muted">
-                            <t t-esc="state.data.faculty.designation"/>
-                            <t t-if="state.data.faculty.department"> · <t t-esc="state.data.faculty.department"/></t>
-                        </small>
-                    </div>
+                    <h2 class="mb-0"><i class="fa fa-graduation-cap me-2 text-primary"/>Faculty Dashboard</h2>
                     <button class="btn btn-sm btn-outline-secondary" t-on-click="() => this.load()">
                         <i class="fa fa-refresh me-1"/>Refresh
                     </button>
                 </div>
 
-                <!-- KPI cards -->
+                <!-- Overall KPI cards, summed across all faculty -->
                 <div class="row g-3 mb-3">
                     <div class="col-6 col-md-2">
                         <div class="o_edu_kpi bg-primary-subtle">
-                            <div class="o_edu_kpi_val" t-esc="state.data.kpis.my_classes"/>
-                            <div class="o_edu_kpi_lbl">My Classes</div>
+                            <div class="o_edu_kpi_val" t-esc="state.data.kpis.total_faculty"/>
+                            <div class="o_edu_kpi_lbl">Faculty</div>
                         </div>
                     </div>
                     <div class="col-6 col-md-2">
                         <div class="o_edu_kpi bg-info-subtle">
-                            <div class="o_edu_kpi_val" t-esc="state.data.kpis.my_students"/>
-                            <div class="o_edu_kpi_lbl">My Students</div>
+                            <div class="o_edu_kpi_val" t-esc="state.data.kpis.total_classes"/>
+                            <div class="o_edu_kpi_lbl">Classes</div>
                         </div>
                     </div>
                     <div class="col-6 col-md-2">
                         <div class="o_edu_kpi bg-secondary-subtle">
-                            <div class="o_edu_kpi_val" t-esc="state.data.kpis.my_subjects"/>
-                            <div class="o_edu_kpi_lbl">Subjects</div>
+                            <div class="o_edu_kpi_val" t-esc="state.data.kpis.total_students"/>
+                            <div class="o_edu_kpi_lbl">Students</div>
                         </div>
                     </div>
                     <div class="col-6 col-md-2">
@@ -59,82 +52,244 @@
                     </div>
                     <div class="col-6 col-md-2">
                         <div class="o_edu_kpi bg-success-subtle">
-                            <div class="o_edu_kpi_val" t-esc="state.data.kpis.upcoming_exams"/>
+                            <div class="o_edu_kpi_val" t-esc="state.data.kpis.total_upcoming_exams"/>
                             <div class="o_edu_kpi_lbl">Upcoming Exams</div>
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-2">
-                        <div class="o_edu_kpi bg-light">
-                            <div class="o_edu_kpi_val" t-esc="state.data.kpis.weekly_slots"/>
-                            <div class="o_edu_kpi_lbl">Weekly Periods</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="row g-3">
-                    <!-- My classes -->
-                    <div class="col-12 col-lg-6">
-                        <div class="o_edu_panel">
-                            <h5>My Classes</h5>
-                            <t t-if="state.data.classes.length">
-                                <div class="o_edu_list_row o_edu_clickable"
-                                     t-foreach="state.data.classes" t-as="c" t-key="c.id"
-                                     t-on-click="() => this.openClassStudents(c.id)">
-                                    <span t-esc="c.name"/>
-                                    <span class="badge text-bg-primary"><t t-esc="c.students"/> students</span>
+                <!-- All faculty, one row each, click to expand -->
+                <div class="o_edu_panel">
+                    <h5>All Faculty</h5>
+                    <t t-foreach="state.data.faculties" t-as="f" t-key="f.faculty.id">
+                        <div class="o_edu_faculty_row border-bottom py-2">
+                            <div class="d-flex align-items-center justify-content-between o_edu_clickable"
+                                 t-on-click="() => this.toggleFaculty(f.faculty.id)">
+                                <div>
+                                    <b t-esc="f.faculty.name"/>
+                                    <small class="text-muted ms-2">
+                                        <t t-esc="f.faculty.designation"/>
+                                        <t t-if="f.faculty.department"> · <t t-esc="f.faculty.department"/></t>
+                                    </small>
                                 </div>
-                            </t>
-                            <p t-else="" class="text-muted mb-0">No classes assigned to you.</p>
-                        </div>
-                    </div>
-
-                    <!-- Upcoming exams -->
-                    <div class="col-12 col-lg-6">
-                        <div class="o_edu_panel">
-                            <h5>Upcoming Exams</h5>
-                            <t t-if="state.data.upcoming_exams.length">
-                                <div class="o_edu_list_row o_edu_clickable"
-                                     t-foreach="state.data.upcoming_exams" t-as="e" t-key="e.id"
-                                     t-on-click="() => this.openRecord('edu.exam', e.id)">
-                                    <span t-esc="e.name"/>
-                                    <span>
-                                        <span class="badge text-bg-light me-1" t-esc="e.state"/>
-                                        <small class="text-muted" t-esc="e.date"/>
-                                    </span>
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="badge text-bg-primary"><t t-esc="f.kpis.my_classes"/> classes</span>
+                                    <span class="badge text-bg-info"><t t-esc="f.kpis.my_students"/> students</span>
+                                    <span class="badge text-bg-success"><t t-esc="f.kpis.upcoming_exams"/> exams</span>
+                                    <i t-attf-class="fa {{ state.expandedId === f.faculty.id ? 'fa-chevron-up' : 'fa-chevron-down' }}"/>
                                 </div>
-                            </t>
-                            <p t-else="" class="text-muted mb-0">No upcoming exams.</p>
-                        </div>
-                    </div>
-
-                    <!-- Subjects -->
-                    <div class="col-12 col-lg-6">
-                        <div class="o_edu_panel">
-                            <h5>Subjects I Teach</h5>
-                            <t t-if="state.data.subjects.length">
-                                <span class="o_edu_chip me-1 mb-1 d-inline-block"
-                                      t-foreach="state.data.subjects" t-as="s" t-key="s_index" t-esc="s"/>
-                            </t>
-                            <p t-else="" class="text-muted mb-0">No subjects on your timetable.</p>
-                        </div>
-                    </div>
-
-                    <!-- Attendance breakdown -->
-                    <div class="col-12 col-lg-6">
-                        <div class="o_edu_panel">
-                            <h5>My Classes — Attendance</h5>
-                            <div class="d-flex flex-wrap gap-3">
-                                <div class="o_edu_chip"><b class="text-success" t-esc="state.data.attendance.present"/> Present</div>
-                                <div class="o_edu_chip"><b class="text-danger" t-esc="state.data.attendance.absent"/> Absent</div>
-                                <div class="o_edu_chip"><b class="text-warning" t-esc="state.data.attendance.late"/> Late</div>
-                                <div class="o_edu_chip"><b class="text-info" t-esc="state.data.attendance.excused"/> Excused</div>
-                                <div class="o_edu_chip">Rate: <b><t t-esc="state.data.attendance.rate"/>%</b></div>
                             </div>
+
+                            <t t-if="state.expandedId === f.faculty.id">
+                                <div class="row g-3 mt-2">
+                                    <!-- Classes -->
+                                    <div class="col-12 col-lg-6">
+                                        <div class="o_edu_panel">
+                                            <h6>Classes</h6>
+                                            <t t-if="f.classes.length">
+                                                <div class="o_edu_list_row o_edu_clickable"
+                                                     t-foreach="f.classes" t-as="c" t-key="c.id"
+                                                     t-on-click="() => this.openClassStudents(c.id)">
+                                                    <span t-esc="c.name"/>
+                                                    <span class="badge text-bg-primary"><t t-esc="c.students"/> students</span>
+                                                </div>
+                                            </t>
+                                            <p t-else="" class="text-muted mb-0">No classes assigned.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Upcoming exams -->
+                                    <div class="col-12 col-lg-6">
+                                        <div class="o_edu_panel">
+                                            <h6>Upcoming Exams</h6>
+                                            <t t-if="f.upcoming_exams.length">
+                                                <div class="o_edu_list_row o_edu_clickable"
+                                                     t-foreach="f.upcoming_exams" t-as="e" t-key="e.id"
+                                                     t-on-click="() => this.openRecord('edu.exam', e.id)">
+                                                    <span t-esc="e.name"/>
+                                                    <span>
+                                                        <span class="badge text-bg-light me-1" t-esc="e.state"/>
+                                                        <small class="text-muted" t-esc="e.date"/>
+                                                    </span>
+                                                </div>
+                                            </t>
+                                            <p t-else="" class="text-muted mb-0">No upcoming exams.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Subjects -->
+                                    <div class="col-12 col-lg-6">
+                                        <div class="o_edu_panel">
+                                            <h6>Subjects Taught</h6>
+                                            <t t-if="f.subjects.length">
+                                                <span class="o_edu_chip me-1 mb-1 d-inline-block"
+                                                      t-foreach="f.subjects" t-as="s" t-key="s_index" t-esc="s"/>
+                                            </t>
+                                            <p t-else="" class="text-muted mb-0">No subjects on timetable.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Attendance breakdown -->
+                                    <div class="col-12 col-lg-6">
+                                        <div class="o_edu_panel">
+                                            <h6>Attendance</h6>
+                                            <div class="d-flex flex-wrap gap-3">
+                                                <div class="o_edu_chip"><b class="text-success" t-esc="f.attendance.present"/> Present</div>
+                                                <div class="o_edu_chip"><b class="text-danger" t-esc="f.attendance.absent"/> Absent</div>
+                                                <div class="o_edu_chip"><b class="text-warning" t-esc="f.attendance.late"/> Late</div>
+                                                <div class="o_edu_chip"><b class="text-info" t-esc="f.attendance.excused"/> Excused</div>
+                                                <div class="o_edu_chip">Rate: <b><t t-esc="f.attendance.rate"/>%</b></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
                         </div>
-                    </div>
+                    </t>
                 </div>
             </t>
         </div>
     </t>
 
 </templates>
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<templates xml:space="preserve">-->
+
+<!--    <t t-name="education_dashboard.FacultyDashboard">-->
+<!--        <div class="o_edu_dashboard p-3">-->
+<!--            <div t-if="state.loading" class="o_edu_loading text-center text-muted py-5">-->
+<!--                <i class="fa fa-spinner fa-spin fa-2x"/>-->
+<!--                <div class="mt-2">Loading dashboard…</div>-->
+<!--            </div>-->
+
+<!--            <t t-elif="!state.data.faculty">-->
+<!--                <div class="text-center text-muted py-5">-->
+<!--                    <i class="fa fa-user-times fa-3x mb-3"/>-->
+<!--                    <h4>No faculty profile linked to your account.</h4>-->
+<!--                    <p>Ask an administrator to link your user to a faculty record.</p>-->
+<!--                </div>-->
+<!--            </t>-->
+
+<!--            <t t-else="">-->
+<!--                &lt;!&ndash; Header &ndash;&gt;-->
+<!--                <div class="d-flex align-items-center justify-content-between mb-3">-->
+<!--                    <div>-->
+<!--                        <h2 class="mb-0"><i class="fa fa-graduation-cap me-2 text-primary"/><t t-esc="state.data.faculty.name"/></h2>-->
+<!--                        <small class="text-muted">-->
+<!--                            <t t-esc="state.data.faculty.designation"/>-->
+<!--                            <t t-if="state.data.faculty.department"> · <t t-esc="state.data.faculty.department"/></t>-->
+<!--                        </small>-->
+<!--                    </div>-->
+<!--                    <button class="btn btn-sm btn-outline-secondary" t-on-click="() => this.load()">-->
+<!--                        <i class="fa fa-refresh me-1"/>Refresh-->
+<!--                    </button>-->
+<!--                </div>-->
+
+<!--                &lt;!&ndash; KPI cards &ndash;&gt;-->
+<!--                <div class="row g-3 mb-3">-->
+<!--                    <div class="col-6 col-md-2">-->
+<!--                        <div class="o_edu_kpi bg-primary-subtle">-->
+<!--                            <div class="o_edu_kpi_val" t-esc="state.data.kpis.my_classes"/>-->
+<!--                            <div class="o_edu_kpi_lbl">My Classes</div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="col-6 col-md-2">-->
+<!--                        <div class="o_edu_kpi bg-info-subtle">-->
+<!--                            <div class="o_edu_kpi_val" t-esc="state.data.kpis.my_students"/>-->
+<!--                            <div class="o_edu_kpi_lbl">My Students</div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="col-6 col-md-2">-->
+<!--                        <div class="o_edu_kpi bg-secondary-subtle">-->
+<!--                            <div class="o_edu_kpi_val" t-esc="state.data.kpis.my_subjects"/>-->
+<!--                            <div class="o_edu_kpi_lbl">Subjects</div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="col-6 col-md-2">-->
+<!--                        <div class="o_edu_kpi bg-warning-subtle">-->
+<!--                            <div class="o_edu_kpi_val" t-esc="state.data.kpis.attendance_pending"/>-->
+<!--                            <div class="o_edu_kpi_lbl">Attendance Due Today</div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="col-6 col-md-2">-->
+<!--                        <div class="o_edu_kpi bg-success-subtle">-->
+<!--                            <div class="o_edu_kpi_val" t-esc="state.data.kpis.upcoming_exams"/>-->
+<!--                            <div class="o_edu_kpi_lbl">Upcoming Exams</div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="col-6 col-md-2">-->
+<!--                        <div class="o_edu_kpi bg-light">-->
+<!--                            <div class="o_edu_kpi_val" t-esc="state.data.kpis.weekly_slots"/>-->
+<!--                            <div class="o_edu_kpi_lbl">Weekly Periods</div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--                <div class="row g-3">-->
+<!--                    &lt;!&ndash; My classes &ndash;&gt;-->
+<!--                    <div class="col-12 col-lg-6">-->
+<!--                        <div class="o_edu_panel">-->
+<!--                            <h5>My Classes</h5>-->
+<!--                            <t t-if="state.data.classes.length">-->
+<!--                                <div class="o_edu_list_row o_edu_clickable"-->
+<!--                                     t-foreach="state.data.classes" t-as="c" t-key="c.id"-->
+<!--                                     t-on-click="() => this.openClassStudents(c.id)">-->
+<!--                                    <span t-esc="c.name"/>-->
+<!--                                    <span class="badge text-bg-primary"><t t-esc="c.students"/> students</span>-->
+<!--                                </div>-->
+<!--                            </t>-->
+<!--                            <p t-else="" class="text-muted mb-0">No classes assigned to you.</p>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+<!--                    &lt;!&ndash; Upcoming exams &ndash;&gt;-->
+<!--                    <div class="col-12 col-lg-6">-->
+<!--                        <div class="o_edu_panel">-->
+<!--                            <h5>Upcoming Exams</h5>-->
+<!--                            <t t-if="state.data.upcoming_exams.length">-->
+<!--                                <div class="o_edu_list_row o_edu_clickable"-->
+<!--                                     t-foreach="state.data.upcoming_exams" t-as="e" t-key="e.id"-->
+<!--                                     t-on-click="() => this.openRecord('edu.exam', e.id)">-->
+<!--                                    <span t-esc="e.name"/>-->
+<!--                                    <span>-->
+<!--                                        <span class="badge text-bg-light me-1" t-esc="e.state"/>-->
+<!--                                        <small class="text-muted" t-esc="e.date"/>-->
+<!--                                    </span>-->
+<!--                                </div>-->
+<!--                            </t>-->
+<!--                            <p t-else="" class="text-muted mb-0">No upcoming exams.</p>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+<!--                    &lt;!&ndash; Subjects &ndash;&gt;-->
+<!--                    <div class="col-12 col-lg-6">-->
+<!--                        <div class="o_edu_panel">-->
+<!--                            <h5>Subjects I Teach</h5>-->
+<!--                            <t t-if="state.data.subjects.length">-->
+<!--                                <span class="o_edu_chip me-1 mb-1 d-inline-block"-->
+<!--                                      t-foreach="state.data.subjects" t-as="s" t-key="s_index" t-esc="s"/>-->
+<!--                            </t>-->
+<!--                            <p t-else="" class="text-muted mb-0">No subjects on your timetable.</p>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+<!--                    &lt;!&ndash; Attendance breakdown &ndash;&gt;-->
+<!--                    <div class="col-12 col-lg-6">-->
+<!--                        <div class="o_edu_panel">-->
+<!--                            <h5>My Classes — Attendance</h5>-->
+<!--                            <div class="d-flex flex-wrap gap-3">-->
+<!--                                <div class="o_edu_chip"><b class="text-success" t-esc="state.data.attendance.present"/> Present</div>-->
+<!--                                <div class="o_edu_chip"><b class="text-danger" t-esc="state.data.attendance.absent"/> Absent</div>-->
+<!--                                <div class="o_edu_chip"><b class="text-warning" t-esc="state.data.attendance.late"/> Late</div>-->
+<!--                                <div class="o_edu_chip"><b class="text-info" t-esc="state.data.attendance.excused"/> Excused</div>-->
+<!--                                <div class="o_edu_chip">Rate: <b><t t-esc="state.data.attendance.rate"/>%</b></div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </t>-->
+<!--        </div>-->
+<!--    </t>-->
+
+<!--</templates>-->

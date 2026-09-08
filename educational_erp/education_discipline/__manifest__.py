@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 {
     "name": "Education ERP — Discipline",
     "version": "19.0.1.0.0",
@@ -21,7 +22,7 @@ Version: 19.0.1.0.0  |  License: LGPL-3
     "data": [
         "security/discipline_security.xml",
         "security/ir.model.access.csv",
-        "data/ir_sequence.xml",
+        "data/ir_sequence_data.xml",
         "data/discipline_default_data.xml",
         "views/portal_templates.xml",
         "views/violation_type_views.xml",
