@@ -79,7 +79,7 @@
                                             Paid
                                         </span>
                                     </t>
-                                    <t t-elif="exam.state == 'open_registration'">
+                                    <t t-elif="exam.state == 'scheduled' and exam.is_paid_exam">
                                         <a t-attf-href="/my/exam/register/#{exam.id}"
                                            class="btn btn-sm btn-primary"
                                            title="Register">
@@ -89,7 +89,7 @@
                                     <t t-if="exam.state == 'result_published'">
                                         <a t-attf-href="/my/exam/result/pdf/#{exam.id}"
                                            class="btn btn-sm btn-outline-secondary"
-                                           title="Download Mark Sheet (PDF)"
+                                           title="Download Result (PDF)"
                                            target="_blank">
                                             <i class="fa fa-download me-1"/>
                                             Download Result
@@ -237,35 +237,6 @@
 
                     <div class="card-body">
 
-                        <!-- Registration Period -->
-                        <div class="row g-3 mb-4">
-
-                            <div class="col-md-6">
-                                <div class="border rounded p-3 h-100 bg-light">
-                                    <div class="text-muted small mb-1">
-                                        <i class="fa fa-clock-o me-1"/>
-                                        Registration Opens
-                                    </div>
-                                    <div class="fw-semibold">
-                                        <t t-esc="exam.registration_date_from or '—'"/>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="border rounded p-3 h-100 bg-light">
-                                    <div class="text-muted small mb-1">
-                                        <i class="fa fa-clock-o me-1"/>
-                                        Registration Closes
-                                    </div>
-                                    <div class="fw-semibold">
-                                        <t t-esc="exam.registration_date_to or '—'"/>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-
                         <!-- Exam Details -->
                         <h6 class="fw-bold mb-3">
                             <i class="fa fa-info-circle text-primary me-1"/>
@@ -294,26 +265,6 @@
                                         <t t-esc="exam.date_from"/>
                                         -
                                         <t t-esc="exam.date_to"/>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-4">
-                                <div class="border rounded p-3 h-100">
-                                    <div class="text-muted small">
-                                        Hall Ticket
-                                    </div>
-                                    <div class="mt-1">
-                                        <t t-if="exam.hall_ticket">
-                                            <span class="badge bg-info">
-                                                Required
-                                            </span>
-                                        </t>
-                                        <t t-else="">
-                                            <span class="badge bg-secondary">
-                                                Not Required
-                                            </span>
-                                        </t>
                                     </div>
                                 </div>
                             </div>
@@ -440,7 +391,7 @@
                         </t>
 
                         <!-- Registration Form -->
-                        <form action="/my/exam/register/submit"
+                        <form t-attf-action="/my/exam/register/#{exam.id}/generate_payment_url"
                               method="post"
                               class="mt-4">
 
@@ -481,15 +432,15 @@
                                 </a>
 
                                 <t t-if="exam.is_paid_exam">
-
-                                    <a t-attf-href="/my/exam/register/#{exam.id}/generate_payment_url"
+<!--                                    <a t-attf-href="/my/exam/register/#{exam.id}/generate_payment_url"-->
+                                    <button type="submit"
                                             class="btn btn-primary px-4">
                                         <i class="fa fa-credit-card me-1"/>
                                         Pay &amp; Register
                                         <span class="ms-1">
                                             (<t t-esc="'%.2f' % (exam.exam_fee or 0.0)"/>)
                                         </span>
-                                    </a>
+                                    </button>
 
                                 </t>
 

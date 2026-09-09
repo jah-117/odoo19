@@ -7,10 +7,15 @@
         sequence="90"
         groups="education_security.group_education_admin"/>
 
+    <menuitem id="menu_edu_notification"
+              name="Notifications"
+              parent="menu_education_notification_root"
+              action="action_edu_notification_view"
+              sequence="10"/>
+
     <menuitem id="menu_notif_queue"
         name="Queue"
         parent="menu_education_notification_root"
         action="action_edu_notification_queue"
-        sequence="10"/>
-
+        sequence="100"/>
 </odoo>

@@ -30,8 +30,8 @@ class ExamPortal(CustomerPortal):
         ])
         exams = request.env["edu.exam"].sudo().search([
             ("class_ids", "in", [enrollment.class_id.id]),
-            ('state', 'in', ["scheduled","open_registration","result_published"]),
-        ], order="date_from asc, id asc")
+            ('state', 'in', ["scheduled","ongoing","valuation","result_published"]),
+        ], order="date_from desc, id asc")
         seating = request.env["edu.exam.seating"].sudo().search([
             ("enrollment_id", "in", enrollment.ids),
             ("exam_id", "in", exams.ids),

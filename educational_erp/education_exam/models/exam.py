@@ -62,8 +62,6 @@ class EduExam(models.Model):
     state = fields.Selection(
         selection=[
             ("draft", "Draft"),
-            ("open_registration", "Registration Open"),
-            ("closed_registration", "Registration Closed"),
             ("scheduled", "Scheduled"),
             ("ongoing", "Ongoing"),
             ("valuation", "Valuation"),
@@ -88,12 +86,6 @@ class EduExam(models.Model):
         string="Academic Year",
         required=True,
         index=True,
-    )
-    registration_date_from = fields.Date(
-        string="Registration Date Start",
-    )
-    registration_date_to = fields.Date(
-        string="Registration Date End",
     )
     date_from = fields.Date(
         string="Start Date",
@@ -242,33 +234,6 @@ class EduExam(models.Model):
                 raise ValidationError(
                     _("End Date must be on or after Start Date.")
                 )
-
-    @api.constrains(
-        "registration_date_from",
-        "registration_date_to",
-        "date_from",
-    )
-    def _check_registration_dates(self):
-        for record in self:
-            if not record.registration_date_from or not record.registration_date_to:
-                continue
-
-            # Registration start must be before registration end,
-            # with at least one full day in between.
-            if (record.registration_date_to - record.registration_date_from).days < 2:
-                raise ValidationError(
-                    "Registration period must have at least one full day gap "
-                    "between the start and end dates."
-                )
-
-            # Registration must end before the exam starts,
-            # with at least one full day in between.
-            if (record.date_from - record.registration_date_to).days < 2:
-                raise ValidationError(
-                    "There must be at least one full day gap between the "
-                    "registration end date and the examination start date."
-                )
-
     # ── State machine ─────────────────────────────────────────────────────
 
     def action_schedule(self):
@@ -276,14 +241,6 @@ class EduExam(models.Model):
         if not self.subject_line_ids or self.state not in ['draft', 'closed_registration']:
             raise UserError(_("Add at least one subject before scheduling exam '%s'.") % self.name)
         self.write({"state": "scheduled"})
-    def action_open_registration(self):
-        self.ensure_one()
-        if self.is_paid_exam:
-            self.state = "open_registration"
-    def action_close_registration(self):
-        self.ensure_one()
-        if self.is_paid_exam:
-            self.state = "closed_registration"
 
     def action_start(self):
         self.filtered(lambda r: r.state == "scheduled").write({"state": "ongoing"})

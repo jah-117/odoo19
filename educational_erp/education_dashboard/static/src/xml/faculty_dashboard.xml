@@ -26,34 +26,46 @@
 
                 <!-- Overall KPI cards, summed across all faculty -->
                 <div class="row g-3 mb-3">
-                    <div class="col-6 col-md-2">
+                    <div class="col-6 col-md-3">
                         <div class="o_edu_kpi bg-primary-subtle">
                             <div class="o_edu_kpi_val" t-esc="state.data.kpis.total_faculty"/>
                             <div class="o_edu_kpi_lbl">Faculty</div>
                         </div>
                     </div>
-                    <div class="col-6 col-md-2">
+                    <div class="col-6 col-md-3">
                         <div class="o_edu_kpi bg-info-subtle">
                             <div class="o_edu_kpi_val" t-esc="state.data.kpis.total_classes"/>
                             <div class="o_edu_kpi_lbl">Classes</div>
                         </div>
                     </div>
-                    <div class="col-6 col-md-2">
+                    <div class="col-6 col-md-3">
                         <div class="o_edu_kpi bg-secondary-subtle">
                             <div class="o_edu_kpi_val" t-esc="state.data.kpis.total_students"/>
                             <div class="o_edu_kpi_lbl">Students</div>
                         </div>
                     </div>
-                    <div class="col-6 col-md-2">
+                    <div class="col-6 col-md-3">
                         <div class="o_edu_kpi bg-warning-subtle">
                             <div class="o_edu_kpi_val" t-esc="state.data.kpis.attendance_pending"/>
                             <div class="o_edu_kpi_lbl">Attendance Due Today</div>
                         </div>
                     </div>
-                    <div class="col-6 col-md-2">
+                    <div class="col-6 col-md-3">
                         <div class="o_edu_kpi bg-success-subtle">
                             <div class="o_edu_kpi_val" t-esc="state.data.kpis.total_upcoming_exams"/>
                             <div class="o_edu_kpi_lbl">Upcoming Exams</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="o_edu_kpi bg-warning-subtle">
+                            <div class="o_edu_kpi_val" t-esc="state.data.kpis.total_ongoing_exams"/>
+                            <div class="o_edu_kpi_lbl">Ongoing Exams</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="o_edu_kpi bg-success-subtle">
+                            <div class="o_edu_kpi_val" t-esc="state.data.kpis.total_under_valuation"/>
+                            <div class="o_edu_kpi_lbl">Exams Under Valuation</div>
                         </div>
                     </div>
                 </div>

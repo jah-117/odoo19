@@ -56,25 +56,7 @@
                             type="object"
                             string="Schedule"
                             class="btn-primary"
-                            invisible="state != 'draft' or is_paid_exam"
-                            groups="education_security.group_education_admin"/>
-                    <button name="action_schedule"
-                            type="object"
-                            string="Schedule"
-                            class="btn-primary"
-                            invisible="state != 'closed_registration' or not is_paid_exam"
-                            groups="education_security.group_education_admin"/>
-                    <button name="action_open_registration"
-                            type="object"
-                            string="Open Registration"
-                            class="btn-primary"
-                            invisible="state != 'draft' or not is_paid_exam"
-                            groups="education_security.group_education_admin"/>
-                    <button name="action_close_registration"
-                            type="object"
-                            string="Close Registration"
-                            class="btn-primary"
-                            invisible="state != 'open_registration' or not is_paid_exam"
+                            invisible="state != 'draft'"
                             groups="education_security.group_education_admin"/>
                     <button name="action_start" type="object"
                             string="Exam Ongoing" class="btn-warning"
@@ -103,11 +85,7 @@
                             string="Print Results" class="btn-secondary"
                             invisible="result_count == 0"/>
                     <field name="state" widget="statusbar"
-                           statusbar_visible="draft,scheduled,ongoing,valuation,result_published,closed"
-                           invisible="is_paid_exam"/>
-                    <field name="state" widget="statusbar"
-                           statusbar_visible="draft,open_registration,closed_registration,scheduled,ongoing,valuation,result_published,closed"
-                           invisible=" not is_paid_exam"/>
+                           statusbar_visible="draft,scheduled,ongoing,valuation,result_published,closed"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -168,11 +146,6 @@
                             <field name="date_to"/>
                             <field name="published_at" invisible="not published_at"/>
                             <field name="company_id" groups="base.group_multi_company"/>
-                            <!--                            <field name="hall_ticket"/>-->
-                            <field name="registration_date_from" string="Registration Date" widget="daterange"
-                                   options="{&quot;end_date_field&quot;: &quot;registration_date_to&quot;, &quot;always_range&quot;: &quot;1&quot;}"
-                                   invisible="not is_paid_exam" required="is_paid_exam"/>
-                            <field name="registration_date_to" invisible="1" required="is_paid_exam"/>
                         </group>
                     </group>
                     <notebook>

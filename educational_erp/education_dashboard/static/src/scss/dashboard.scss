@@ -1,11 +1,15 @@
 .o_edu_dashboard {
     background-color: #f8f9fa;
-    min-height: 100%;
+    height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
 
     .o_edu_kpi {
         border-radius: .75rem;
         padding: 1rem 1.25rem;
-        height: 100%;
+         width: 100%;
+        height: auto;
         box-shadow: 0 1px 2px rgba(0, 0, 0, .06);
         transition: transform .12s ease, box-shadow .12s ease;
 
@@ -33,7 +37,7 @@
         background: #fff;
         border-radius: .75rem;
         padding: 1rem 1.25rem;
-        height: 100%;
+        height: auto;
         box-shadow: 0 1px 2px rgba(0, 0, 0, .06);
 
         h5 {
@@ -92,4 +96,442 @@
         padding: .25rem .75rem;
         font-size: .82rem;
     }
+    .common .o_edu_panel{
+        height:100%;
+        }
+
+    // ── Admin dashboard "minimal" variant ──────────────────────────────
+    // Everything below is scoped under .o_edu_admin_minimal, a class added
+    // only to the admin dashboard's root element. It never touches the
+    // base .o_edu_kpi / .o_edu_clickable / .o_edu_bar_fill rules above, so
+    // the faculty dashboard (and any other dashboard reusing those base
+    // classes) is unaffected.
+    &.o_edu_admin_minimal {
+        // One soft accent tint on cards instead of white/rainbow — still a
+        // single restrained hue, just not stark white.
+        .o_edu_kpi {
+            background: #f4f6fc;
+            border: 1px solid #e3e7f3;
+            border-left: 3px solid #5b6fd8;
+            box-shadow: none;
+        }
+
+        // A second, warm variant for the two "needs attention" KPIs
+        // (pending applications, fees outstanding). Only two hues total.
+        .o_edu_kpi_warn {
+            background: #fdf6ec;
+            border-color: #f3e6d0;
+            border-left-color: #e0a63a;
+        }
+
+        // Same clickability as .o_edu_clickable, without the hover
+        // lift/shadow animation.
+        .o_edu_kpi_click {
+            cursor: pointer;
+        }
+
+        // One accent bar color instead of bg-primary/bg-info per chart.
+        .o_edu_bar_fill {
+            background: #5b6fd8;
+        }
+
+        // Sized container for the Chart.js doughnut/bar canvases, which
+        // need an explicit height since they're rendered with
+        // maintainAspectRatio: false.
+        .o_edu_chart_box {
+            position: relative;
+            height: 200px;
+
+            // Compact variant used when the chart sits beside a legend of
+            // amount labels rather than taking the full panel width.
+            &.o_edu_chart_box_sm {
+                flex: 0 0 140px;
+                height: 250px;
+            }
+        }
+
+        .o_edu_chart_legend {
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
+        }
+    }
 }
+
+// .o_edu_dashboard {
+//     background-color: #f8f9fa;
+//     height: 100%;
+//     min-height: 0;
+//     overflow-y: auto;
+//     overflow-x: hidden;
+//
+//     .o_edu_kpi {
+//         border-radius: .75rem;
+//         padding: 1rem 1.25rem;
+//          width: 100%;
+//         height: auto;
+//         box-shadow: 0 1px 2px rgba(0, 0, 0, .06);
+//         transition: transform .12s ease, box-shadow .12s ease;
+//
+//         .o_edu_kpi_val {
+//             font-size: 1.9rem;
+//             font-weight: 700;
+//             line-height: 1.1;
+//         }
+//         .o_edu_kpi_lbl {
+//             font-size: .8rem;
+//             color: #5a6472;
+//             margin-top: .25rem;
+//         }
+//     }
+//
+//     .o_edu_clickable {
+//         cursor: pointer;
+//         &:hover {
+//             transform: translateY(-2px);
+//             box-shadow: 0 4px 10px rgba(0, 0, 0, .12);
+//         }
+//     }
+//
+//     .o_edu_panel {
+//         background: #fff;
+//         border-radius: .75rem;
+//         padding: 1rem 1.25rem;
+//         height: auto;
+//         box-shadow: 0 1px 2px rgba(0, 0, 0, .06);
+//
+//         h5 {
+//             font-weight: 600;
+//             margin-bottom: .9rem;
+//         }
+//     }
+//
+//     .o_edu_bar_row {
+//         display: flex;
+//         align-items: center;
+//         gap: .5rem;
+//         margin-bottom: .5rem;
+//
+//         .o_edu_bar_lbl {
+//             flex: 0 0 35%;
+//             font-size: .82rem;
+//             white-space: nowrap;
+//             overflow: hidden;
+//             text-overflow: ellipsis;
+//         }
+//         .o_edu_bar_track {
+//             flex: 1 1 auto;
+//             background: #eceff3;
+//             border-radius: 1rem;
+//             height: 14px;
+//             overflow: hidden;
+//         }
+//         .o_edu_bar_fill {
+//             height: 100%;
+//             border-radius: 1rem;
+//             min-width: 2px;
+//             transition: width .4s ease;
+//         }
+//         .o_edu_bar_val {
+//             flex: 0 0 auto;
+//             font-size: .82rem;
+//             font-weight: 600;
+//             min-width: 1.5rem;
+//             text-align: right;
+//         }
+//     }
+//
+//     .o_edu_list_row {
+//         display: flex;
+//         align-items: center;
+//         justify-content: space-between;
+//         padding: .5rem .25rem;
+//         border-bottom: 1px solid #f0f1f3;
+//         &:last-child { border-bottom: none; }
+//     }
+//
+//     .o_edu_chip {
+//         background: #f1f3f5;
+//         border-radius: 1rem;
+//         padding: .25rem .75rem;
+//         font-size: .82rem;
+//     }
+//     .common .o_edu_panel{
+//         height:100%;
+//         }
+//
+//     // ── Admin dashboard "minimal" variant ──────────────────────────────
+//     // Everything below is scoped under .o_edu_admin_minimal, a class added
+//     // only to the admin dashboard's root element. It never touches the
+//     // base .o_edu_kpi / .o_edu_clickable / .o_edu_bar_fill rules above, so
+//     // the faculty dashboard (and any other dashboard reusing those base
+//     // classes) is unaffected.
+//     &.o_edu_admin_minimal {
+//         // One soft accent tint on cards instead of white/rainbow — still a
+//         // single restrained hue, just not stark white.
+//         .o_edu_kpi {
+//             background: #f4f6fc;
+//             border: 1px solid #e3e7f3;
+//             border-left: 3px solid #5b6fd8;
+//             box-shadow: none;
+//         }
+//
+//         // A second, warm variant for the two "needs attention" KPIs
+//         // (pending applications, fees outstanding). Only two hues total.
+//         .o_edu_kpi_warn {
+//             background: #fdf6ec;
+//             border-color: #f3e6d0;
+//             border-left-color: #e0a63a;
+//         }
+//
+//         // Same clickability as .o_edu_clickable, without the hover
+//         // lift/shadow animation.
+//         .o_edu_kpi_click {
+//             cursor: pointer;
+//         }
+//
+//         // One accent bar color instead of bg-primary/bg-info per chart.
+//         .o_edu_bar_fill {
+//             background: #5b6fd8;
+//         }
+//
+//         // Sized container for the Chart.js doughnut/bar canvases, which
+//         // need an explicit height since they're rendered with
+//         // maintainAspectRatio: false.
+//         .o_edu_chart_box {
+//             position: relative;
+//             height: 200px;
+//         }
+//     }
+// }
+
+// .o_edu_dashboard {
+//     background-color: #f8f9fa;
+//     height: 100%;
+//     min-height: 0;
+//     overflow-y: auto;
+//     overflow-x: hidden;
+//
+//     .o_edu_kpi {
+//         border-radius: .75rem;
+//         padding: 1rem 1.25rem;
+//          width: 100%;
+//         height: auto;
+//         box-shadow: 0 1px 2px rgba(0, 0, 0, .06);
+//         transition: transform .12s ease, box-shadow .12s ease;
+//
+//         .o_edu_kpi_val {
+//             font-size: 1.9rem;
+//             font-weight: 700;
+//             line-height: 1.1;
+//         }
+//         .o_edu_kpi_lbl {
+//             font-size: .8rem;
+//             color: #5a6472;
+//             margin-top: .25rem;
+//         }
+//     }
+//
+//     .o_edu_clickable {
+//         cursor: pointer;
+//         &:hover {
+//             transform: translateY(-2px);
+//             box-shadow: 0 4px 10px rgba(0, 0, 0, .12);
+//         }
+//     }
+//
+//     .o_edu_panel {
+//         background: #fff;
+//         border-radius: .75rem;
+//         padding: 1rem 1.25rem;
+//         height: auto;
+//         box-shadow: 0 1px 2px rgba(0, 0, 0, .06);
+//
+//         h5 {
+//             font-weight: 600;
+//             margin-bottom: .9rem;
+//         }
+//     }
+//
+//     .o_edu_bar_row {
+//         display: flex;
+//         align-items: center;
+//         gap: .5rem;
+//         margin-bottom: .5rem;
+//
+//         .o_edu_bar_lbl {
+//             flex: 0 0 35%;
+//             font-size: .82rem;
+//             white-space: nowrap;
+//             overflow: hidden;
+//             text-overflow: ellipsis;
+//         }
+//         .o_edu_bar_track {
+//             flex: 1 1 auto;
+//             background: #eceff3;
+//             border-radius: 1rem;
+//             height: 14px;
+//             overflow: hidden;
+//         }
+//         .o_edu_bar_fill {
+//             height: 100%;
+//             border-radius: 1rem;
+//             min-width: 2px;
+//             transition: width .4s ease;
+//         }
+//         .o_edu_bar_val {
+//             flex: 0 0 auto;
+//             font-size: .82rem;
+//             font-weight: 600;
+//             min-width: 1.5rem;
+//             text-align: right;
+//         }
+//     }
+//
+//     .o_edu_list_row {
+//         display: flex;
+//         align-items: center;
+//         justify-content: space-between;
+//         padding: .5rem .25rem;
+//         border-bottom: 1px solid #f0f1f3;
+//         &:last-child { border-bottom: none; }
+//     }
+//
+//     .o_edu_chip {
+//         background: #f1f3f5;
+//         border-radius: 1rem;
+//         padding: .25rem .75rem;
+//         font-size: .82rem;
+//     }
+//     .common .o_edu_panel{
+//         height:100%;
+//         }
+//
+//     // ── Admin dashboard "minimal" variant ──────────────────────────────
+//     // Everything below is scoped under .o_edu_admin_minimal, a class added
+//     // only to the admin dashboard's root element. It never touches the
+//     // base .o_edu_kpi / .o_edu_clickable / .o_edu_bar_fill rules above, so
+//     // the faculty dashboard (and any other dashboard reusing those base
+//     // classes) is unaffected.
+//     &.o_edu_admin_minimal {
+//         // Flat, single-color cards — no per-KPI background color.
+//         .o_edu_kpi {
+//             background: #fff;
+//             border: 1px solid #e9ecef;
+//             box-shadow: none;
+//         }
+//
+//         // Same clickability as .o_edu_clickable, without the hover
+//         // lift/shadow animation.
+//         .o_edu_kpi_click {
+//             cursor: pointer;
+//         }
+//
+//         // One neutral bar color instead of bg-primary/bg-info per chart.
+//         .o_edu_bar_fill {
+//             background: #8a94a6;
+//         }
+//     }
+// }
+// .o_edu_dashboard {
+//     background-color: #f8f9fa;
+//     height: 100%;
+//     min-height: 0;
+//     overflow-y: auto;
+//     overflow-x: hidden;
+//
+//     .o_edu_kpi {
+//         border-radius: .75rem;
+//         padding: 1rem 1.25rem;
+//          width: 100%;
+//         height: auto;
+//         box-shadow: 0 1px 2px rgba(0, 0, 0, .06);
+//         transition: transform .12s ease, box-shadow .12s ease;
+//
+//         .o_edu_kpi_val {
+//             font-size: 1.9rem;
+//             font-weight: 700;
+//             line-height: 1.1;
+//         }
+//         .o_edu_kpi_lbl {
+//             font-size: .8rem;
+//             color: #5a6472;
+//             margin-top: .25rem;
+//         }
+//     }
+//
+//     .o_edu_clickable {
+//         cursor: pointer;
+//         &:hover {
+//             transform: translateY(-2px);
+//             box-shadow: 0 4px 10px rgba(0, 0, 0, .12);
+//         }
+//     }
+//
+//     .o_edu_panel {
+//         background: #fff;
+//         border-radius: .75rem;
+//         padding: 1rem 1.25rem;
+//         height: auto;
+//         box-shadow: 0 1px 2px rgba(0, 0, 0, .06);
+//
+//         h5 {
+//             font-weight: 600;
+//             margin-bottom: .9rem;
+//         }
+//     }
+//
+//     .o_edu_bar_row {
+//         display: flex;
+//         align-items: center;
+//         gap: .5rem;
+//         margin-bottom: .5rem;
+//
+//         .o_edu_bar_lbl {
+//             flex: 0 0 35%;
+//             font-size: .82rem;
+//             white-space: nowrap;
+//             overflow: hidden;
+//             text-overflow: ellipsis;
+//         }
+//         .o_edu_bar_track {
+//             flex: 1 1 auto;
+//             background: #eceff3;
+//             border-radius: 1rem;
+//             height: 14px;
+//             overflow: hidden;
+//         }
+//         .o_edu_bar_fill {
+//             height: 100%;
+//             border-radius: 1rem;
+//             min-width: 2px;
+//             transition: width .4s ease;
+//         }
+//         .o_edu_bar_val {
+//             flex: 0 0 auto;
+//             font-size: .82rem;
+//             font-weight: 600;
+//             min-width: 1.5rem;
+//             text-align: right;
+//         }
+//     }
+//
+//     .o_edu_list_row {
+//         display: flex;
+//         align-items: center;
+//         justify-content: space-between;
+//         padding: .5rem .25rem;
+//         border-bottom: 1px solid #f0f1f3;
+//         &:last-child { border-bottom: none; }
+//     }
+//
+//     .o_edu_chip {
+//         background: #f1f3f5;
+//         border-radius: 1rem;
+//         padding: .25rem .75rem;
+//         font-size: .82rem;
+//     }
+//     .common .o_edu_panel{
+//         height:100%;
+//         }
+// }

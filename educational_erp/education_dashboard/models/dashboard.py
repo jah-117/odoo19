@@ -39,17 +39,53 @@ class EduDashboard(models.AbstractModel):
         Enrollment = self.env["education.enrollment"]
         Application = self.env["education.application"]
         Exam = self.env["edu.exam"]
-        today = fields.Date.today()
+        Department = self.env["education.department"]
+        currency = self.env.company.root_id.currency_id.symbol
 
         total_students = Enrollment.search_count([("state", "=", "active")])
         total_faculty = self.env["education.faculty"].search_count([])
         total_programs = self.env["education.program"].search_count([])
         total_classes = self.env["education.class"].search_count([])
+        total_departments = Department.search_count([])
         pending_applications = Application.search_count([("state", "=", "submitted")])
+
+        scholarships = "education.scholarship" in self.env
+        total_active_scholarships = total_scholarship_budget = total_applications = total_approved_amount = total_approved_scholarship = total_applications_to_review = active_ids = 0
+        if scholarships:
+            ScholarShip = self.env["education.scholarship"]
+            SApplication = self.env["education.scholarship.application"]
+            active_scholarships = ScholarShip.search([('state', 'in', ['active'])])
+            active_ids = active_scholarships.ids
+            active_applications = SApplication.search([('scholarship_id', 'in', active_scholarships.ids)])
+            total_active_scholarships = len(active_scholarships)
+            total_scholarship_budget = f'{sum([s.amount * s.available_scholarships for s in active_scholarships])}{currency}'
+            total_applications = len(active_applications)
+            approved_scholarships = active_applications.filtered(lambda app: app.state == "approved")
+            total_approved_amount = f'{sum([app.scholarship_id.amount for app in approved_scholarships])}{currency}'
+            total_approved_scholarship = len(approved_scholarships)
+            total_applications_to_review = len(active_applications.filtered(lambda app: app.state == "submitted"))
+        hostel = "edu.hostel.property" in self.env
+        total_properties = total_rooms = total_beds = total_beds_occupied = total_rooms_with_unoccupied_bed = total_amount_invoiced = 0
+        if hostel:
+            total_properties = self.env["edu.hostel.property"].search_count([])
+            rooms = self.env["edu.hostel.room"].search([])
+            total_rooms = len(rooms)
+            total_beds = sum([room.capacity for room in rooms])
+            total_beds_occupied = sum([room.occupied_beds for room in rooms])
+            total_rooms_with_unoccupied_bed = len(rooms.filtered(lambda r: r.available_beds))
+            total_amount_invoiced = f'{sum(
+                [sum([invoice.amount_residual for invoice in room.invoice_ids]) for room in rooms])}{currency}'
+
         upcoming_exams = Exam.search_count([
-            ("state", "in", ["scheduled", "ongoing"]),
-            ("date_from", ">=", today),
+            ("state", "in", ["scheduled"])
         ])
+        ongoing_exams = Exam.search_count([
+            ("state", "in", ["ongoing"])
+        ])
+        under_valuation = Exam.search_count([
+            ("state", "in", ["valuation"])
+        ])
+        result_published = Exam.search_count([("state", "in", ["result_published"])])
 
         # Fees outstanding (field is contributed by financial mgmt module)
         fees_outstanding = 0
@@ -79,12 +115,12 @@ class EduDashboard(models.AbstractModel):
         for state, label in [("draft", "Draft"), ("submitted", "Submitted"),
                              ("approved", "Approved"), ("rejected", "Rejected")]:
             funnel.append({"label": label,
-                          "value": Application.search_count([("state", "=", state)])})
+                           "value": Application.search_count([("state", "=", state)])})
 
         # Recent applications awaiting review
         recent = []
         for app in Application.search([("state", "=", "submitted")],
-                                     limit=6, order="id desc"):
+                                      limit=6, order="id desc"):
             recent.append({
                 "id": app.id,
                 "name": app.display_name,
@@ -97,11 +133,30 @@ class EduDashboard(models.AbstractModel):
                 "total_faculty": total_faculty,
                 "total_programs": total_programs,
                 "total_classes": total_classes,
+                "total_departments": total_departments,
                 "pending_applications": pending_applications,
                 "upcoming_exams": upcoming_exams,
+                "ongoing_exams": ongoing_exams,
+                "under_valuation": under_valuation,
+                "result_published": result_published,
                 "fees_outstanding": fees_outstanding,
                 "attendance_rate": attendance["rate"],
+                "total_active_scholarships": total_active_scholarships,
+                "total_scholarship_budget": total_scholarship_budget,
+                "total_applications": total_applications,
+                "total_approved_scholarship": total_approved_scholarship,
+                "total_approved_amount": total_approved_amount,
+                "total_applications_to_review": total_applications_to_review,
+                "total_properties": total_properties,
+                "total_rooms": total_rooms,
+                "total_beds": total_beds,
+                "total_beds_occupied": total_beds_occupied,
+                "total_rooms_with_unoccupied_bed": total_rooms_with_unoccupied_bed,
+                "total_amount_invoiced": total_amount_invoiced,
             },
+            "active_ids": active_ids,
+            "scholarships": scholarships,
+            "hostel":hostel,
             "attendance": attendance,
             "by_program": by_program,
             "funnel": funnel,
@@ -131,6 +186,10 @@ class EduDashboard(models.AbstractModel):
                 "total_students": sum(r["kpis"]["my_students"] for r in rows),
                 "total_upcoming_exams": sum(
                     r["kpis"]["upcoming_exams"] for r in rows),
+                "total_ongoing_exams": sum(
+                    r["kpis"]["ongoing_exams"] for r in rows),
+                "total_under_valuation": sum(
+                    r["kpis"]["under_valuation_exams"] for r in rows),
                 "attendance_pending": sum(
                     r["kpis"]["attendance_pending"] for r in rows),
             },
@@ -159,13 +218,22 @@ class EduDashboard(models.AbstractModel):
         attendance_pending = 0
         for cls in my_classes:
             if not self.env["education.attendance"].search_count([
-                    ("class_id", "=", cls.id), ("date", "=", today)]):
+                ("class_id", "=", cls.id), ("date", "=", today)]):
                 attendance_pending += 1
 
         # Upcoming exams touching my classes
         upcoming = Exam.search([
-            ("state", "in", ["scheduled", "ongoing"]),
-            ("date_from", ">=", today),
+            ("state", "in", ["scheduled"]),
+            ("class_ids", "in", my_classes.ids),
+        ], order="date_from") if my_classes else Exam.browse()
+        # Ongoing exams touching my classes
+        ongoing = Exam.search([
+            ("state", "in", ["ongoing"]),
+            ("class_ids", "in", my_classes.ids),
+        ], order="date_from") if my_classes else Exam.browse()
+
+        under_valuation = Exam.search([
+            ("state", "in", ["valuation"]),
             ("class_ids", "in", my_classes.ids),
         ], order="date_from") if my_classes else Exam.browse()
 
@@ -175,6 +243,18 @@ class EduDashboard(models.AbstractModel):
             "date": e.date_from and e.date_from.strftime("%d %b %Y") or "",
             "state": e.state,
         } for e in upcoming[:6]]
+        ongoing_exams = [{
+            "id": e.id,
+            "name": e.name,
+            "date": e.date_from and e.date_from.strftime("%d %b %Y") or "",
+            "state": e.state,
+        } for e in ongoing[:6]]
+        under_valuation_exams = [{
+            "id": e.id,
+            "name": e.name,
+            "date": e.date_from and e.date_from.strftime("%d %b %Y") or "",
+            "state": e.state,
+        } for e in under_valuation[:6]]
 
         # Per-class roster sizes
         class_rows = [{
@@ -200,10 +280,14 @@ class EduDashboard(models.AbstractModel):
                 "my_subjects": len(subjects),
                 "attendance_pending": attendance_pending,
                 "upcoming_exams": len(upcoming),
+                "ongoing_exams": len(ongoing),
+                "under_valuation_exams": len(under_valuation),
                 "weekly_slots": len(my_slots),
             },
             "subjects": subjects[:12],
             "upcoming_exams": upcoming_exams,
+            "ongoing_exams": ongoing_exams,
+            "under_valuation_exams": under_valuation_exams,
             "classes": class_rows,
             "attendance": attendance,
         }
