@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="notification_mail_template"
+            model="mail.template">
+
+        <field name="name">Institution - General Notification</field>
+        <field name="model_id" ref="education_notification.model_edu_notification"/>
+        <field name="subject">{{ object.subject_id }}</field>
+        <field name="email_to">{{ ','.join(object.to_partner_ids.mapped('email')) }}</field>
+        <field name="email_cc">{{ ','.join(object.to_cc_partner_ids.mapped('email')) }}</field>
+        <field name="email_from">
+            {{ user.email_formatted or user.login }}
+        </field>
+        <field name="body_html"><![CDATA[
+
+        <!-- Look the institution profile up once and reuse it everywhere
+             below, instead of re-querying it three separate times. -->
+        <t t-set="institution"
+           t-value="object.env['institution.profile'].search([
+               ('company_id', '=', object.env.company.id),
+               ('active', '=', True)
+           ], limit=1)"/>
+        <t t-set="brand_color" t-value="(institution.branding_color if institution else False) or '#1F3864'"/>
+
+        <!-- ============================================================
+             OUTER CONTAINER
+             ============================================================ -->
+
+        <div style="
+            margin:0;
+            padding:0;
+            width:100%;
+            background-color:#f4f6f8;
+            font-family:Arial, Helvetica, sans-serif;
+            color:#333333;
+        ">
+
+            <table width="100%"
+                   cellpadding="0"
+                   cellspacing="0"
+                   border="0"
+                   style="background-color:#f4f6f8; padding:30px 0;">
+
+                <tr>
+                    <td align="center">
+
+                        <!-- =================================================
+                             MAIN EMAIL CONTAINER
+                             ================================================= -->
+
+                        <table width="640"
+                               cellpadding="0"
+                               cellspacing="0"
+                               border="0"
+                               style="
+                                   width:640px;
+                                   max-width:100%;
+                                   background-color:#ffffff;
+                                   border:1px solid #e1e5e8;
+                                   border-radius:8px;
+                                   overflow:hidden;
+                               ">
+
+                            <!-- =================================================
+                                 HEADER
+                                 ================================================= -->
+
+                            <tr>
+                                <td t-attf-style="
+                                    background-color:#{brand_color};
+                                    padding:25px 30px;
+                                ">
+
+                                    <table width="100%"
+                                           cellpadding="0"
+                                           cellspacing="0"
+                                           border="0">
+
+                                        <tr>
+
+                                            <!-- LOGO -->
+                                            <td width="90"
+                                                valign="middle"
+                                                style="padding-right:18px;">
+
+                                                <t t-if="institution and institution.logo">
+
+                                                    <img t-att-src="'data:image/png;base64,%s' % institution.logo.decode('utf-8')"
+                                                         width="75"
+                                                         height="75"
+                                                         style="
+                                                             width:75px;
+                                                             height:75px;
+                                                             object-fit:contain;
+                                                             background:#ffffff;
+                                                             border-radius:6px;
+                                                             padding:5px;
+                                                         "/>
+
+                                                </t>
+
+                                            </td>
+
+                                            <!-- INSTITUTION INFORMATION -->
+                                            <td valign="middle">
+
+                                                <div style="
+                                                    color:#ffffff;
+                                                    font-size:22px;
+                                                    font-weight:bold;
+                                                    line-height:1.3;
+                                                ">
+
+                                                    <t t-if="institution">
+                                                        <t t-esc="institution.name"/>
+                                                    </t>
+
+                                                </div>
+
+                                                <div style="
+                                                    color:#e8eef5;
+                                                    font-size:13px;
+                                                    margin-top:5px;
+                                                ">
+
+                                                    <t t-if="institution.short_name">
+                                                        <t t-esc="institution.short_name"/>
+                                                    </t>
+
+                                                </div>
+
+                                            </td>
+
+                                        </tr>
+
+                                    </table>
+
+                                </td>
+                            </tr>
+
+
+                            <!-- =================================================
+                                 SUBJECT / TITLE BAR
+                                 ================================================= -->
+
+                            <tr>
+                                <td style="
+                                    padding:22px 30px;
+                                    border-bottom:1px solid #eeeeee;
+                                    background-color:#ffffff;
+                                ">
+
+                                    <div t-attf-style="
+                                        font-size:20px;
+                                        font-weight:bold;
+                                        color:#{brand_color};
+                                    ">
+
+                                        <t t-esc="object.subject_id"/>
+
+                                    </div>
+
+                                </td>
+                            </tr>
+
+
+                            <!-- =================================================
+                                 BODY
+                                 Rendered with t-out (not t-esc) since object.body
+                                 is an Html field: the user's own formatting
+                                 (paragraphs, bold, lists, etc.) should come
+                                 through as real HTML, not escaped as literal
+                                 tags. QWeb treats the field's sanitized markup
+                                 as safe, so this does not re-escape it.
+                                 ================================================= -->
+
+                            <tr>
+                                <td style="
+                                    padding:30px;
+                                    font-size:14px;
+                                    line-height:1.7;
+                                    color:#333333;
+                                ">
+
+                                    <t t-out="object.body"/>
+
+                                </td>
+                            </tr>
+
+
+                            <!-- =================================================
+                                 FOOTER CONTENT
+                                 ================================================= -->
+
+                            <tr>
+                                <td style="
+                                    padding:20px 30px;
+                                    background-color:#f8f9fa;
+                                    border-top:1px solid #eeeeee;
+                                    font-size:13px;
+                                    line-height:1.6;
+                                    color:#666666;
+                                ">
+
+                                    <t t-if="object.footer_id">
+
+                                        <t t-out="object.footer_id.body"/>
+
+                                    </t>
+
+                                </td>
+                            </tr>
+
+
+                            <!-- =================================================
+                                 INSTITUTION CONTACT FOOTER
+                                 ================================================= -->
+
+                            <tr>
+                                <td t-attf-style="
+                                    background-color:#{brand_color};
+                                    padding:18px 30px;
+                                    text-align:center;
+                                ">
+
+                                    <div style="
+                                        color:#ffffff;
+                                        font-size:14px;
+                                        font-weight:bold;
+                                    ">
+
+                                        <t t-if="institution">
+                                            <t t-esc="institution.name"/>
+                                        </t>
+
+                                    </div>
+
+
+                                    <div style="
+                                        margin-top:7px;
+                                        color:#dce6f0;
+                                        font-size:11px;
+                                        line-height:1.6;
+                                    ">
+
+                                        <t t-if="institution.address">
+                                            <t t-esc="institution.address"/>
+                                        </t>
+
+                                        <t t-if="institution.city">
+                                            &nbsp;|&nbsp;
+                                            <t t-esc="institution.city"/>
+                                        </t>
+
+                                        <t t-if="institution.state_id">
+                                            &nbsp;|&nbsp;
+                                            <t t-esc="institution.state_id.name"/>
+                                        </t>
+
+                                        <t t-if="institution.zip_code">
+                                            &nbsp;-&nbsp;
+                                            <t t-esc="institution.zip_code"/>
+                                        </t>
+
+                                    </div>
+                                    <div style="
+                                        margin-top:5px;
+                                        color:#dce6f0;
+                                        font-size:11px;
+                                    ">
+                                        <t t-if="institution.phone">
+                                            Phone: <t t-esc="institution.phone"/>
+                                        </t>
+
+                                        <t t-if="institution.email">
+                                            &nbsp; | &nbsp;
+                                            Email: <t t-esc="institution.email"/>
+                                        </t>
+
+                                    </div>
+
+
+                                    <t t-if="institution.website">
+
+                                        <div style="
+                                            margin-top:5px;
+                                            font-size:11px;
+                                        ">
+
+                                            <a t-att-href="institution.website"
+                                               style="
+                                                   color:#ffffff;
+                                                   text-decoration:none;
+                                               ">
+
+                                                <t t-esc="institution.website"/>
+
+                                            </a>
+
+                                        </div>
+
+                                    </t>
+
+                                    <div style="
+                                        margin-top:12px;
+                                        color:#bfcddd;
+                                        font-size:10px;
+                                    ">
+
+                                        This is an automated notification.
+                                        Please do not reply to this email.
+
+                                    </div>
+
+                                </td>
+                            </tr>
+
+                        </table>
+
+                    </td>
+                </tr>
+
+            </table>
+
+        </div>
+
+        ]]></field>
+        <field name="lang">{{ object.env.user.lang }}</field>
+        <field name="auto_delete" eval="False"/>
+    </record>
+</odoo>

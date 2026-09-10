@@ -12,6 +12,11 @@
               parent="menu_education_notification_root"
               action="action_edu_notification_view"
               sequence="10"/>
+    <menuitem id="menu_edu_notification_footer"
+              name="Footers"
+              parent="menu_education_notification_root"
+              action="action_edu_notification_footer"
+              sequence="20"/>
 
     <menuitem id="menu_notif_queue"
         name="Queue"

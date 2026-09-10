@@ -20,7 +20,7 @@
         <field name="model">edu.notification</field>
         <field name="arch" type="xml">
             <form string="Notification">
-
+                <field name="institution_profile_id" invisible="1"/>
                 <header>
 
                     <!-- Send immediately -->
@@ -66,9 +66,9 @@
                                    widget="many2many_tags"
                                    options="{'no_create_edit': True}"/>
 
-                            <field name="to_department_ids"
-                                   widget="many2many_tags"
-                                   options="{'no_create_edit': True}"/>
+<!--                            <field name="to_department_ids"-->
+<!--                                   widget="many2many_tags"-->
+<!--                                   options="{'no_create_edit': True}"/>-->
                         </group>
 
                         <group>
@@ -122,7 +122,7 @@
 
 
     <record id="action_edu_notification_view" model="ir.actions.act_window">
-        <field name="name">Notification Scheduler</field>
+        <field name="name">Notification</field>
         <field name="res_model">edu.notification</field>
         <field name="view_mode">list,form</field>
     </record>
@@ -156,7 +156,7 @@
                     </div>
 
                     <group>
-                        <field name="content"
+                        <field name="body"
                                widget="html"
                                placeholder="Write footer content..."/>
                     </group>

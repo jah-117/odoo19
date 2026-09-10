@@ -69,6 +69,7 @@ class EducationClass(models.Model):
         tracking=True,
         ondelete="set null",
     )
+    enrollment_ids = fields.One2many(comodel_name="education.enrollment",string="Enrollments",inverse_name='class_id')
 
     # ── Enrollment counters (populated in Sprint 2) ───────────────────────
     enrollment_count = fields.Integer(

@@ -21,6 +21,7 @@ Version: 19.0.1.0.0  |  License: LGPL-3
     "data": [
         "security/ir.model.access.csv",
         "data/ir_cron.xml",
+        "data/notification_mail_template.xml",
         "views/notification_views.xml",
         "views/notification_queue_views.xml",
         "views/menus.xml",
