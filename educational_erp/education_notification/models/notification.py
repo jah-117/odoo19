@@ -1,6 +1,7 @@
 # Copyright 2025 Cybrosys Techno Solutions
 # License LGPL-3 - See https://www.gnu.org/licenses/lgpl-3.0.html
-from odoo import models, fields, api
+from odoo import models, fields, api, _
+from odoo.exceptions import UserError
 
 class Notification(models.Model):
     _name = 'edu.notification'
@@ -19,8 +20,8 @@ class Notification(models.Model):
     sent_date = fields.Datetime(string="Send Date", help="Date and time of the notification sent")
     state = fields.Selection([
         ("draft", "Draft"),
-        ("sent", "Sent"),
         ("scheduled", "Scheduled"),
+        ("sent", "Sent"),
         ("cancel", "Cancel"),
     ], default="draft"  )
     institution_profile_id = fields.Many2one(
@@ -43,7 +44,14 @@ class Notification(models.Model):
             self.to_partner_ids = [fields.Command.set(partner_ids)]
 
     def action_schedule_notification(self):
-        ...
+        return {
+            'type': 'ir.actions.act_window',
+            'name':'Notification Scheduler',
+            'res_model': 'edu.notification.scheduler',
+            'target': 'new',
+            'view_mode':'form',
+            'context': {'default_notification_id': self.id},
+        }
 
     def action_send_notification(self):
         for rec in self:

@@ -22,6 +22,7 @@
                         <group>
                             <field name="time" widget="float_time"/>
                         </group>
+                        <field name="scheduled_date" string="Scheduled at" readonly="1"/>
                     </group>
                 </sheet>
 
